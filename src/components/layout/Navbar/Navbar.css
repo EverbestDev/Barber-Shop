@@ -1,0 +1,168 @@
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  padding: 1rem 0; /* consistent padding */
+  transition: all 0.3s ease;
+  background-color: var(--primary); /* Always solid background now */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* The scrolled class can remain in case we want to add a different shadow later, but it will look the same as default for now */
+.navbar.scrolled {
+  background-color: var(--primary);
+}
+
+.nav-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Nav Logo Section */
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-family: inherit;
+  font-weight: 800; /* Made even bolder */
+  font-size: 1.25rem; /* Slightly larger */
+  letter-spacing: -0.5px;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.logo-img {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%; /* Circle shape since it's a jpeg */
+  border: 2px solid var(--gold); /* Gold border wrapper */
+  padding: 2px; /* Small gap inside the border */
+  background-color: var(--secondary);
+  object-fit: cover;
+  box-shadow: 0 4px 10px rgba(197, 160, 89, 0.2); /* Subtle gold glow */
+}
+
+.nav-logo span {
+  background: linear-gradient(135deg, var(--white) 0%, var(--gold-light) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Middle links (Desktop) */
+.nav-links {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+}
+
+.nav-link {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  text-transform: capitalize;
+  position: relative;
+  letter-spacing: 0.3px;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 0%;
+  height: 2px;
+  background-color: var(--gold);
+  transition: width 0.3s ease;
+}
+
+.nav-link:hover::after {
+  width: 100%;
+}
+
+/* Right end actions */
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.book-now-btn {
+  background-color: var(--text-primary);
+  color: var(--primary);
+  padding: 0.5rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 9999px; /* Pill shape */
+  transition: all 0.2s ease;
+}
+
+.book-now-btn:hover {
+  background-color: var(--gold);
+  transform: translateY(-2px);
+}
+
+.profile-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.profile-icon:hover {
+  color: var(--gold);
+}
+
+.nav-mobile-btn {
+  display: none;
+  color: var(--text-primary);
+  z-index: 1001;
+}
+
+/* Desktop Only utility */
+@media (max-width: 900px) {
+  .desktop-only {
+    display: none;
+  }
+
+  .nav-mobile-btn {
+    display: block;
+  }
+}
+
+/* Mobile Menu */
+.mobile-menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background-color: var(--primary);
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+}
+
+.mobile-links {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  text-align: center;
+  width: 100%;
+  max-width: 300px;
+}
+
+.mobile-link {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}

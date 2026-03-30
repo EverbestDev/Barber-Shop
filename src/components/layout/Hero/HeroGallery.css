@@ -1,0 +1,208 @@
+.hero-section {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  padding-top: 15vh;
+  background-color: var(--primary);
+  overflow: hidden;
+  text-align: center;
+}
+
+.hero-text-content {
+  margin-bottom: 4rem;
+  z-index: 10;
+}
+
+.hero-main-title {
+  font-size: 4rem;
+  font-weight: 700;
+  line-height: 1.1;
+  margin-bottom: 1rem;
+  letter-spacing: -0.05em;
+  color: var(--text-primary);
+}
+
+.hero-subtitle {
+  font-size: 1.125rem;
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+
+/* Curved Gallery 3D Effect */
+.curved-gallery-container {
+  perspective: 1200px;
+  width: 100%;
+  max-width: 1200px;
+  height: 450px;
+  position: relative;
+  margin-bottom: 3rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.gallery-track {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  transform-style: preserve-3d;
+}
+
+.gallery-item {
+  position: relative;
+  width: 220px;
+  height: 340px;
+  border-radius: 1.5rem;
+  overflow: hidden;
+  transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+  flex-shrink: 0;
+  margin: 0 -15px; /* Negative margin for the overlapping tight look */
+}
+
+.gallery-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+/* Simulate the curve using rotateY for the cylinder effect */
+.item-1 {
+  transform: rotateY(35deg) scale(0.85) translateZ(-80px) translateX(20px);
+  z-index: 1;
+  opacity: 0.7;
+}
+
+.item-2 {
+  transform: rotateY(20deg) scale(0.95) translateZ(-30px) translateX(10px);
+  z-index: 2;
+  opacity: 0.9;
+}
+
+.item-3, .item-center {
+  width: 260px;
+  height: 380px;
+  transform: translateZ(20px);
+  z-index: 5;
+  box-shadow: 0 25px 50px rgba(0,0,0,0.9);
+  opacity: 1;
+}
+
+.item-4 {
+  transform: rotateY(-20deg) scale(0.95) translateZ(-30px) translateX(-10px);
+  z-index: 2;
+  opacity: 0.9;
+}
+
+.item-5 {
+  transform: rotateY(-35deg) scale(0.85) translateZ(-80px) translateX(-20px);
+  z-index: 1;
+  opacity: 0.7;
+}
+
+.gallery-item:hover {
+  transform: scale(1.05) translateZ(50px) !important;
+  z-index: 10;
+  opacity: 1;
+}
+
+.gallery-item:hover img {
+  transform: scale(1.1);
+}
+
+.large-btn {
+  padding: 1.2rem 2.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  background-color: var(--white);
+  color: var(--black);
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.large-btn:hover {
+  background-color: var(--gold);
+  color: var(--primary);
+}
+
+/* Highlight Brush Stroke Effect */
+.highlight-text {
+  position: relative;
+  display: inline-block;
+  color: var(--primary); /* make text dark on top of brush stroke */
+  z-index: 1;
+  padding: 0 0.5rem;
+}
+
+.highlight-text::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-2deg);
+  width: 110%;
+  height: 1.2em;
+  background-color: var(--gold-light);
+  z-index: -1;
+  border-radius: 3px;
+  opacity: 0.9;
+}
+
+/* Float items (like the coffee cup and arrow in reference) */
+.float-icon {
+  position: absolute;
+  z-index: 20;
+  font-size: 2rem;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+/* Mobile Responsiveness for Gallery */
+@media (max-width: 900px) {
+  .hero-main-title {
+    font-size: 2.5rem;
+  }
+  
+  .gallery-item {
+    width: 140px;
+    height: 220px;
+    margin: 0 -10px;
+  }
+  
+  .item-3, .item-center {
+    width: 180px;
+    height: 260px;
+  }
+}
+
+@media (max-width: 600px) {
+  .gallery-track {
+    overflow-x: auto;
+    justify-content: flex-start;
+    padding: 0 2rem;
+    padding-bottom: 2rem;
+  }
+  
+  .gallery-item {
+    transform: none !important;
+    margin: 0 10px; /* space between normally on mobile */
+    opacity: 1;
+  }
+  .item-3, .item-center {
+    width: 200px;
+    height: 280px;
+  }
+}

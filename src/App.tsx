@@ -1,22 +1,21 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { motion, useScroll, useSpring } from 'framer-motion'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { Scissors, ShoppingBag, Clock, MapPin, Phone, Menu, X, ChevronRight } from 'lucide-react'
+import { Scissors, ShoppingBag, Clock, MapPin, Phone, ChevronRight } from 'lucide-react'
 import { FaInstagram, FaFacebook, FaTwitter } from 'react-icons/fa'
 import './App.css'
 
 gsap.registerPlugin(ScrollTrigger)
 
+import Navbar from './components/layout/Navbar/Navbar'
+import Hero from './components/layout/Hero/Hero'
+import About from './components/layout/About/About'
+
 function App() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   
-  const heroRef = useRef<HTMLDivElement>(null)
-  const titleRef = useRef<HTMLHeadingElement>(null)
-  const subtitleRef = useRef<HTMLSpanElement>(null)
-  const ctaRef = useRef<HTMLDivElement>(null)
-
   const { scrollYProgress } = useScroll()
   const scaleX = useSpring(scrollYProgress, {
     stiffness: 100,
@@ -29,36 +28,6 @@ function App() {
       setIsScrolled(window.scrollY > 50)
     }
     window.addEventListener('scroll', handleScroll)
-
-    // GSAP Entry Animations
-    const tl = gsap.timeline({ defaults: { ease: 'power4.out' } })
-    
-    tl.fromTo(subtitleRef.current, 
-      { opacity: 0, y: 30, letterSpacing: '10px' },
-      { opacity: 1, y: 0, letterSpacing: '4px', duration: 1.5, delay: 0.5 }
-    )
-    .fromTo(titleRef.current,
-      { opacity: 0, y: 50 },
-      { opacity: 1, y: 0, duration: 1.2 },
-      "-=0.8"
-    )
-    .fromTo(ctaRef.current,
-      { opacity: 0, scale: 0.9 },
-      { opacity: 1, scale: 1, duration: 1 },
-      "-=0.6"
-    )
-
-    // Hero Parallax
-    gsap.to('.hero-section', {
-      backgroundPositionY: '50%',
-      ease: 'none',
-      scrollTrigger: {
-        trigger: '.hero-section',
-        start: 'top top',
-        end: 'bottom top',
-        scrub: true
-      }
-    })
 
     // Scroll reveal animations
     const revealElements = document.querySelectorAll('.service-card')
@@ -86,41 +55,10 @@ function App() {
       <motion.div className="progress-bar" style={{ scaleX, position: 'fixed', top: 0, left: 0, right: 0, height: '4px', backgroundColor: 'var(--gold)', zIndex: 1001, transformOrigin: '0%' }} />
 
       {/* Navigation */}
-      <nav className={`navbar ${isScrolled ? 'scrolled' : ''}`}>
-        <div className="container nav-content">
-          <div className="nav-logo">
-            THE<span className="text-gold"> BABER</span>
-          </div>
-          
-          <div className="nav-links">
-            <a href="#home" className="nav-link">Home</a>
-            <a href="#services" className="nav-link">Services</a>
-            <a href="#pricing" className="nav-link">Pricing</a>
-            <a href="#contact" className="nav-link">Contact</a>
-          </div>
-
-          <button className="nav-mobile-btn" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
-            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
-        </div>
-      </nav>
+      <Navbar isScrolled={isScrolled} isMobileMenuOpen={isMobileMenuOpen} setIsMobileMenuOpen={setIsMobileMenuOpen} />
 
       {/* Hero Section */}
-      <section id="home" className="hero-section" ref={heroRef}>
-        <div className="hero-content container">
-          <span className="hero-subtitle" ref={subtitleRef}>ESTABLISHED 2024</span>
-          <h1 className="hero-title" ref={titleRef}>
-            Elevate Your <br />
-            <span className="text-gold">Grooming</span> Experience
-          </h1>
-          <div className="cta-container" ref={ctaRef}>
-            <button className="btn-primary">Book Appointment</button>
-            <div style={{ marginTop: '2rem' }}>
-              <button className="btn-outline">Our Collection</button>
-            </div>
-          </div>
-        </div>
-      </section>
+      <Hero />
 
       {/* Services */}
       <section id="services" style={{ padding: '8rem 0', background: 'var(--primary)' }}>

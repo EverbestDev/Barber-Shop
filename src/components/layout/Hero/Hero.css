@@ -1,0 +1,164 @@
+.hero-section {
+  position: relative;
+  /* Reduced height to 80vh to allow the About section to peek from the bottom */
+  height: 80vh;
+  min-height: 600px;
+  width: 100%;
+  margin-top: 80px; /* Pushes the hero down below the solid navbar */
+  display: flex;
+  align-items: center; /* Vertically centers the text box */
+  background-color: var(--primary);
+  overflow: hidden;
+}
+
+.hero-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.hero-bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 20%;
+}
+
+.hero-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  /* Darker on the left to perfectly highlight the left-aligned text */
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.5) 40%, rgba(0, 0, 0, 0.1) 100%);
+  z-index: 2;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.hero-text-box {
+  max-width: 700px; /* Increased to allow one-line title and 2-line subtitle */
+  text-align: left; /* Strict left alignment */
+}
+
+.hero-title {
+  font-family: var(--font-geist);
+  font-size: 3rem; /* Scaled down for balanced, non-oversized consistency */
+  font-weight: 600; /* Adjusted to exact user request */
+  line-height: 1;
+  color: var(--gold); /* Uniform yellow/gold */
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+  letter-spacing: -1px; /* Less extreme tracking */
+  white-space: nowrap; /* Forces title to stay on one line on desktop */
+}
+
+.hero-subtitle {
+  font-size: 1rem; /* Smaller, cleaner subtitle text */
+  font-family: var(--font-geist);
+  font-weight: 400; /* Standard readable text weight */
+  color: #ffffff;
+  line-height: 1.5;
+  margin-bottom: 2rem;
+  text-transform: none; /* sentence case */
+  opacity: 0.95;
+  max-width: 550px; /* Strong 2-line guarantee for shortened lengths */
+}
+
+.hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem; 
+}
+
+/* Button exact match */
+.btn-outlined {
+  background-color: transparent;
+  color: #ffffff;
+  padding: 0.8rem 2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 4px;
+  border: 2px solid #ffffff; 
+  text-transform: capitalize;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.btn-outlined:hover {
+  background-color: #ffffff;
+  color: var(--primary);
+}
+
+.btn-filled {
+  background-color: var(--gold);
+  color: var(--primary);
+  padding: 0.8rem 2rem;
+  font-size: 1rem;
+  font-weight: 700;
+  border-radius: 4px;
+  border: 2px solid var(--gold);
+  text-transform: capitalize;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.btn-filled:hover {
+  background-color: transparent;
+  color: var(--gold);
+}
+
+/* Slider Controls */
+.slider-indicators {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.5rem;
+  z-index: 10;
+}
+
+.indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.3);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: background-color 0.3s;
+}
+
+.indicator.active {
+  background-color: var(--gold);
+}
+
+@media (max-width: 768px) {
+  .hero-overlay {
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.9) 100%);
+  }
+
+  .hero-content {
+    display: flex;
+    align-items: flex-end;
+    padding-bottom: 6rem;
+    height: 100vh;
+  }
+
+  .hero-title {
+    font-size: 2.5rem;
+    white-space: normal; /* allow wrapping on mobile */
+  }
+}
