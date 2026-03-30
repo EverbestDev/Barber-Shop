@@ -1,0 +1,251 @@
+.profile-page-wrapper {
+  background-color: var(--primary);
+  color: var(--white);
+  padding: 10rem 2rem 6rem;
+  min-height: 80vh;
+}
+
+.profile-layout {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 4rem;
+}
+
+/* Sidebar */
+.profile-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+
+.user-profile-header {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.avatar-large {
+  width: 64px;
+  height: 64px;
+  background-color: var(--gold);
+  color: var(--primary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1.25rem;
+}
+
+.user-info h3 {
+  font-size: 1.125rem;
+  margin-bottom: 0.25rem;
+}
+
+.user-info span {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--gold);
+  font-weight: 700;
+}
+
+.profile-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.p-nav-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.p-nav-btn:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: var(--white);
+}
+
+.p-nav-btn.active {
+  background-color: var(--secondary);
+  color: var(--gold);
+  border: 1px solid rgba(255, 204, 0, 0.1);
+}
+
+.logout-btn {
+  margin-top: auto;
+  background: none;
+  border: none;
+  color: #ff4444;
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Main Content Area */
+.view-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 3rem;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-bottom: 4rem;
+}
+
+.stat-card {
+  background-color: var(--secondary);
+  padding: 2rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.stat-card.gold-border {
+  border-color: rgba(255, 204, 0, 0.2);
+}
+
+.stat-label {
+  display: block;
+  font-size: 0.8125rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+}
+
+.stat-value {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--white);
+}
+
+.section-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.appointment-mini-card {
+  background-color: var(--secondary);
+  padding: 1.5rem 2rem;
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.app-service {
+  display: block;
+  font-weight: 700;
+  font-size: 1.125rem;
+}
+
+.app-barber {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.app-date {
+  display: block;
+  font-weight: 600;
+  text-align: right;
+}
+
+.app-time {
+  display: block;
+  font-size: 0.875rem;
+  color: var(--gold);
+  text-align: right;
+}
+
+.app-status-badge {
+  background-color: rgba(255, 204, 0, 0.1);
+  color: var(--gold);
+  padding: 0.4rem 1rem;
+  border-radius: 99px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+/* Wide card */
+.appointment-wide-card {
+  background-color: var(--secondary);
+  padding: 2rem;
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.wide-actions {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.slim {
+  padding: 0.75rem 1.5rem !important;
+  font-size: 0.8125rem !important;
+}
+
+.text-btn {
+  background: none;
+  border: none;
+  color: var(--gold);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.text-btn.danger {
+  color: #ff4444;
+}
+
+/* Form Group */
+.form-group {
+  margin-bottom: 2rem;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 0.75rem;
+}
+
+.form-group input {
+  width: 100%;
+  max-width: 400px;
+  background-color: var(--secondary);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1rem;
+  color: var(--white);
+  border-radius: 8px;
+}
+
+@media (max-width: 992px) {
+  .profile-layout {
+    grid-template-columns: 1fr;
+  }
+}

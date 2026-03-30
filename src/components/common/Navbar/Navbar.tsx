@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import DesktopNav from './DesktopNav';
 import MobileNav from './MobileNav';
 import './Navbar.css';
@@ -10,32 +11,33 @@ interface NavbarProps {
 }
 
 const Navbar: React.FC<NavbarProps> = ({ isScrolled, isMobileMenuOpen, setIsMobileMenuOpen }) => {
+  const navigate = useNavigate();
+
   return (
     <nav className={`navbar ${isScrolled ? 'scrolled' : ''}`}>
       <div className="container nav-content">
         
-        {/* Logo and Brand on the side */}
-        <div className="nav-logo">
-          {/* Using the logo.jpeg from public/images folder */}
+        {/* Logo and Brand */}
+        <Link to="/" className="nav-logo">
           <img src="/images/logo.jpeg" alt="Baze 2 Barbers" className="logo-img" />
           <span>Baze 2 Barbers</span>
-        </div>
+        </Link>
         
-        {/* Center Menu on normal screens */}
+        {/* Center Menu */}
         <DesktopNav />
 
-        {/* Action Buttons and Mobile Toggle on the other end */}
+        {/* Action Buttons */}
         <div className="nav-actions">
-          <button className="book-now-btn">Book Now</button>
-          <div className="profile-icon">
-            {/* SVG Profile Icon */}
+          <button className="book-now-btn" onClick={() => navigate('/booking')}>Book Now</button>
+          
+          <Link to="/profile" className="profile-icon">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
               <circle cx="12" cy="7" r="4"></circle>
             </svg>
-          </div>
+          </Link>
+
           <button className="nav-mobile-btn" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
-            {/* simple hamburger */}
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               {isMobileMenuOpen ? (
                 <>

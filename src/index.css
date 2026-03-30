@@ -11,6 +11,7 @@
   --white: #ffffff;
   --black: #000000;
   
+  --font-oswald: 'Oswald', sans-serif;
   --font-geist: 'Geist Sans', sans-serif;
 
   font-family: var(--font-geist);
@@ -62,6 +63,56 @@ button {
   font-family: inherit;
 }
 
+/* Base Components & Buttons */
+.btn-filled {
+  background-color: var(--gold);
+  color: var(--primary);
+  padding: 1rem 2rem;
+  font-weight: 700;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.8125rem;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--gold);
+}
+
+.btn-filled:hover {
+  background-color: var(--gold-dark);
+  border-color: var(--gold-dark);
+  transform: translateY(-2px);
+}
+
+.btn-filled.large-btn {
+  padding: 1.25rem 3rem;
+  font-size: 0.9375rem;
+}
+
+.btn-outlined {
+  background-color: transparent;
+  color: var(--gold);
+  border: 1px solid var(--gold);
+  padding: 1rem 2rem;
+  font-weight: 700;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.8125rem;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-outlined:hover {
+  background-color: var(--gold);
+  color: var(--primary);
+  transform: translateY(-2px);
+}
+
 /* Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
@@ -86,12 +137,6 @@ button {
   color: var(--primary);
 }
 
-/* Animations Helper */
-.reveal {
-  opacity: 0;
-  transform: translateY(30px);
-}
-
 /* Utilities */
 .container {
   max-width: 1200px;
@@ -99,48 +144,16 @@ button {
   padding: 0 2rem;
 }
 
-.title-serif {
-  font-family: var(--font-geist);
-  font-weight: 600;
-  letter-spacing: -0.5px;
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .text-gold {
   color: var(--gold);
 }
 
-.btn-primary {
-  background: var(--gold);
-  color: var(--primary);
-  padding: 1rem 2.5rem;
-  font-weight: 600;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  font-size: 0.875rem;
-  border: 1px solid var(--gold);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
-  display: inline-block;
-}
-
-.btn-primary:hover {
-  background: transparent;
+.gold-icon {
   color: var(--gold);
-}
-
-.btn-outline {
-  border: 1px solid var(--gold);
-  color: var(--gold);
-  padding: 1rem 2.5rem;
-  font-weight: 600;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  font-size: 0.875rem;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.btn-outline:hover {
-  background: var(--gold);
-  color: var(--primary);
 }

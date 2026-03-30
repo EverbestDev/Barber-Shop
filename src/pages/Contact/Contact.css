@@ -1,0 +1,144 @@
+.contact-page-wrapper {
+  background-color: var(--primary);
+  color: var(--white);
+}
+
+.contact-hero {
+  padding: 12rem 2rem 4rem;
+  text-align: center;
+}
+
+.contact-title {
+  font-family: var(--font-oswald);
+  font-size: 5rem;
+  font-weight: 800;
+  color: var(--gold);
+  margin-bottom: 1rem;
+  letter-spacing: -2px;
+}
+
+.contact-hero-desc {
+  color: var(--text-secondary);
+}
+
+.contact-main {
+  padding: 6rem 2rem;
+}
+
+.contact-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 6rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.contact-section-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+}
+
+.contact-panel-desc {
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 3.5rem;
+}
+
+.info-items {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  margin-bottom: 4rem;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.info-text span {
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.whatsapp-cta {
+  margin-top: auto;
+}
+
+.whatsapp-btn {
+  background-color: #25D366;
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 4px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.whatsapp-btn:hover {
+  background-color: #128C7E;
+  transform: translateY(-2px);
+}
+
+/* Form Panel */
+.contact-form-panel {
+  background-color: var(--secondary);
+  padding: 4rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.luxury-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-row input, .form-row textarea {
+  width: 100%;
+  background-color: var(--primary);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1.25rem;
+  color: var(--white);
+  border-radius: 4px;
+  font-size: 0.9375rem;
+  font-family: inherit;
+  transition: border-color 0.3s ease;
+}
+
+.form-row input:focus, .form-row textarea:focus {
+  border-color: var(--gold);
+  outline: none;
+}
+
+.form-submit {
+  padding: 1.25rem !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+@media (max-width: 992px) {
+  .contact-grid {
+    grid-template-columns: 1fr;
+    gap: 4rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .contact-title {
+    font-size: 3rem;
+  }
+  
+  .contact-form-panel {
+    padding: 2.5rem;
+  }
+}
