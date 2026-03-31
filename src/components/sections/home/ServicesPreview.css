@@ -33,8 +33,9 @@
   max-width: 1200px;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: 2.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  justify-items: center; /* Ensures single items are centered */
 }
 
 .service-card {
@@ -43,6 +44,9 @@
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.05);
   transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  width: 100%;
+  max-width: 440px;
+  margin: 0 auto;
 }
 
 .service-card:hover {
