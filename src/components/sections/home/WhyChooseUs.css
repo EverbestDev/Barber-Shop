@@ -98,6 +98,12 @@
 @media (max-width: 640px) {
   .why-grid {
     grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+  .why-card {
+    max-width: 400px;
+    margin: 0 auto;
+    width: 100%;
   }
   .why-image-wrapper {
     height: 180px;
