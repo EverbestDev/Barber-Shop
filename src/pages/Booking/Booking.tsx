@@ -40,7 +40,6 @@ const Booking: React.FC = () => {
   const [selectedService, setSelectedService] = useState<any>(null);
   const [isCustomStyle, setIsCustomStyle] = useState(false);
   const [customStyleName, setCustomStyleName] = useState('');
-  const [customStyleFile, setCustomStyleFile] = useState<File | null>(null);
 
   const [selectedBarber, setSelectedBarber] = useState<any>(null);
   const [selectedDate, setSelectedDate] = useState<string>('');
@@ -169,7 +168,6 @@ Contact: ${guestPhone}`;
                           type="file" 
                           accept="image/*" 
                           className="file-input"
-                          onChange={(e) => setCustomStyleFile(e.target.files ? e.target.files[0] : null)}
                         />
                       </div>
                       <button className="text-gold-btn" onClick={() => { setIsCustomStyle(false); setSelectedService(null); }}>
