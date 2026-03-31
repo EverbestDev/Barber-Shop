@@ -10,9 +10,10 @@ interface NavbarProps {
   isScrolled: boolean;
   isMobileMenuOpen: boolean;
   setIsMobileMenuOpen: (open: boolean) => void;
+  onAuthOpen: () => void;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ isScrolled, isMobileMenuOpen, setIsMobileMenuOpen }) => {
+const Navbar: React.FC<NavbarProps> = ({ isScrolled, isMobileMenuOpen, setIsMobileMenuOpen, onAuthOpen }) => {
   const { isLoggedIn } = useAuth();
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const navigate = useNavigate();
@@ -21,7 +22,7 @@ const Navbar: React.FC<NavbarProps> = ({ isScrolled, isMobileMenuOpen, setIsMobi
     if (isLoggedIn) {
       navigate('/profile');
     } else {
-      navigate('/auth');
+      onAuthOpen();
     }
   };
 
@@ -63,7 +64,7 @@ const Navbar: React.FC<NavbarProps> = ({ isScrolled, isMobileMenuOpen, setIsMobi
                     </div>
                   ) : (
                     <div className="notif-empty">
-                      <p>Please <Link to="/auth" onClick={() => setIsNotifOpen(false)}>Login</Link> to view your notifications.</p>
+                      <p>Please <button className="text-gold-btn" onClick={() => { onAuthOpen(); setIsNotifOpen(false); }}>Login</button> to view your notifications.</p>
                     </div>
                   )}
                 </div>

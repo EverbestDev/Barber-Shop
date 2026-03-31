@@ -21,7 +21,10 @@ const CTA: React.FC = () => {
           <p className="cta-subtitle">
             Secure your slot with our master barbers today. Join the community of sharp-looking men in Catford.
           </p>
-          <button className="btn-filled large-btn">Book Your Chair Now</button>
+          <div className="cta-actions">
+            <button className="btn-filled">Book Your Chair</button>
+            <button className="btn-outlined">Contact Us</button>
+          </div>
         </motion.div>
       </div>
     </section>

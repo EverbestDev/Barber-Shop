@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
-import { motion, useScroll, useSpring } from 'framer-motion';
+import { motion, useScroll, useSpring, AnimatePresence } from 'framer-motion';
 import Navbar from '../Navbar/Navbar';
 import Footer from '../Footer/Footer';
+import AuthDrawer from '../AuthDrawer/AuthDrawer';
 
 const Layout: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isAuthDrawerOpen, setIsAuthDrawerOpen] = useState(false);
+  
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, {
     stiffness: 100,
@@ -31,7 +34,7 @@ const Layout: React.FC = () => {
   }, []);
 
   return (
-    <div className="app-layout">
+    <div className={`app-layout ${isAuthDrawerOpen ? 'drawer-open' : ''}`}>
       {/* Scroll Progress Bar */}
       <motion.div className="progress-bar" style={{ scaleX }} />
 
@@ -39,13 +42,29 @@ const Layout: React.FC = () => {
         isScrolled={isScrolled} 
         isMobileMenuOpen={isMobileMenuOpen} 
         setIsMobileMenuOpen={setIsMobileMenuOpen} 
+        onAuthOpen={() => setIsAuthDrawerOpen(true)}
       />
       
       <div className="main-content">
         <Outlet />
       </div>
 
-      <Footer />
+      <AnimatePresence>
+        {isAuthDrawerOpen && (
+          <>
+            <motion.div 
+              className="drawer-overlay"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsAuthDrawerOpen(false)}
+            ></motion.div>
+            <AuthDrawer isOpen={isAuthDrawerOpen} onClose={() => setIsAuthDrawerOpen(false)} />
+          </>
+        )}
+      </AnimatePresence>
+
+      {location.pathname !== '/auth' && <Footer />}
     </div>
   );
 };

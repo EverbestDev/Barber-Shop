@@ -1,0 +1,108 @@
+.auth-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 100%;
+  max-width: 440px;
+  height: 100vh;
+  background-color: var(--primary);
+  z-index: 1001; /* Above overlay */
+  padding: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  box-shadow: -20px 0 60px rgba(0, 0, 0, 0.5);
+  border-left: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.drawer-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+}
+
+/* Blur Background when drawer is open */
+.app-layout.drawer-open .main-content,
+.app-layout.drawer-open .footer-section,
+.app-layout.drawer-open .navbar {
+  filter: blur(5px) brightness(0.7);
+  pointer-events: none;
+}
+
+.drawer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4rem;
+}
+
+.close-drawer-btn {
+  color: var(--text-secondary);
+  transition: color 0.3s ease;
+}
+
+.close-drawer-btn:hover {
+  color: var(--gold);
+}
+
+.drawer-logo {
+  font-family: var(--font-main);
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: var(--gold);
+}
+
+.auth-header-snippet {
+  margin-bottom: 3rem;
+}
+
+.auth-header-snippet h3 {
+  font-size: 2rem;
+  font-weight: 900;
+  color: var(--white);
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: -1px;
+}
+
+.auth-header-snippet p {
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+}
+
+.mini-tabs {
+  margin-bottom: 2rem;
+}
+
+.drawer-form {
+  gap: 1rem;
+}
+
+.drawer-form input {
+  background-color: var(--secondary) !important;
+}
+
+.drawer-footer-text {
+  margin-top: 3rem;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+}
+
+.drawer-footer-text button {
+  color: var(--gold);
+  font-weight: 700;
+  margin-left: 0.5rem;
+}
+
+@media (max-width: 480px) {
+  .auth-drawer {
+    width: 100%;
+    max-width: 100%;
+    padding: 1.5rem;
+  }
+}

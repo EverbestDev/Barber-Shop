@@ -68,7 +68,7 @@ button {
 .btn-filled {
   background-color: var(--gold);
   color: var(--primary);
-  padding: 1rem 2rem;
+  padding: 0.8rem 1.75rem;
   font-weight: 700;
   border-radius: 4px;
   text-transform: uppercase;
@@ -88,15 +88,15 @@ button {
 }
 
 .btn-filled.large-btn {
-  padding: 1.25rem 3rem;
-  font-size: 0.9375rem;
+  padding: 1rem 2.5rem;
+  font-size: 0.875rem;
 }
 
 .btn-outlined {
   background-color: transparent;
   color: var(--gold);
   border: 1px solid var(--gold);
-  padding: 1rem 2rem;
+  padding: 0.8rem 1.75rem;
   font-weight: 700;
   border-radius: 4px;
   text-transform: uppercase;

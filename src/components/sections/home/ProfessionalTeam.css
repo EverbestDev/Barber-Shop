@@ -1,0 +1,139 @@
+.team-section {
+  background-color: var(--secondary);
+}
+
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2.5rem;
+}
+
+.team-card {
+  background-color: var(--primary);
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.4s ease;
+  text-align: center;
+}
+
+.team-card:hover {
+  transform: translateY(-8px);
+  border-color: var(--gold);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+}
+
+.team-image-box {
+  position: relative;
+  height: 280px;
+  width: 100%;
+  overflow: hidden;
+}
+
+.team-image-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s ease;
+}
+
+.team-card:hover .team-image-box img {
+  transform: scale(1.1);
+}
+
+.team-social-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 60%);
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  padding-bottom: 2rem;
+  gap: 1.5rem;
+  color: var(--gold);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.team-card:hover .team-social-overlay {
+  opacity: 1;
+}
+
+.team-social-overlay > svg {
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.team-social-overlay > svg:hover {
+  transform: scale(1.2);
+  color: var(--white);
+}
+
+.team-info {
+  padding: 1.5rem 1rem 2rem;
+}
+
+.team-name {
+  color: var(--white);
+  font-size: 1.25rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
+  font-family: var(--font-main);
+}
+
+.team-role {
+  color: var(--gold);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 1rem;
+}
+
+.team-bio-box {
+  height: 60px; /* Fixed height for consistency */
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+
+.team-bio {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  padding: 0 1rem;
+}
+
+.team-book-btn {
+  background-color: transparent;
+  color: var(--text-primary);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0.6rem 1.5rem;
+  border-radius: 30px;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+}
+
+.team-card:hover .team-book-btn {
+  background-color: var(--gold);
+  color: var(--primary);
+  border-color: var(--gold);
+}
+
+@media (max-width: 1200px) {
+  .team-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .team-grid {
+    grid-template-columns: 1fr;
+  }
+}
