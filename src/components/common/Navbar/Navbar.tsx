@@ -46,8 +46,8 @@ const Navbar: React.FC<NavbarProps> = ({ isScrolled, isMobileMenuOpen, setIsMobi
           
           <button className="book-now-btn desktop-only" onClick={() => navigate('/booking')}>Book Now</button>
 
-          {/* Notifications */}
-          <div className="nav-notif-wrapper">
+          {/* Notifications - desktop only */}
+          <div className="nav-notif-wrapper desktop-only">
             <button className="nav-icon-btn" onClick={() => setIsNotifOpen(!isNotifOpen)}>
               <Bell size={20} />
               {isLoggedIn && <span className="notif-badge"></span>}
@@ -72,7 +72,7 @@ const Navbar: React.FC<NavbarProps> = ({ isScrolled, isMobileMenuOpen, setIsMobi
             )}
           </div>
 
-          <button className="nav-icon-btn" onClick={handleProfileClick}>
+          <button className="nav-icon-btn desktop-only" onClick={handleProfileClick}>
             <User size={20} />
           </button>
 
@@ -84,7 +84,7 @@ const Navbar: React.FC<NavbarProps> = ({ isScrolled, isMobileMenuOpen, setIsMobi
       </div>
 
       {/* Mobile Navigation Sidebar */}
-      <MobileNav isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
+      <MobileNav isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} onAuthOpen={onAuthOpen} />
     </nav>
   );
 };
