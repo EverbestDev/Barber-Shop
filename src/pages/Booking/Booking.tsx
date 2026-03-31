@@ -64,7 +64,8 @@ Style: ${customStyleName}
 Type: ${selectedCategory?.name}
 Date: ${selectedDate} at ${selectedTime}
 Contact: ${guestPhone}`;
-    const url = `https://wa.me/234XXXXXXXXXX?text=${encodeURIComponent(text)}`;
+    // Replace with your business number
+    const url = `https://wa.me/447000000000?text=${encodeURIComponent(text)}`;
     window.open(url, '_blank');
   };
 

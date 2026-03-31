@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import './Hero.css';
 
 const slides = [
@@ -35,14 +36,13 @@ const Hero: React.FC = () => {
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrent((prev) => (prev + 1) % slides.length);
-    }, 7000); // Increased interval to 7s to allow the smooth animation finish
+    }, 7000);
     return () => clearInterval(timer);
   }, []);
 
   return (
     <section id="home" className="hero-section">
       
-      {/* Background changes faster and first */}
       <AnimatePresence mode="popLayout">
         <motion.div 
           key={`bg-${current}`}
@@ -63,15 +63,13 @@ const Hero: React.FC = () => {
           <motion.div 
             key={`text-${current}`}
             className="hero-text-box"
-            /* Start far left */
             initial={{ opacity: 0, x: -200 }}
-            /* Extremely smooth slide in from left to center, delayed to happen AFTER bg */
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -100 }}
             transition={{ 
-              duration: 1.5, /* Sluggish smooth feel */
-              delay: 0.5, /* Waits for the background fade to almost finish */
-              ease: [0.16, 1, 0.3, 1] /* Custom sluggish cubic-bezier for a hyper-smooth stop */
+              duration: 1.5,
+              delay: 0.5,
+              ease: [0.16, 1, 0.3, 1]
             }}
           >
             <span className="hero-tagline">Excellence in Craft</span>
@@ -80,14 +78,13 @@ const Hero: React.FC = () => {
             <p className="hero-subtitle">{slides[current].subtitle}</p>
             
             <div className="hero-actions">
-              <button className="btn-filled">Book Now</button>
-              <button className="btn-outlined">Contact Us</button>
+              <Link to="/booking" className="btn-filled">Book Your Chair</Link>
+              <Link to="/contact" className="btn-outlined">Contact Us</Link>
             </div>
           </motion.div>
         </AnimatePresence>
       </div>
 
-      {/* Slider Indicators */}
       <div className="slider-indicators">
         {slides.map((_, index) => (
           <button 
