@@ -8,7 +8,6 @@ import Gallery from './pages/Gallery/Gallery'
 import Contact from './pages/Contact/Contact'
 import Profile from './pages/Profile/Profile'
 import Booking from './pages/Booking/Booking'
-import Auth from './pages/Auth/Auth'
 import { AuthProvider } from './context/AuthContext'
 
 // Define the router structure
@@ -48,10 +47,6 @@ const router = createBrowserRouter([
       {
         path: 'booking',
         element: <Booking />,
-      },
-      {
-        path: 'auth',
-        element: <Auth />,
       }
     ]
   }

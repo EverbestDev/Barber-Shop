@@ -33,6 +33,16 @@ const Layout: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Lock scroll when drawer is open
+  useEffect(() => {
+    if (isAuthDrawerOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+    return () => { document.body.style.overflow = 'auto'; };
+  }, [isAuthDrawerOpen]);
+
   return (
     <div className={`app-layout ${isAuthDrawerOpen ? 'drawer-open' : ''}`}>
       {/* Scroll Progress Bar */}
@@ -59,7 +69,7 @@ const Layout: React.FC = () => {
               exit={{ opacity: 0 }}
               onClick={() => setIsAuthDrawerOpen(false)}
             ></motion.div>
-            <AuthDrawer isOpen={isAuthDrawerOpen} onClose={() => setIsAuthDrawerOpen(false)} />
+            <AuthDrawer onClose={() => setIsAuthDrawerOpen(false)} />
           </>
         )}
       </AnimatePresence>

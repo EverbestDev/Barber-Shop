@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { X, Mail, Lock, User, ArrowRight } from 'lucide-react';
 import { FaGoogle } from 'react-icons/fa';
 import { useAuth } from '../../../context/AuthContext';
@@ -7,11 +7,10 @@ import { useNavigate } from 'react-router-dom';
 import './AuthDrawer.css';
 
 interface AuthDrawerProps {
-  isOpen: boolean;
   onClose: () => void;
 }
 
-const AuthDrawer: React.FC<AuthDrawerProps> = ({ isOpen, onClose }) => {
+const AuthDrawer: React.FC<AuthDrawerProps> = ({ onClose }) => {
   const [isLogin, setIsLogin] = useState(true);
   const { login } = useAuth();
   const navigate = useNavigate();
