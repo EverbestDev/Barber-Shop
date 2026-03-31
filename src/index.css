@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap');
+
 :root {
   --primary: #0a0a0a; /* Darker, sleeker background */
   --secondary: #141414;
@@ -11,12 +13,11 @@
   --white: #ffffff;
   --black: #000000;
   
-  --font-oswald: 'Oswald', sans-serif;
-  --font-geist: 'Geist Sans', sans-serif;
+  --font-main: 'Geist', sans-serif;
 
-  font-family: var(--font-geist);
+  font-family: var(--font-main);
   line-height: 1.5;
-  font-weight: 400;
+  font-weight: 500;
 
   color-scheme: dark;
   color: var(--text-primary);
@@ -144,6 +145,46 @@ button {
   padding: 0 2rem;
 }
 
+.section-padding {
+  padding: 5rem 0;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 4rem;
+}
+
+.section-tag {
+  color: var(--gold);
+  text-transform: uppercase;
+  font-family: var(--font-main);
+  font-weight: 900;
+  letter-spacing: 4px;
+  font-size: 0.9375rem;
+  display: block;
+  margin-bottom: 1.25rem;
+}
+
+.section-title {
+  color: var(--white);
+  font-family: var(--font-main);
+  font-size: 4.5rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: -2px;
+  line-height: 0.9;
+}
+
+.hero-tagline {
+  color: var(--gold);
+  text-transform: uppercase;
+  font-weight: 800;
+  letter-spacing: 4px;
+  font-size: 0.8125rem;
+  display: block;
+  margin-bottom: 1.5rem;
+}
+
 .flex-center {
   display: flex;
   justify-content: center;
@@ -156,4 +197,13 @@ button {
 
 .gold-icon {
   color: var(--gold);
+}
+
+@media (max-width: 768px) {
+  .section-title {
+    font-size: 2.75rem;
+  }
+  .section-padding {
+    padding: 3.5rem 0;
+  }
 }

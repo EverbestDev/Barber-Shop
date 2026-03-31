@@ -30,6 +30,24 @@ const categories = [
       { name: "The Executive", desc: "Signature Haircut + Beard Sculpture. The full look.", price: "£55", time: "75 mins" },
       { name: "The Royal Treatment", desc: "Haircut + Beard Sculpture + Face Mask + Nose/Ear Wax.", price: "£75", time: "105 mins" }
     ]
+  },
+  {
+    id: 'home-services',
+    title: 'Premium Home Services (Doorstep)',
+    services: [
+      { name: "Executive Home Visit", desc: "Our master barber comes to your location. Includes haircut & styling.", price: "£85", time: "60 mins" },
+      { name: "Full Grooming Home Visit", desc: "Haircut + Beard Sculpture at your location.", price: "£110", time: "90 mins" },
+      { name: "V.I.P Doorstep Session", desc: "Includes all extras: Face Mask, Waxing & Signature Styling.", price: "£140", time: "120 mins" }
+    ]
+  },
+  {
+    id: 'group',
+    title: 'Group & Family Packages',
+    services: [
+      { name: "The Father & Son", desc: "Adult Haircut + Child (under 14). Perfect bonding time.", price: "£50", time: "90 mins" },
+      { name: "The Grooming Party (3-5 users)", desc: "Perfect for weddings or events. Exclusive booking for your group.", price: "From £150", time: "3 hours+" },
+      { name: "The Duo Pack", desc: "Two signature haircuts for you and a friend.", price: "£65", time: "90 mins" }
+    ]
   }
 ];
 
@@ -62,7 +80,7 @@ const Services: React.FC = () => {
       {/* Services List */}
       <section className="services-list-section">
         <div className="container">
-          {categories.map((category, catIdx) => (
+          {categories.map((category) => (
             <div key={category.id} className="service-category">
               <h2 className="category-title">{category.title}</h2>
               <div className="services-grid">

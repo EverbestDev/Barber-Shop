@@ -1,16 +1,5 @@
 .why-choose-us-section {
-  padding: 8rem 2rem;
   background-color: var(--secondary);
-}
-
-.why-container {
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.why-header {
-  text-align: center;
-  margin-bottom: 5rem;
 }
 
 .why-grid {
@@ -47,8 +36,10 @@
 
 .why-card-title {
   color: var(--white);
+  font-family: var(--font-oswald);
   font-size: 1.5rem;
-  font-weight: 700;
+  font-weight: 800;
+  text-transform: uppercase;
   margin-bottom: 1rem;
 }
 

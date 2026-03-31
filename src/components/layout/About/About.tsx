@@ -28,7 +28,7 @@ const About: React.FC = () => {
   };
 
   return (
-    <section id="about" className="about-section" ref={ref}>
+    <section id="about" className="about-section section-padding" ref={ref}>
       <div className="about-container">
         
         {/* Left Side: Image */}
@@ -43,7 +43,7 @@ const About: React.FC = () => {
             alt="Barbershop Interior" 
           />
         </motion.div>
-
+ 
         {/* Right Side: Text & Content */}
         <motion.div 
           className="about-text-content"
@@ -51,11 +51,11 @@ const About: React.FC = () => {
           initial="hidden"
           animate={isInView ? "visible" : "hidden"}
         >
-          <motion.div variants={itemVariants} className="about-tagline">
+          <motion.div variants={itemVariants} className="section-tag">
             Our Philosophy
           </motion.div>
           
-          <motion.h2 variants={itemVariants} className="about-title">
+          <motion.h2 variants={itemVariants} className="section-title">
             Elevating the Art of Premium Grooming.
           </motion.h2>
           

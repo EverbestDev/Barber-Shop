@@ -1,6 +1,7 @@
 import React from 'react';
 import { FaFacebook, FaInstagram, FaTwitter } from 'react-icons/fa';
-import { MapPin, Phone, Mail } from 'lucide-react';
+import { MapPin, Phone, Mail, Calendar } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import './Footer.css';
 
 const Footer: React.FC = () => {
@@ -19,17 +20,21 @@ const Footer: React.FC = () => {
             <a href="#" className="social-link"><FaInstagram size={18} /></a>
             <a href="#" className="social-link"><FaTwitter size={18} /></a>
           </div>
+          <Link to="/booking" className="footer-book-btn">
+            <Calendar size={18} /> Book Now
+          </Link>
         </div>
 
         {/* Quick Links */}
         <div className="footer-block">
           <h4 className="footer-title">Quick Links</h4>
           <ul className="footer-links">
-            <li><a href="/#home">Home</a></li>
-            <li><a href="/services">Services</a></li>
-            <li><a href="/pricing">Pricing</a></li>
-            <li><a href="/gallery">Gallery</a></li>
-            <li><a href="/contact">Contact</a></li>
+            <li><Link to="/">Home</Link></li>
+            <li><Link to="/about">About Us</Link></li>
+            <li><Link to="/services">Services</Link></li>
+            <li><Link to="/pricing">Pricing</Link></li>
+            <li><Link to="/gallery">Gallery</Link></li>
+            <li><Link to="/contact">Contact</Link></li>
           </ul>
         </div>
 

@@ -12,6 +12,7 @@ const MobileNav: React.FC<MobileNavProps> = ({ isOpen, onClose }) => {
     <div className={`mobile-nav ${isOpen ? 'open' : ''}`}>
       <div className="mobile-nav-links">
         <NavLink to="/" className={({ isActive }) => `mobile-link ${isActive ? 'active' : ''}`} onClick={onClose}>Home</NavLink>
+        <NavLink to="/about" className={({ isActive }) => `mobile-link ${isActive ? 'active' : ''}`} onClick={onClose}>About Us</NavLink>
         <NavLink to="/services" className={({ isActive }) => `mobile-link ${isActive ? 'active' : ''}`} onClick={onClose}>Services</NavLink>
         <NavLink to="/pricing" className={({ isActive }) => `mobile-link ${isActive ? 'active' : ''}`} onClick={onClose}>Pricing</NavLink>
         <NavLink to="/gallery" className={({ isActive }) => `mobile-link ${isActive ? 'active' : ''}`} onClick={onClose}>Gallery</NavLink>

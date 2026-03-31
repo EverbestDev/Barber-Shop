@@ -1,5 +1,5 @@
 .about-section {
-  padding: 8rem 2rem;
+  padding: 5rem 2rem;
   background-color: var(--secondary); /* Slightly lighter than primary to create depth */
   display: flex;
   justify-content: center;
@@ -77,12 +77,14 @@
 }
 
 .about-title {
-  font-size: 2.75rem;
-  font-weight: 700;
+  font-family: var(--font-oswald);
+  font-size: 3.5rem;
+  font-weight: 900;
+  text-transform: uppercase;
   color: var(--white);
-  line-height: 1.2;
-  margin-bottom: 1.5rem;
-  letter-spacing: -0.5px;
+  line-height: 1;
+  margin-bottom: 2rem;
+  letter-spacing: -1px;
 }
 
 .about-description {

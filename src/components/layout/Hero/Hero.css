@@ -53,15 +53,15 @@
 }
 
 .hero-title {
-  font-family: var(--font-geist);
-  font-size: 3rem; /* Scaled down for balanced, non-oversized consistency */
-  font-weight: 600; /* Adjusted to exact user request */
-  line-height: 1;
-  color: var(--gold); /* Uniform yellow/gold */
+  font-family: var(--font-main);
+  font-size: 3.5rem; 
+  font-weight: 900; 
+  line-height: 0.9;
+  color: var(--gold); 
   text-transform: uppercase;
-  margin-bottom: 0.75rem;
-  letter-spacing: -1px; /* Less extreme tracking */
-  white-space: nowrap; /* Forces title to stay on one line on desktop */
+  margin-bottom: 1.5rem;
+  letter-spacing: -2px;
+  white-space: nowrap; 
 }
 
 .hero-subtitle {

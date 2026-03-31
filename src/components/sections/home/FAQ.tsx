@@ -30,9 +30,9 @@ const FAQ: React.FC = () => {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   return (
-    <section className="faq-section">
+    <section className="faq-section section-padding">
       <div className="faq-container">
-        <div className="faq-header">
+        <div className="section-header">
           <span className="section-tag">Got Questions?</span>
           <h2 className="section-title">Common Inquiries</h2>
         </div>

@@ -74,6 +74,7 @@ const Hero: React.FC = () => {
               ease: [0.16, 1, 0.3, 1] /* Custom sluggish cubic-bezier for a hyper-smooth stop */
             }}
           >
+            <span className="hero-tagline">Excellence in Craft</span>
             <h1 className="hero-title">{slides[current].title}</h1>
             
             <p className="hero-subtitle">{slides[current].subtitle}</p>

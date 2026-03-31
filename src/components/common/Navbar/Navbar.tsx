@@ -1,5 +1,7 @@
-import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { User, Bell, Menu, X } from 'lucide-react';
+import { useAuth } from '../../../context/AuthContext';
 import DesktopNav from './DesktopNav';
 import MobileNav from './MobileNav';
 import './Navbar.css';
@@ -7,56 +9,80 @@ import './Navbar.css';
 interface NavbarProps {
   isScrolled: boolean;
   isMobileMenuOpen: boolean;
-  setIsMobileMenuOpen: (isOpen: boolean) => void;
+  setIsMobileMenuOpen: (open: boolean) => void;
 }
 
 const Navbar: React.FC<NavbarProps> = ({ isScrolled, isMobileMenuOpen, setIsMobileMenuOpen }) => {
+  const { isLoggedIn } = useAuth();
+  const [isNotifOpen, setIsNotifOpen] = useState(false);
   const navigate = useNavigate();
+
+  const handleProfileClick = () => {
+    if (isLoggedIn) {
+      navigate('/profile');
+    } else {
+      navigate('/auth');
+    }
+  };
 
   return (
     <nav className={`navbar ${isScrolled ? 'scrolled' : ''}`}>
       <div className="container nav-content">
         
-        {/* Logo and Brand */}
+        {/* Logo */}
         <Link to="/" className="nav-logo">
           <img src="/images/logo.jpeg" alt="Baze 2 Barbers" className="logo-img" />
-          <span>Baze 2 Barbers</span>
+          <span>BAZE 2 BARBERS</span>
         </Link>
-        
-        {/* Center Menu */}
-        <DesktopNav />
 
-        {/* Action Buttons */}
-        <div className="nav-actions">
-          <button className="book-now-btn" onClick={() => navigate('/booking')}>Book Now</button>
-          
-          <Link to="/profile" className="profile-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-              <circle cx="12" cy="7" r="4"></circle>
-            </svg>
-          </Link>
-
-          <button className="nav-mobile-btn" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              {isMobileMenuOpen ? (
-                <>
-                  <line x1="18" y1="6" x2="6" y2="18"></line>
-                  <line x1="6" y1="6" x2="18" y2="18"></line>
-                </>
-              ) : (
-                <>
-                  <line x1="3" y1="12" x2="21" y2="12"></line>
-                  <line x1="3" y1="6" x2="21" y2="6"></line>
-                  <line x1="3" y1="18" x2="21" y2="18"></line>
-                </>
-              )}
-            </svg>
-          </button>
+        {/* Desktop Navigation */}
+        <div className="desktop-only">
+          <DesktopNav />
         </div>
 
+        {/* Right Side Actions */}
+        <div className="nav-actions">
+          
+          <button className="book-now-btn desktop-only" onClick={() => navigate('/booking')}>Book Now</button>
+
+          {/* Notifications */}
+          <div className="nav-notif-wrapper">
+            <button className="nav-icon-btn" onClick={() => setIsNotifOpen(!isNotifOpen)}>
+              <Bell size={20} />
+              {isLoggedIn && <span className="notif-badge"></span>}
+            </button>
+            
+            {isNotifOpen && (
+              <div className="notif-dropdown">
+                <div className="notif-header">Notifications</div>
+                <div className="notif-list">
+                  {isLoggedIn ? (
+                    <div className="notif-item unread">
+                      <p>Your appointment with Master J is confirmed for tomorrow at 2:00 PM.</p>
+                      <span>2 hours ago</span>
+                    </div>
+                  ) : (
+                    <div className="notif-empty">
+                      <p>Please <Link to="/auth" onClick={() => setIsNotifOpen(false)}>Login</Link> to view your notifications.</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <button className="nav-icon-btn" onClick={handleProfileClick}>
+            <User size={20} />
+          </button>
+
+          {/* Mobile Menu Trigger */}
+          <button className="nav-mobile-btn" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+            {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
+          </button>
+        </div>
       </div>
 
+      {/* Mobile Navigation Sidebar */}
       <MobileNav isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
     </nav>
   );

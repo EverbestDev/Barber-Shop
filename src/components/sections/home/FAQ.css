@@ -1,16 +1,5 @@
 .faq-section {
-  padding: 8rem 2rem;
   background-color: var(--primary);
-}
-
-.faq-container {
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-.faq-header {
-  text-align: center;
-  margin-bottom: 5rem;
 }
 
 .faq-list {

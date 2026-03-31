@@ -28,9 +28,9 @@ const features = [
 
 const WhyChooseUs: React.FC = () => {
   return (
-    <section className="why-choose-us-section">
+    <section className="why-choose-us-section section-padding">
       <div className="why-container">
-        <div className="why-header">
+        <div className="section-header">
           <span className="section-tag">Superior Standards</span>
           <h2 className="section-title">Why Baze 2 Barbers?</h2>
         </div>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Scissors, Watch, CheckCircle2 } from 'lucide-react';
+import { Watch, CheckCircle2 } from 'lucide-react';
 import './ServicesPreview.css';
 
 const services = [
@@ -29,7 +29,7 @@ const services = [
 
 const ServicesPreview: React.FC = () => {
   return (
-    <section id="services" className="services-preview-section">
+    <section id="services" className="services-preview-section section-padding">
       <div className="section-header">
         <span className="section-tag">Featured Offerings</span>
         <h2 className="section-title">Master Craftsmanship</h2>
@@ -48,7 +48,7 @@ const ServicesPreview: React.FC = () => {
             <div className="service-card-image">
               <img src={service.image} alt={service.title} />
               <div className="service-card-overlay">
-                <button className="book-btn-mini">Book Service</button>
+                <span className="overlay-tag">{service.title}</span>
               </div>
             </div>
             <div className="service-card-content">
@@ -58,8 +58,11 @@ const ServicesPreview: React.FC = () => {
               </div>
               <p className="service-card-desc">{service.desc}</p>
               <div className="service-card-footer">
-                <span className="service-meta"><Watch size={14} /> {service.time}</span>
-                <span className="service-meta"><CheckCircle2 size={14} /> Available Today</span>
+                <div className="footer-meta-box">
+                  <span className="service-meta"><Watch size={14} /> {service.time}</span>
+                  <span className="service-meta"><CheckCircle2 size={14} /> Available</span>
+                </div>
+                <button className="book-btn-direct">Book Now</button>
               </div>
             </div>
           </motion.div>
