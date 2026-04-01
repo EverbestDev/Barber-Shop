@@ -6,25 +6,25 @@ import './Hero.css';
 const slides = [
   {
     id: 1,
-    image: "https://images.unsplash.com/photo-1593702275687-f8b402bf1fb5?q=80&w=2000&auto=format&fit=crop",
+    image: "/images/sprayingsprayonhairlandscape.jpg",
     title: "PREMIUM GROOMING",
     subtitle: "Exceptional cuts, precise styling, and unmatched attention to detail designed for the modern gentleman."
   },
   {
     id: 2,
-    image: "https://images.unsplash.com/photo-1512592534063-8aee09da4cbb?q=80&w=2000&auto=format&fit=crop",
+    image: "/images/kidcutherobg.jpg",
     title: "KIDS HAIR STYLE",
     subtitle: "Safe, comfortable, and stylish haircuts for kids. We ensure a fun experience while keeping them sharp."
   },
   {
     id: 3,
-    image: "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?q=80&w=2000&auto=format&fit=crop",
+    image: "/images/beardshavinghero.jpg",
     title: "BEARD SCULPTING",
     subtitle: "Keep your facial hair sharp and defined with precise trimming, shaping, and soothing hot towel shaves."
   },
   {
     id: 4,
-    image: "https://images.unsplash.com/photo-1622286342621-4bd786c2447c?q=80&w=2000&auto=format&fit=crop",
+    image: "/images/taperfade.jpg",
     title: "SHARP SKIN FADES",
     subtitle: "Seamless precision fades executed flawlessly by expert barbers for your sharpest, cleanest look yet."
   }

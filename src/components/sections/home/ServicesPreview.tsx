@@ -11,7 +11,7 @@ const services = [
     desc: "A personalized cut based on your face shape and hair type, finished with a precise line and styling.",
     price: "£35",
     time: "45 mins",
-    image: "https://images.unsplash.com/photo-1593702275687-f8b402bf1fb5?q=80&w=600&auto=format&fit=crop"
+    image: "/images/In The Barbershop.jpg"
   },
   {
     title: "Beard Sculpture",
@@ -19,7 +19,7 @@ const services = [
     desc: "Luxury beard trim, shaping, and precise razor lining combined with a soothing hot towel treatment.",
     price: "£25",
     time: "30 mins",
-    image: "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?q=80&w=600&auto=format&fit=crop"
+    image: "/images/beardshaving.jpg"
   },
   {
     title: "The VIP Home Visit",
@@ -27,7 +27,7 @@ const services = [
     desc: "Experience our premium grooming from the comfort of your home. We bring the full studio to your doorstep.",
     price: "£85",
     time: "60 mins",
-    image: "https://images.unsplash.com/photo-1621605815841-aa34440051e7?q=80&w=600&auto=format&fit=crop"
+    image: "/images/hairwashing.jpg"
   },
   {
     title: "Father & Son Pack",
@@ -35,7 +35,7 @@ const services = [
     desc: "A bonding experience for the duo. Includes two signature cuts and styling for dad and the little champ.",
     price: "£50",
     time: "90 mins",
-    image: "https://images.unsplash.com/photo-1634449571010-023595e5b3ff?q=80&w=600&auto=format&fit=crop"
+    image: "/images/kidcut2.jpg"
   },
   {
     title: "Skin Fade Master",
@@ -43,7 +43,7 @@ const services = [
     desc: "Seamless, high-precision fades executed with extreme detail. Our barbers are masters of the blend.",
     price: "£38",
     time: "60 mins",
-    image: "https://images.unsplash.com/photo-1622286342621-4bd786c2447c?q=80&w=600&auto=format&fit=crop"
+    image: "/images/taperfade.jpg"
   },
   {
     title: "Grooming Party",
@@ -51,7 +51,7 @@ const services = [
     desc: "Booking for 3+ people. Perfect for weddings, events, or a group day out. Includes refreshments and VIP tools.",
     price: "From £150",
     time: "3 hours+",
-    image: "https://images.unsplash.com/photo-1512592534063-8aee09da4cbb?q=80&w=600&auto=format&fit=crop"
+    image: "/images/cuttingbeardwithsscissors.jpg"
   }
 ];
 

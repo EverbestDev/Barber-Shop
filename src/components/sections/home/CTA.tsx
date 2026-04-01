@@ -8,7 +8,15 @@ const CTA: React.FC = () => {
     <section className="cta-section">
       <div className="cta-overlay"></div>
       <div className="cta-bg-image">
-        <img src="https://images.unsplash.com/photo-1512592534063-8aee09da4cbb?q=80&w=2000&auto=format&fit=crop" alt="CTA Background" />
+        <video 
+          autoPlay 
+          muted 
+          loop 
+          playsInline 
+          className="cta-bg-video"
+        >
+          <source src="/videos/homectavideo.mp4" type="video/mp4" />
+        </video>
       </div>
       
       <div className="cta-content">
