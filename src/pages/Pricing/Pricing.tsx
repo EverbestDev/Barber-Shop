@@ -1,6 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { CreditCard, Zap } from 'lucide-react';
+import CTA from '../../components/sections/home/CTA';
+import { useOutletContext } from 'react-router-dom';
 import './Pricing.css';
 
 const pricingList = [
@@ -29,6 +31,8 @@ const packages = [
 ];
 
 const Pricing: React.FC = () => {
+  const { onAuthOpen } = useOutletContext<{ onAuthOpen: () => void }>();
+
   return (
     <div className="pricing-page-wrapper">
       
@@ -115,6 +119,9 @@ const Pricing: React.FC = () => {
           </div>
         </div>
       </section>
+
+      {/* CTA */}
+      <CTA onAuthOpen={onAuthOpen} />
 
     </div>
   );

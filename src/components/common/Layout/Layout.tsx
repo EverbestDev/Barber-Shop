@@ -56,7 +56,7 @@ const Layout: React.FC = () => {
       />
       
       <div className="main-content">
-        <Outlet />
+        <Outlet context={{ onAuthOpen: () => setIsAuthDrawerOpen(true) }} />
       </div>
 
       <AnimatePresence>

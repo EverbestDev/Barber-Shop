@@ -1,9 +1,12 @@
 import React from 'react';
+import { useOutletContext } from 'react-router-dom';
 import AboutHeader from '../../components/layout/About/About'; // We can reuse the section as a layout block
 import WhyChooseUs from '../../components/sections/home/WhyChooseUs';
 import CTA from '../../components/sections/home/CTA';
 
 const AboutPage: React.FC = () => {
+  const { onAuthOpen } = useOutletContext<{ onAuthOpen: () => void }>();
+
   return (
     <main className="about-page-wrapper">
       {/* Reusing existing About section as the main introduction */}
@@ -12,7 +15,7 @@ const AboutPage: React.FC = () => {
       {/* Added WhyChooseUs to fill the About page with more context */}
       <WhyChooseUs />
 
-      <CTA />
+      <CTA onAuthOpen={onAuthOpen} />
     </main>
   );
 };

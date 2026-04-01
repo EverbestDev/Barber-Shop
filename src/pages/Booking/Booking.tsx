@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, ChevronLeft, Check, Calendar as CalendarIcon, User, Scissors, MessageCircle } from 'lucide-react';
+import CTA from '../../components/sections/home/CTA';
+import { useOutletContext } from 'react-router-dom';
 import './Booking.css';
 
 const steps = ['Type', 'Service', 'Barber', 'Time', 'Review'];
@@ -48,6 +50,8 @@ const Booking: React.FC = () => {
   const [guestName, setGuestName] = useState<string>('');
   const [guestPhone, setGuestPhone] = useState<string>('');
   const [guestEmail, setGuestEmail] = useState<string>('');
+
+  const { onAuthOpen } = useOutletContext<{ onAuthOpen: () => void }>();
 
   const nextStep = () => setStep(s => s + 1);
   const prevStep = () => setStep(s => s - 1);
@@ -360,6 +364,7 @@ Contact: ${guestPhone}`;
         </div>
 
       </div>
+      <CTA onAuthOpen={onAuthOpen} />
     </div>
   );
 };

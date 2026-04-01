@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Maximize2, X } from 'lucide-react';
+import CTA from '../../components/sections/home/CTA';
+import { useOutletContext } from 'react-router-dom';
 import './Gallery.css';
 
 const categories = ['All', 'Haircuts', 'Fades', 'Beard', 'Styling'];
@@ -17,6 +19,7 @@ const images = [
 const Gallery: React.FC = () => {
   const [activeFilter, setActiveFilter] = useState('All');
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const { onAuthOpen } = useOutletContext<{ onAuthOpen: () => void }>();
 
   const filteredImages = activeFilter === 'All' 
     ? images 
@@ -45,7 +48,6 @@ const Gallery: React.FC = () => {
           <div className="filter-chips">
             {categories.map(cat => (
               <button 
-                key={cat} 
                 className={`filter-chip ${activeFilter === cat ? 'active' : ''}`}
                 onClick={() => setActiveFilter(cat)}
               >
@@ -106,9 +108,7 @@ const Gallery: React.FC = () => {
         )}
       </AnimatePresence>
 
-      <section className="gallery-cta">
-        <button className="btn-filled">Book Your Session</button>
-      </section>
+      <CTA onAuthOpen={onAuthOpen} />
 
     </div>
   );

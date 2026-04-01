@@ -1,6 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Watch, Info } from 'lucide-react';
+import CTA from '../../components/sections/home/CTA';
+import { useOutletContext } from 'react-router-dom';
 import './Services.css';
 
 const categories = [
@@ -52,6 +54,8 @@ const categories = [
 ];
 
 const Services: React.FC = () => {
+  const { onAuthOpen } = useOutletContext<{ onAuthOpen: () => void }>();
+
   return (
     <div className="services-page-wrapper">
       
@@ -125,9 +129,7 @@ const Services: React.FC = () => {
       </section>
 
       {/* CTA */}
-      <section className="services-cta">
-        <button className="btn-filled large-btn">Book Your Appointment Now</button>
-      </section>
+      <CTA onAuthOpen={onAuthOpen} />
 
     </div>
   );

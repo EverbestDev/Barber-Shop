@@ -2,9 +2,13 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { MapPin, Phone, Mail, Clock, Send, MessageCircle } from 'lucide-react';
 import FAQ from '../../components/sections/home/FAQ';
+import CTA from '../../components/sections/home/CTA';
+import { useOutletContext } from 'react-router-dom';
 import './Contact.css';
 
 const Contact: React.FC = () => {
+  const { onAuthOpen } = useOutletContext<{ onAuthOpen: () => void }>();
+
   return (
     <div className="contact-page-wrapper">
       
@@ -105,6 +109,8 @@ const Contact: React.FC = () => {
 
       {/* FAQ Reused */}
       <FAQ />
+
+      <CTA onAuthOpen={onAuthOpen} />
 
     </div>
   );
