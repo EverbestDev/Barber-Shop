@@ -20,7 +20,7 @@ const Navbar: React.FC<NavbarProps> = ({ isScrolled, isMobileMenuOpen, setIsMobi
 
   const handleProfileClick = () => {
     if (isLoggedIn) {
-      navigate('/profile');
+      navigate('/dashboard');
     } else {
       onAuthOpen();
     }

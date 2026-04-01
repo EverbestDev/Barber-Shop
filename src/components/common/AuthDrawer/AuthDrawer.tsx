@@ -19,7 +19,7 @@ const AuthDrawer: React.FC<AuthDrawerProps> = ({ onClose }) => {
     e.preventDefault();
     login({ name: 'John Doe', email: 'john@example.com' });
     onClose();
-    navigate('/profile');
+    navigate('/dashboard');
   };
 
   return (

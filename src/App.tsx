@@ -8,6 +8,7 @@ import Gallery from './pages/Gallery/Gallery'
 import Contact from './pages/Contact/Contact'
 import Profile from './pages/Profile/Profile'
 import Booking from './pages/Booking/Booking'
+import Dashboard from './pages/Dashboard/Dashboard'
 import { AuthProvider } from './context/AuthContext'
 
 // Define the router structure
@@ -43,6 +44,10 @@ const router = createBrowserRouter([
       {
         path: 'profile',
         element: <Profile />,
+      },
+      {
+        path: 'dashboard',
+        element: <Dashboard />,
       },
       {
         path: 'booking',
