@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { FaInstagram, FaTwitter, FaEnvelope } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
 import './ProfessionalTeam.css';
 
 const team = [
@@ -63,7 +64,7 @@ const ProfessionalTeam: React.FC = () => {
                 <div className="team-bio-box">
                   <p className="team-bio">{member.bio}</p>
                 </div>
-                <button className="team-book-btn">Book Session</button>
+                <Link to="/booking" className="team-book-btn">Book Session</Link>
               </div>
             </motion.div>
           ))}

@@ -1,7 +1,7 @@
 import React from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Bell, User, Home, Info, Scissors, Tag, Image, Phone, BookOpen } from 'lucide-react';
+import { X, Bell, Home, Info, Scissors, Tag, Image, Phone, BookOpen } from 'lucide-react';
 import { useAuth } from '../../../context/AuthContext';
 import './Navbar.css';
 
@@ -22,16 +22,9 @@ const navItems = [
 
 const MobileNav: React.FC<MobileNavProps> = ({ isOpen, onClose, onAuthOpen }) => {
   const { isLoggedIn } = useAuth();
-  const navigate = useNavigate();
 
-  const handleProfileClick = () => {
-    onClose();
-    if (isLoggedIn) {
-      navigate('/profile');
-    } else {
-      onAuthOpen();
-    }
-  };
+
+
 
   return (
     <AnimatePresence>
@@ -106,13 +99,6 @@ const MobileNav: React.FC<MobileNavProps> = ({ isOpen, onClose, onAuthOpen }) =>
 
             {/* Bottom Actions */}
             <div className="sidebar-actions">
-              <button
-                className="sidebar-profile-btn"
-                onClick={handleProfileClick}
-              >
-                <User size={18} />
-                {isLoggedIn ? 'My Profile' : 'Sign In / Register'}
-              </button>
               <NavLink to="/booking" className="btn-filled sidebar-book-btn" onClick={onClose}>
                 <BookOpen size={18} /> Book Your Chair
               </NavLink>

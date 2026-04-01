@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import './CTA.css';
 
 const CTA: React.FC = () => {
@@ -22,8 +23,8 @@ const CTA: React.FC = () => {
             Secure your slot with our master barbers today. Join the community of sharp-looking men in Catford.
           </p>
           <div className="cta-actions">
-            <button className="btn-filled">Book Your Chair</button>
-            <button className="btn-outlined">Contact Us</button>
+            <Link to="/booking" className="btn-filled">Book Your Chair</Link>
+            <Link to="/contact" className="btn-outlined">Contact Us</Link>
           </div>
         </motion.div>
       </div>

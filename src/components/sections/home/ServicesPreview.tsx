@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Watch, CheckCircle2 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import './ServicesPreview.css';
 
 const services = [
@@ -90,7 +91,7 @@ const ServicesPreview: React.FC = () => {
                     <span className="service-meta"><Watch size={14} /> {service.time}</span>
                     <span className="service-meta"><CheckCircle2 size={14} /> Available</span>
                   </div>
-                  <button className="book-btn-direct">Book Now</button>
+                  <Link to="/booking" className="book-btn-direct">Book Now</Link>
                 </div>
               </div>
             </motion.div>
@@ -98,7 +99,7 @@ const ServicesPreview: React.FC = () => {
         </div>
 
         <div className="services-preview-cta">
-          <button className="btn-filled">View Full Menu</button>
+          <Link to="/services" className="btn-filled">View Full Menu</Link>
         </div>
       </div>
     </section>

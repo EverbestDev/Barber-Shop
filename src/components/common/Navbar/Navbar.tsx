@@ -72,7 +72,7 @@ const Navbar: React.FC<NavbarProps> = ({ isScrolled, isMobileMenuOpen, setIsMobi
             )}
           </div>
 
-          <button className="nav-icon-btn desktop-only" onClick={handleProfileClick}>
+          <button className="nav-icon-btn" onClick={handleProfileClick}>
             <User size={20} />
           </button>
 

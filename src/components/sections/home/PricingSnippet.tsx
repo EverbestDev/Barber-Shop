@@ -1,5 +1,6 @@
 import React from 'react';
 import { Check } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import './PricingSnippet.css';
 
 const mainServices = [
@@ -64,7 +65,7 @@ const PricingSnippet: React.FC = () => {
             
             <div className="pricing-cta-box">
               <p>All services include luxury styling and premium products.</p>
-              <button className="btn-filled wide-btn">See Full Pricing Menu</button>
+              <Link to="/pricing" className="btn-filled wide-btn">See Full Pricing Menu</Link>
             </div>
           </div>
         </div>
