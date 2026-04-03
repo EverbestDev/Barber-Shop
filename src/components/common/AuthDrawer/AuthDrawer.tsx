@@ -4,6 +4,7 @@ import { X, Mail, Lock, User, ArrowRight } from 'lucide-react';
 import { FaGoogle } from 'react-icons/fa';
 import { useAuth } from '../../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { loginUser, registerUser, fetchCurrentUser } from '../../../api/auth';
 import './AuthDrawer.css';
 
 interface AuthDrawerProps {
@@ -12,14 +13,31 @@ interface AuthDrawerProps {
 
 const AuthDrawer: React.FC<AuthDrawerProps> = ({ onClose }) => {
   const [isLogin, setIsLogin] = useState(true);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleAuth = (e: React.FormEvent) => {
+  const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
-    login({ name: 'John Doe', email: 'john@example.com' });
-    onClose();
-    navigate('/dashboard');
+    try {
+      let response;
+      if (isLogin) {
+        response = await loginUser({ email, password });
+      } else {
+        response = await registerUser({ name, email, password });
+      }
+      
+      localStorage.setItem('token', response.access_token);
+      const userData = await fetchCurrentUser();
+      login(userData);
+      onClose();
+      navigate('/dashboard');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Authentication failed';
+      alert((err as { response?: { data?: { detail?: string } } }).response?.data?.detail || message);
+    }
   };
 
   return (
@@ -52,16 +70,34 @@ const AuthDrawer: React.FC<AuthDrawerProps> = ({ onClose }) => {
           {!isLogin && (
             <div className="input-group">
               <User size={18} className="input-icon" />
-              <input type="text" placeholder="Full Name" required />
+              <input 
+                type="text" 
+                placeholder="Full Name" 
+                required 
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
             </div>
           )}
           <div className="input-group">
             <Mail size={18} className="input-icon" />
-            <input type="email" placeholder="Email Address" required />
+            <input 
+              type="email" 
+              placeholder="Email Address" 
+              required 
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
           </div>
           <div className="input-group">
             <Lock size={18} className="input-icon" />
-            <input type="password" placeholder="Password" required />
+            <input 
+              type="password" 
+              placeholder="Password" 
+              required 
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
           </div>
           
           <button type="submit" className="btn-filled auth-submit-btn">

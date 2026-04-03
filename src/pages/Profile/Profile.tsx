@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { User, Calendar, History, Settings, LogOut } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import './Profile.css';
 
 const appointments = [
@@ -9,6 +11,13 @@ const appointments = [
 
 const Profile: React.FC = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
 
   return (
     <div className="profile-page-wrapper">
@@ -39,7 +48,7 @@ const Profile: React.FC = () => {
             </button>
           </nav>
 
-          <button className="logout-btn">
+          <button className="logout-btn" onClick={handleLogout}>
             <LogOut size={18} /> Logout
           </button>
         </aside>

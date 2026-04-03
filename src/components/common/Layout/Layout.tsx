@@ -22,6 +22,7 @@ const Layout: React.FC = () => {
   // Reset scroll on path change
   useEffect(() => {
     window.scrollTo(0, 0);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsMobileMenuOpen(false);
   }, [location.pathname]);
 

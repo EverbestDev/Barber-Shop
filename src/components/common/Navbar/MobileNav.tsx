@@ -1,7 +1,7 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Bell, Home, Info, Scissors, Tag, Image, Phone, BookOpen } from 'lucide-react';
+import { X, Bell, Home, Info, Scissors, Tag, Image, Phone, BookOpen, LogOut, LayoutDashboard, User } from 'lucide-react';
 import { useAuth } from '../../../context/AuthContext';
 import './Navbar.css';
 
@@ -11,26 +11,39 @@ interface MobileNavProps {
   onAuthOpen: () => void;
 }
 
-const navItems = [
-  { to: '/', label: 'Home', icon: <Home size={18} /> },
-  { to: '/about', label: 'About Us', icon: <Info size={18} /> },
-  { to: '/services', label: 'Services', icon: <Scissors size={18} /> },
-  { to: '/pricing', label: 'Pricing', icon: <Tag size={18} /> },
-  { to: '/gallery', label: 'Gallery', icon: <Image size={18} /> },
-  { to: '/contact', label: 'Contact', icon: <Phone size={18} /> },
-];
-
 const MobileNav: React.FC<MobileNavProps> = ({ isOpen, onClose, onAuthOpen }) => {
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, user, logout } = useAuth();
+  const navigate = useNavigate();
 
+  const handleLogout = () => {
+    logout();
+    onClose();
+    navigate('/');
+  };
 
+  const dashboardItems = [
+    { to: '/dashboard', label: 'Overview', icon: <LayoutDashboard size={18} /> },
+    { to: '/booking', label: 'New Booking', icon: <BookOpen size={18} /> },
+    { to: '/profile', label: 'Profile Settings', icon: <User size={18} /> },
+    { to: '/pricing', label: 'Pricing Table', icon: <Tag size={18} /> },
+    { to: '/contact', label: 'Support', icon: <Phone size={18} /> },
+  ];
 
+  const publicItems = [
+    { to: '/', label: 'Home', icon: <Home size={18} /> },
+    { to: '/about', label: 'About Us', icon: <Info size={18} /> },
+    { to: '/services', label: 'Services', icon: <Scissors size={18} /> },
+    { to: '/pricing', label: 'Pricing', icon: <Tag size={18} /> },
+    { to: '/gallery', label: 'Gallery', icon: <Image size={18} /> },
+    { to: '/contact', label: 'Contact', icon: <Phone size={18} /> },
+  ];
+
+  const currentNavItems = isLoggedIn ? dashboardItems : publicItems;
 
   return (
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Dark overlay */}
           <motion.div
             className="mobile-sidebar-overlay"
             initial={{ opacity: 0 }}
@@ -39,7 +52,6 @@ const MobileNav: React.FC<MobileNavProps> = ({ isOpen, onClose, onAuthOpen }) =>
             onClick={onClose}
           />
 
-          {/* Sidebar panel sliding in from the left */}
           <motion.div
             className="mobile-sidebar"
             initial={{ x: '-100%' }}
@@ -47,17 +59,22 @@ const MobileNav: React.FC<MobileNavProps> = ({ isOpen, onClose, onAuthOpen }) =>
             exit={{ x: '-100%' }}
             transition={{ type: 'spring', damping: 28, stiffness: 220 }}
           >
-            {/* Sidebar Header */}
             <div className="mobile-sidebar-header">
-              <span className="sidebar-logo">BAZE 2 BARBERS</span>
+              <div className="sidebar-header-content">
+                <span className="sidebar-logo">BAZE 2 BARBERS</span>
+                {isLoggedIn && user && (
+                  <div className="sidebar-user-minimal">
+                    <span className="user-name">{user.name}</span>
+                  </div>
+                )}
+              </div>
               <button className="sidebar-close-btn" onClick={onClose}>
                 <X size={22} />
               </button>
             </div>
 
-            {/* Nav Links */}
             <nav className="mobile-sidebar-links">
-              {navItems.map((item) => (
+              {currentNavItems.map((item) => (
                 <NavLink
                   key={item.to}
                   to={item.to}
@@ -71,10 +88,8 @@ const MobileNav: React.FC<MobileNavProps> = ({ isOpen, onClose, onAuthOpen }) =>
               ))}
             </nav>
 
-            {/* Divider */}
             <div className="sidebar-divider" />
 
-            {/* Notifications Section */}
             <div className="sidebar-notif-section">
               <div className="sidebar-section-title">
                 <Bell size={16} />
@@ -88,20 +103,26 @@ const MobileNav: React.FC<MobileNavProps> = ({ isOpen, onClose, onAuthOpen }) =>
                     <span>2 hours ago</span>
                   </div>
                 ) : (
-                  <p className="sidebar-notif-empty">
-                    <button className="text-gold-btn" onClick={() => { onClose(); onAuthOpen(); }}>Sign in</button> to view your notifications.
-                  </p>
+                  <div className="sidebar-notif-empty">
+                    <p>Sign in to view your notifications.</p>
+                    <button className="text-gold-btn" onClick={() => { onClose(); onAuthOpen(); }}>Sign in</button>
+                  </div>
                 )}
               </div>
             </div>
 
             <div className="sidebar-divider" />
 
-            {/* Bottom Actions */}
             <div className="sidebar-actions">
               <NavLink to="/booking" className="btn-filled sidebar-book-btn" onClick={onClose}>
                 <BookOpen size={18} /> Book Your Chair
               </NavLink>
+              
+              {isLoggedIn && (
+                <button className="sidebar-logout-btn" onClick={handleLogout}>
+                   <LogOut size={18} /> Logout
+                </button>
+              )}
             </div>
           </motion.div>
         </>
