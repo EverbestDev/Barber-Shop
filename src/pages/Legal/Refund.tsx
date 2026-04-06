@@ -7,13 +7,13 @@ const Refund: React.FC = () => {
   return (
     <div className="legal-page-wrapper">
       <section className="legal-hero">
-        <div className="container">
+        <div className="legal-container">
           <motion.h1 
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             className="legal-title text-gold"
           >
-            REFUND & CANCELLATION
+            REFUND <br /> & CANCELLATION
           </motion.h1>
           <p className="refund-desc">Everything you need to know about deposits and refunds.</p>
         </div>

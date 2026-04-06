@@ -4,6 +4,7 @@ import { motion, useScroll, useSpring, AnimatePresence } from 'framer-motion';
 import Navbar from '../Navbar/Navbar';
 import Footer from '../Footer/Footer';
 import AuthDrawer from '../AuthDrawer/AuthDrawer';
+import CookieConsent from '../CookieConsent/CookieConsent';
 
 const Layout: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -76,6 +77,7 @@ const Layout: React.FC = () => {
       </AnimatePresence>
 
       {location.pathname !== '/auth' && <Footer />}
+      <CookieConsent />
     </div>
   );
 };

@@ -7,13 +7,13 @@ const Privacy: React.FC = () => {
   return (
     <div className="legal-page-wrapper">
       <section className="legal-hero">
-        <div className="container">
+        <div className="legal-container">
           <motion.h1 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             className="legal-title text-gold"
           >
-            PRIVACY POLICY
+            PRIVACY <br /> POLICY
           </motion.h1>
           <p className="privacy-desc">Your privacy is our priority. This policy outlines how we handle your data.</p>
         </div>

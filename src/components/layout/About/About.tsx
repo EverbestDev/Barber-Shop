@@ -1,12 +1,25 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { motion, useInView } from 'framer-motion';
 import type { Variants } from 'framer-motion';
-import { CheckCircle2 } from 'lucide-react';
+import { CheckCircle2, Play, Pause } from 'lucide-react';
 import './About.css';
 
 const About: React.FC = () => {
   const ref = useRef(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
+
+  const togglePlay = () => {
+    if (videoRef.current) {
+      if (isPlaying) {
+        videoRef.current.pause();
+      } else {
+        videoRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
+    }
+  };
 
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
@@ -38,10 +51,20 @@ const About: React.FC = () => {
           animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -50 }}
           transition={{ duration: 1, ease: "easeOut" }}
         >
-          <img 
-            src="https://images.unsplash.com/photo-1541533261642-16eef8841b5a?q=80&w=1000&auto=format&fit=crop" 
-            alt="Barbershop Interior" 
-          />
+          <video 
+            ref={videoRef}
+            className={`about-video-card ${isPlaying ? 'playing' : 'paused'}`}
+            loop 
+            muted 
+            playsInline
+            poster="/images/LuxuryLounge.jpg"
+            onClick={togglePlay}
+          >
+            <source src="/videos/homectavideo.mp4" type="video/mp4" />
+          </video>
+          <div className="about-video-play-overlay" onClick={togglePlay}>
+            {isPlaying ? <Pause size={48} /> : <Play size={48} fill="currentColor" />}
+          </div>
         </motion.div>
  
         {/* Right Side: Text & Content */}
@@ -66,16 +89,12 @@ const About: React.FC = () => {
           <motion.p variants={itemVariants} className="about-description" style={{ marginBottom: '2rem' }}>
             Whether you need a sharp skin fade, precise beard sculpting, or a classic hot towel shave, our master barbers are dedicated to making sure you leave the chair looking and feeling your absolute best.
           </motion.p>
-
+ 
           <motion.ul variants={itemVariants} className="about-features">
             <li><CheckCircle2 className="feature-icon" /> Master Barbers with Years of Experience</li>
             <li><CheckCircle2 className="feature-icon" /> Premium Grooming Products</li>
             <li><CheckCircle2 className="feature-icon" /> Relaxing & Exclusive Atmosphere</li>
           </motion.ul>
-
-          <motion.div variants={itemVariants}>
-            <button className="btn-outlined about-btn">Read Our Story</button>
-          </motion.div>
         </motion.div>
 
       </div>

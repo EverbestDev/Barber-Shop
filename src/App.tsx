@@ -13,6 +13,7 @@ import Dashboard from './pages/Dashboard/Dashboard'
 import Terms from './pages/Legal/Terms'
 import Privacy from './pages/Legal/Privacy'
 import Refund from './pages/Legal/Refund'
+import Cookie from './pages/Legal/Cookie'
 import Auth from './pages/Auth/Auth'
 import { AuthProvider, useAuth } from './context/AuthContext'
 
@@ -69,6 +70,10 @@ const router = createBrowserRouter([
       {
         path: 'refund',
         element: <Refund />,
+      },
+      {
+        path: 'cookie',
+        element: <Cookie />,
       }
     ]
   },

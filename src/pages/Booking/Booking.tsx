@@ -6,7 +6,6 @@ import { useNavigate } from 'react-router-dom';
 import { fetchBarbers } from '../../api/admin';
 import { createBooking } from '../../api/bookings';
 import { createCheckoutSession } from '../../api/payments';
-import stripePromise from '../../config/stripe';
 import type { UserInfo } from '../../api/types';
 import './Booking.css';
 
@@ -88,18 +87,12 @@ const BookingPage: React.FC = () => {
 
       const newBooking = await createBooking(bookingData);
       
-      const stripe = await stripePromise;
-      if (!stripe) {
-        throw new Error('Stripe failed to initialize.');
-      }
-
-      const { id, url } = await createCheckoutSession(newBooking.id!);
+      const { url } = await createCheckoutSession(newBooking.id!);
       
-      const { error } = await stripe.redirectToCheckout({ sessionId: id });
-      
-      if (error) {
-        console.error("Stripe Redirection Error:", error);
+      if (url) {
         window.location.href = url;
+      } else {
+        throw new Error('Stripe checkout URL not returned.');
       }
 
     } catch (err) {

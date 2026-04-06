@@ -7,13 +7,13 @@ const Terms: React.FC = () => {
   return (
     <div className="legal-page-wrapper">
       <section className="legal-hero">
-        <div className="container">
+        <div className="legal-container">
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="legal-title text-gold"
           >
-            TERMS & CONDITIONS
+            TERMS <br /> & CONDITIONS
           </motion.h1>
           <p className="legal-desc">Last Updated: April 2026</p>
         </div>

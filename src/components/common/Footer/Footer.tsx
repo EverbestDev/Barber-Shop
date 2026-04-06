@@ -82,6 +82,7 @@ const Footer: React.FC = () => {
           <Link to="/privacy">Privacy Policy</Link>
           <Link to="/terms">Terms of Service</Link>
           <Link to="/refund">Refund Policy</Link>
+          <Link to="/cookie">Cookie Policy</Link>
         </div>
       </div>
     </footer>

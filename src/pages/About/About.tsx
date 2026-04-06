@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { useOutletContext } from 'react-router-dom';
 import AboutContent from '../../components/layout/About/About'; 
 import WhyChooseUs from '../../components/sections/home/WhyChooseUs';
+import Timeline from '../../components/sections/about/Timeline';
 import CTA from '../../components/sections/home/CTA';
 import './About.css';
 
@@ -56,6 +57,7 @@ const AboutPage: React.FC = () => {
 
       {/* Additional context */}
       <WhyChooseUs />
+      <Timeline />
 
       <CTA onAuthOpen={onAuthOpen} />
     </main>
