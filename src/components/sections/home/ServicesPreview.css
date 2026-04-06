@@ -34,7 +34,7 @@
   max-width: 1400px;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); /* slightly wider cards too */
+  grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr)); /* Fix layout shift / overflow */
   gap: 2.5rem; /* increased gap to match widened container */
   justify-items: center; 
 }

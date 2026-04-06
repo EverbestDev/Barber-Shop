@@ -28,6 +28,22 @@
   padding: 0 4rem;
 }
 
+@media (max-width: 900px) {
+  .navbar .container {
+    padding: 0 1rem;
+    width: 100%;
+  }
+  .nav-logo {
+    font-size: 1.1rem;
+    gap: 0.5rem;
+  }
+  .logo-img {
+    width: 38px;
+    height: 38px;
+  }
+}
+
+
 /* Nav Logo Section */
 .nav-logo {
   display: flex;
