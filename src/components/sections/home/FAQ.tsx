@@ -17,7 +17,7 @@ const faqs = [
   },
   {
     question: "Do you offer haircuts for children?",
-    answer: "Absolutely! We take pride in being a family-friendly establishment. Our barbers are experts at working with younger gentlemen (under 14), providing a calm, safe, and professional environment. We ensure they leave the chair looking sharp and feeling confident."
+    answer: "Absolutely! We take pride in being a family-friendly establishment. Our barbers are experts at working with younger guests (under 14), providing a calm, safe, and professional environment. We ensure they leave the chair looking sharp and feeling confident."
   },
   {
     question: "What payment methods do you accept?",

@@ -255,8 +255,18 @@
 }
 
 @media (max-width: 600px) {
+  .booking-page-wrapper {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
   .booking-card {
-    padding: 2rem;
+    padding: 2rem 1rem;
+  }
+
+  .option-card {
+    padding: 1.25rem 1rem;
+    gap: 1rem;
   }
   
   .options-grid.cols-3 {

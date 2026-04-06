@@ -11,7 +11,7 @@ const services = [
     desc: "A personalized cut based on your face shape and hair type, finished with a precise line and styling.",
     price: "£35",
     time: "45 mins",
-    image: "/images/In The Barbershop.jpg"
+    image: "/images/mensignature.jpg"
   },
   {
     title: "Beard Sculpture",
@@ -20,6 +20,38 @@ const services = [
     price: "£25",
     time: "30 mins",
     image: "/images/beardshaving.jpg"
+  },
+  {
+    title: "Baby Cut",
+    category: "Family Group",
+    desc: "Gentle and stylish haircuts for the little ones. We make sure they feel comfortable and look sharp.",
+    price: "£20",
+    time: "30 mins",
+    image: "/images/In The Barbershop.jpg"
+  },
+  {
+    title: "Women's Taper Fade",
+    category: "Specialized",
+    desc: "Edgy and precise taper fades for women. A bold look executed with artistic precision and flair.",
+    price: "£40",
+    time: "60 mins",
+    image: "/images/womentapperfade.jpg"
+  },
+  {
+    title: "Women's Signature",
+    category: "Specialized",
+    desc: "Customized women's styling and cutting. From classic bobs to modern pixie cuts, tailored to you.",
+    price: "£45",
+    time: "60 mins",
+    image: "/images/womensignature.jpg"
+  },
+  {
+    title: "Skin Fade Master",
+    category: "In-Studio",
+    desc: "Seamless, high-precision fades executed with extreme detail. Our barbers are masters of the blend.",
+    price: "£38",
+    time: "60 mins",
+    image: "/images/taperfade.jpg"
   },
   {
     title: "The VIP Home Visit",
@@ -36,14 +68,6 @@ const services = [
     price: "£50",
     time: "90 mins",
     image: "/images/kidcut2.jpg"
-  },
-  {
-    title: "Skin Fade Master",
-    category: "In-Studio",
-    desc: "Seamless, high-precision fades executed with extreme detail. Our barbers are masters of the blend.",
-    price: "£38",
-    time: "60 mins",
-    image: "/images/taperfade.jpg"
   },
   {
     title: "Grooming Party",

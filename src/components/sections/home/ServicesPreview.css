@@ -31,12 +31,12 @@
 }
 
 .services-preview-grid {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 2rem;
-  justify-items: center; /* Ensures single items are centered */
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); /* slightly wider cards too */
+  gap: 2.5rem; /* increased gap to match widened container */
+  justify-items: center; 
 }
 
 .service-card {

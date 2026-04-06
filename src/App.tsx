@@ -10,6 +10,9 @@ import Contact from './pages/Contact/Contact'
 import Profile from './pages/Profile/Profile'
 import Booking from './pages/Booking/Booking'
 import Dashboard from './pages/Dashboard/Dashboard'
+import Terms from './pages/Legal/Terms'
+import Privacy from './pages/Legal/Privacy'
+import Refund from './pages/Legal/Refund'
 import Auth from './pages/Auth/Auth'
 import { AuthProvider, useAuth } from './context/AuthContext'
 
@@ -54,6 +57,18 @@ const router = createBrowserRouter([
       {
         path: 'booking',
         element: <Booking />,
+      },
+      {
+        path: 'terms',
+        element: <Terms />,
+      },
+      {
+        path: 'privacy',
+        element: <Privacy />,
+      },
+      {
+        path: 'refund',
+        element: <Refund />,
       }
     ]
   },

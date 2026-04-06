@@ -8,12 +8,12 @@ import './Gallery.css';
 const categories = ['All', 'Haircuts', 'Fades', 'Beard', 'Styling'];
 
 const images = [
-  { id: 1, category: 'Haircuts', src: 'https://images.unsplash.com/photo-1599351431202-1e0f0137899a?q=80&w=800&auto=format&fit=crop', title: 'Classic Side Part' },
-  { id: 2, category: 'Fades', src: 'https://images.unsplash.com/photo-1621605815971-fbc98d665033?q=80&w=800&auto=format&fit=crop', title: 'Sharp Skin Fade' },
-  { id: 3, category: 'Beard', src: 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?q=80&w=800&auto=format&fit=crop', title: 'Beard Sculpting' },
-  { id: 4, category: 'Styling', src: 'https://images.unsplash.com/photo-1593702275687-f8b402bf1fb5?q=80&w=800&auto=format&fit=crop', title: 'Textured Crop' },
-  { id: 5, category: 'Haircuts', src: 'https://images.unsplash.com/photo-1512592534063-8aee09da4cbb?q=80&w=800&auto=format&fit=crop', title: 'Pompadour' },
-  { id: 6, category: 'Fades', src: 'https://images.unsplash.com/photo-1622286342621-4bd786c2447c?q=80&w=800&auto=format&fit=crop', title: 'Burst Fade' }
+  { id: 1, category: 'Haircuts', src: '/images/mensignature.jpg', title: 'Signature Cut' },
+  { id: 2, category: 'Fades', src: '/images/taperfade.jpg', title: 'Sharp Skin Fade' },
+  { id: 3, category: 'Beard', src: '/images/beardshaving.jpg', title: 'Beard Sculpting' },
+  { id: 4, category: 'Haircuts', src: '/images/womensignature.jpg', title: "Women's Signature" },
+  { id: 5, category: 'Fades', src: '/images/womentapperfade.jpg', title: "Women's Taper Fade" },
+  { id: 6, category: 'Haircuts', src: '/images/In The Barbershop.jpg', title: 'Classic Grooming' }
 ];
 
 const Gallery: React.FC = () => {
@@ -36,7 +36,7 @@ const Gallery: React.FC = () => {
             animate={{ opacity: 1, scale: 1 }}
             className="gallery-title"
           >
-            MASTERPIECE GALLERY
+            MASTERPIECE <br /> GALLERY
           </motion.h1>
           <p className="gallery-desc">A visual showcase of our dedication to the craft.</p>
         </div>

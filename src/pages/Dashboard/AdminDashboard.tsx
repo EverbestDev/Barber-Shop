@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Users, Calendar, LogOut, Scissors, Shield, Trash2 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { fetchAllUsers, updateUserRole } from '../../api/admin';
+import { fetchAllUsers, updateUserRole, deleteUser } from '../../api/admin';
 import { fetchAllBookings, updateBookingStatus } from '../../api/bookings';
 import type { UserInfo, Booking } from '../../api/types';
 
@@ -32,6 +32,17 @@ const AdminDashboard: React.FC = () => {
     } catch (err) {
       console.error(err);
       alert("Role update failed.");
+    }
+  };
+
+  const handleDeleteUser = async (userId: string) => {
+    if (!window.confirm("Are you sure you want to delete this user? This action cannot be undone.")) return;
+    try {
+      await deleteUser(userId);
+      setUsers(users.filter(u => u.id !== userId));
+    } catch (err) {
+      console.error(err);
+      alert("Delete failed.");
     }
   };
 
@@ -106,7 +117,13 @@ const AdminDashboard: React.FC = () => {
                       </td>
                       <td>{new Date(u.created_at).toLocaleDateString()}</td>
                       <td>
-                        <button className="delete-btn"><Trash2 size={16} /></button>
+                        <button 
+                          className="delete-btn"
+                          onClick={() => handleDeleteUser(u.id)}
+                          title="Delete User"
+                        >
+                          <Trash2 size={16} />
+                        </button>
                       </td>
                     </tr>
                   ))}

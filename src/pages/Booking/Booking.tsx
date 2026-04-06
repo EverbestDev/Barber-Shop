@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { fetchBarbers } from '../../api/admin';
 import { createBooking } from '../../api/bookings';
 import { createCheckoutSession } from '../../api/payments';
+import stripePromise from '../../config/stripe';
 import type { UserInfo } from '../../api/types';
 import './Booking.css';
 
@@ -38,6 +39,8 @@ const allServices: Service[] = [
   { id: 3, cat: 'shop', name: 'Beard Sculpture', price: 25, duration: '30m' },
   { id: 4, cat: 'shop', name: 'Executive Package', price: 55, duration: '75m' },
   { id: 5, cat: 'shop', name: 'Buzz Cut', price: 20, duration: '20m' },
+  { id: 6, cat: 'shop', name: "Women's Taper Fade", price: 40, duration: '60m' },
+  { id: 7, cat: 'shop', name: "Women's Signature", price: 45, duration: '60m' },
   { id: 101, cat: 'home', name: 'Executive Home Visit', price: 85, duration: '60m', popular: true },
   { id: 102, cat: 'home', name: 'Duo Home Session', price: 150, duration: '120m' },
   { id: 201, cat: 'group', name: 'Father & Son', price: 50, duration: '90m', popular: true }
@@ -84,8 +87,21 @@ const BookingPage: React.FC = () => {
       };
 
       const newBooking = await createBooking(bookingData);
-      const { url } = await createCheckoutSession(newBooking.id!);
-      window.location.href = url;
+      
+      const stripe = await stripePromise;
+      if (!stripe) {
+        throw new Error('Stripe failed to initialize.');
+      }
+
+      const { id, url } = await createCheckoutSession(newBooking.id!);
+      
+      const { error } = await stripe.redirectToCheckout({ sessionId: id });
+      
+      if (error) {
+        console.error("Stripe Redirection Error:", error);
+        window.location.href = url;
+      }
+
     } catch (err) {
       console.error(err);
       alert("Booking failed. Please check your details.");

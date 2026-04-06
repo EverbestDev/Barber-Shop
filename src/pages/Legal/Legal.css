@@ -1,0 +1,86 @@
+.legal-page-wrapper {
+  background-color: var(--primary);
+  min-height: 100vh;
+}
+
+.legal-hero {
+  padding: 12rem 2rem 6rem;
+  text-align: center;
+  background: radial-gradient(circle at center, #141414 0%, #0a0a0a 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.legal-title {
+  font-family: var(--font-main);
+  font-size: 5rem;
+  font-weight: 900;
+  letter-spacing: -3px;
+  margin-bottom: 1.5rem;
+  text-transform: uppercase;
+}
+
+.legal-desc, .privacy-desc, .refund-desc {
+  max-width: 600px;
+  margin: 0 auto;
+  color: var(--text-secondary);
+  font-size: 1.125rem;
+  line-height: 1.6;
+}
+
+.legal-content-section {
+  padding: 6rem 2rem;
+}
+
+.narrow-container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.legal-card {
+  background-color: var(--secondary);
+  padding: 4rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  position: relative;
+}
+
+.legal-icon-box {
+  width: 64px;
+  height: 64px;
+  background-color: rgba(255, 204, 0, 0.1);
+  color: var(--gold);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 3rem;
+}
+
+.legal-card h3 {
+  color: var(--white);
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 2.5rem 0 1.25rem;
+  letter-spacing: -0.5px;
+}
+
+.legal-card h3:first-of-type {
+  margin-top: 0;
+}
+
+.legal-card p {
+  color: var(--text-primary);
+  font-size: 1.0625rem;
+  line-height: 1.8;
+  opacity: 0.85;
+}
+
+@media (max-width: 768px) {
+  .legal-title {
+    font-size: 3rem;
+  }
+  
+  .legal-card {
+    padding: 2.5rem 1.5rem;
+  }
+}

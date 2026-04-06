@@ -7,11 +7,13 @@ import './Pricing.css';
 
 const pricingList = [
   { name: "Signature Haircut", price: "£35", duration: "45 min" },
-  { name: "Skin Fade", price: "£38", duration: "60 min" },
+  { name: "Skin Fade Master", price: "£38", duration: "60 min" },
+  { name: "Baby Cut", price: "£20", duration: "30 min" },
   { name: "Beard Sculpture", price: "£25", duration: "30 min" },
+  { name: "Women's Taper Fade", price: "£40", duration: "60 min" },
+  { name: "Women's Signature", price: "£45", duration: "60 min" },
   { name: "Hot Towel Shave", price: "£30", duration: "45 min" },
   { name: "Haircut & Beard", price: "£55", duration: "75 min" },
-  { name: "Kids Haircut", price: "£20", duration: "30 min" },
   { name: "The Royal Treatment", price: "£75", duration: "105 min" }
 ];
 
@@ -44,7 +46,7 @@ const Pricing: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             className="pricing-title"
           >
-            TRANSPARENT PRICING
+            TRANSPARENT <br /> PRICING
           </motion.h1>
           <p className="pricing-desc">
             Premium value for expert results. View our simple, all-inclusive pricing structure.

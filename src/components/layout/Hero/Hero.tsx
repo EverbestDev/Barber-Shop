@@ -27,6 +27,12 @@ const slides = [
     image: "/images/taperfade.jpg",
     title: "SHARP SKIN FADES",
     subtitle: "Seamless precision fades executed flawlessly by expert barbers for your sharpest, cleanest look yet."
+  },
+  {
+    id: 5,
+    image: "/images/womensignature.jpg",
+    title: "WOMEN'S STYLING",
+    subtitle: "From precision taper fades to creative signature cuts, we provide expert styling tailored for women."
   }
 ];
 

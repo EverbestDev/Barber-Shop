@@ -6,11 +6,11 @@
 }
 
 .profile-layout {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: 300px 1fr;
-  gap: 4rem;
+  grid-template-columns: 320px 1fr; /* Slightly wider sidebar */
+  gap: 5rem; /* increased gap for a more airy feel */
 }
 
 /* Sidebar */

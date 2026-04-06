@@ -56,12 +56,8 @@
   padding-bottom: 2rem;
   gap: 1.5rem;
   color: var(--gold);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.team-card:hover .team-social-overlay {
   opacity: 1;
+  transition: opacity 0.3s ease;
 }
 
 .team-social-overlay > svg {
@@ -128,7 +124,7 @@
   border-color: var(--gold);
 }
 
-@media (max-width: 1200px) {
+@media (max-width: 1024px) {
   .team-grid {
     grid-template-columns: repeat(2, 1fr);
   }

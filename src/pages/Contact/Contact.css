@@ -4,17 +4,21 @@
 }
 
 .contact-hero {
-  padding: 12rem 2rem 4rem;
-  text-align: center;
+  padding: 8rem 2rem 4rem;
+  text-align: left;
+  min-height: 40vh;
+  display: flex;
+  align-items: center;
 }
 
 .contact-title {
-  font-family: var(--font-oswald);
-  font-size: 5rem;
-  font-weight: 800;
+  font-family: var(--font-main);
+  font-size: 4.5rem;
+  font-weight: 900;
   color: var(--gold);
   margin-bottom: 1rem;
   letter-spacing: -2px;
+  text-transform: uppercase;
 }
 
 .contact-hero-desc {
@@ -29,7 +33,7 @@
   display: grid;
   grid-template-columns: 1fr 1.2fr;
   gap: 6rem;
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
 }
 

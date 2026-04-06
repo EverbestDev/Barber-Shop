@@ -15,3 +15,8 @@ export const fetchCurrentUser = async (): Promise<UserInfo> => {
   const response = await apiClient.get<UserInfo>('/users/me');
   return response.data;
 };
+
+export const updateCurrentUser = async (data: import('./types.ts').UserUpdate): Promise<UserInfo> => {
+  const response = await apiClient.patch<UserInfo>('/users/me', data);
+  return response.data;
+};

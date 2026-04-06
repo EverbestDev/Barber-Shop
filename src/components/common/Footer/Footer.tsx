@@ -13,7 +13,7 @@ const Footer: React.FC = () => {
         <div className="footer-block brand-info">
           <h3 className="footer-logo">BAZE 2 BARBERS</h3>
           <p className="footer-about">
-            Premium grooming for the modern man. Experience the art of master barbering in the heart of Catford.
+            Premium grooming for the modern individual. Experience the art of master barbering in the heart of Catford.
           </p>
           <div className="footer-socials">
             <a href="#" className="social-link"><FaFacebook size={18} /></a>
@@ -79,8 +79,9 @@ const Footer: React.FC = () => {
       <div className="footer-bottom">
         <p>© {new Date().getFullYear()} Baze 2 Barbers. All rights reserved.</p>
         <div className="footer-legal">
-          <a href="#">Privacy Policy</a>
-          <a href="#">Terms of Service</a>
+          <Link to="/privacy">Privacy Policy</Link>
+          <Link to="/terms">Terms of Service</Link>
+          <Link to="/refund">Refund Policy</Link>
         </div>
       </div>
     </footer>

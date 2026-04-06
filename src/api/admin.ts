@@ -15,3 +15,7 @@ export const fetchBarbers = async (): Promise<UserInfo[]> => {
   const response = await apiClient.get<UserInfo[]>('/users/barbers');
   return response.data;
 };
+
+export const deleteUser = async (userId: string): Promise<void> => {
+  await apiClient.delete(`/users/${userId}`);
+};

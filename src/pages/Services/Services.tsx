@@ -12,8 +12,8 @@ const categories = [
     services: [
       { name: "Signature Haircut", desc: "Our most popular service, tailored exactly to your head shape and hair type.", price: "£35", time: "45 mins" },
       { name: "Skin Fade", desc: "Expert fading from skin to your desired length on top.", price: "£38", time: "60 mins" },
-      { name: "Kids Haircut", desc: "Sharp styles for our younger gentlemen under 14.", price: "£20", time: "30 mins" },
-      { name: "Seniors (65+)", desc: "Classic cuts for our established gentlemen.", price: "£20", time: "30 mins" }
+      { name: "Kids Haircut", desc: "Sharp styles for our younger guests under 14.", price: "£20", time: "30 mins" },
+      { name: "Seniors (65+)", desc: "Classic cuts for our established clients.", price: "£20", time: "30 mins" }
     ]
   },
   {
@@ -43,6 +43,14 @@ const categories = [
     ]
   },
   {
+    id: 'womens-cuts',
+    title: "Women's Specialized Cuts",
+    services: [
+      { name: "Women's Taper Fade", desc: "Edgy and precise taper fades for women. A bold look executed with artistic precision and flair.", price: "£40", time: "60 mins" },
+      { name: "Women's Signature", desc: "Customized women's styling and cutting. From classic bobs to modern pixie cuts, tailored to you.", price: "£45", time: "60 mins" }
+    ]
+  },
+  {
     id: 'group',
     title: 'Group & Family Packages',
     services: [
@@ -68,7 +76,7 @@ const Services: React.FC = () => {
             transition={{ duration: 0.8 }}
             className="services-hero-title"
           >
-            OUR SERVICES
+            OUR <br /> SERVICES
           </motion.h1>
           <motion.p 
             initial={{ opacity: 0, y: 30 }}

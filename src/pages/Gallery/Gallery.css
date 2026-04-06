@@ -4,17 +4,21 @@
 }
 
 .gallery-hero {
-  padding: 12rem 2rem 4rem;
-  text-align: center;
+  padding: 8rem 2rem 4rem;
+  text-align: left;
+  min-height: 40vh;
+  display: flex;
+  align-items: center;
 }
 
 .gallery-title {
-  font-family: var(--font-oswald);
-  font-size: 5rem;
-  font-weight: 800;
+  font-family: var(--font-main);
+  font-size: 3.6rem;
+  font-weight: 900;
   color: var(--gold);
   margin-bottom: 1rem;
   letter-spacing: -2px;
+  text-transform: uppercase;
 }
 
 .gallery-desc {

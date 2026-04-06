@@ -14,6 +14,9 @@
   --black: #000000;
   
   --font-main: 'Geist', sans-serif;
+  --font-oswald: 'Geist', sans-serif;
+  --font-serif: 'Geist', sans-serif;
+  --font-geist: 'Geist', sans-serif;
 
   font-family: var(--font-main);
   line-height: 1.5;
@@ -39,6 +42,15 @@ body {
   min-height: 100vh;
   background-color: var(--primary);
   overflow-x: hidden;
+}
+
+img, video {
+  filter: grayscale(100%);
+  transition: filter 0.3s ease;
+}
+
+img:hover, video:hover {
+  filter: grayscale(0%);
 }
 
 #root {
@@ -140,9 +152,9 @@ button {
 
 /* Utilities */
 .container {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 0 2rem;
+  padding: 0 1.5rem;
 }
 
 .section-padding {

@@ -8,37 +8,37 @@ const features = [
     icon: <UserCheck size={32} />,
     title: "Master Barbers",
     desc: "Our team consists of highly trained professionals dedicated to the craft of precision grooming.",
-    image: "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?q=80&w=600&auto=format&fit=crop"
+    image: "/images/masterbarbers.jpg"
   },
   {
     icon: <Zap size={32} />,
     title: "V.I.P Home Visit",
     desc: "Luxury grooming brought to your doorstep. Perfect for busy professionals wanting a private session.",
-    image: "https://images.unsplash.com/photo-1621605815841-aa34440051e7?q=80&w=600&auto=format&fit=crop"
+    image: "/images/viphomevisit.jpg"
   },
   {
     icon: <Users size={32} />,
     title: "Family Bonding",
     desc: "We specialize in Father & Son packages, providing a fun and sharp experience for the whole family.",
-    image: "https://images.unsplash.com/photo-1634449571010-023595e5b3ff?q=80&w=600&auto=format&fit=crop"
+    image: "/images/familybonding.jpg"
   },
   {
     icon: <ShieldCheck size={32} />,
     title: "Pure Hygiene",
     desc: "Uncompromising hospital-grade sterilization for every tool and station between every single client.",
-    image: "https://images.unsplash.com/photo-1541533261642-16eef8841b5a?q=80&w=600&auto=format&fit=crop"
+    image: "/images/purehygiene.jpg"
   },
   {
     icon: <Star size={32} />,
     title: "Premium Tools",
     desc: "We use only the finest razors, shears, and luxury scents to ensure a truly superior grooming result.",
-    image: "https://images.unsplash.com/photo-1622286342621-4bd786c2447c?q=80&w=600&auto=format&fit=crop"
+    image: "/images/premiumtools.jpg"
   },
   {
     icon: <Sparkles size={32} />,
     title: "Luxury Lounge",
     desc: "Relax with a drink in our exclusive lounge before your cut. Every visit is built around your comfort.",
-    image: "https://images.unsplash.com/photo-1512592534063-8aee09da4cbb?q=80&w=600&auto=format&fit=crop"
+    image: "/images/LuxuryLounge.jpg"
   }
 ];
 
