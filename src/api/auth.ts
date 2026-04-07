@@ -35,3 +35,13 @@ export const resetPassword = async (email: string, code: string, new_password: s
   const response = await apiClient.post<{ message: string }>(`/users/reset-password?email=${email}&code=${code}&new_password=${new_password}`);
   return response.data;
 };
+
+export const requestDeleteOTP = async (): Promise<{ message: string }> => {
+  const response = await apiClient.post<{ message: string }>('/users/request-delete-otp');
+  return response.data;
+};
+
+export const confirmDeleteAccount = async (code: string): Promise<{ message: string }> => {
+  const response = await apiClient.post<{ message: string }>(`/users/confirm-delete?code=${code}`);
+  return response.data;
+};

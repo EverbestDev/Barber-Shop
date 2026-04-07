@@ -3,7 +3,6 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Bell, Home, Info, Scissors, Tag, Image, Phone, BookOpen, LogOut, LayoutDashboard, User } from 'lucide-react';
 import { useAuth } from '../../../context/AuthContext';
-import { fetchNotifications, type Notification } from '../../../api/notifications';
 import './Navbar.css';
 
 interface MobileNavProps {
@@ -12,21 +11,9 @@ interface MobileNavProps {
   onAuthOpen: () => void;
 }
 
-const MobileNav: React.FC<MobileNavProps> = ({ isOpen, onClose, onAuthOpen }) => {
+const MobileNav: React.FC<MobileNavProps> = ({ isOpen, onClose }) => {
   const { isLoggedIn, user, logout } = useAuth();
   const navigate = useNavigate();
-  const [notifications, setNotifications] = React.useState<Notification[]>([]);
-
-  React.useEffect(() => {
-    if (!isLoggedIn || !isOpen) return;
-    const getNotifs = async () => {
-      try {
-        const notifs = await fetchNotifications();
-        setNotifications(notifs);
-      } catch (e) {}
-    };
-    getNotifs();
-  }, [isLoggedIn, isOpen]);
 
   const handleLogout = () => {
     logout();
@@ -104,39 +91,12 @@ const MobileNav: React.FC<MobileNavProps> = ({ isOpen, onClose, onAuthOpen }) =>
 
             <div className="sidebar-divider" />
 
-            {isLoggedIn && (
-              <div className="sidebar-notif-section">
-                <div className="sidebar-section-title">
-                  <Bell size={16} />
-                  <span>Recent Alerts</span>
-                  {notifications.some(n => n.isNew) && <span className="sidebar-notif-badge" />}
-                </div>
-                <div className="sidebar-notif-body">
-                  {notifications.length > 0 ? (
-                    <>
-                      {notifications.slice(0, 2).map((n) => (
-                        <div className="sidebar-notif-item" key={n.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '0.5rem', marginBottom: '0.5rem' }}>
-                          <p style={{ fontWeight: n.isNew ? 600 : 400, color: '#fff' }}>{n.text}</p>
-                          <span style={{ color: 'var(--gold)' }}>{n.time}</span>
-                        </div>
-                      ))}
-                      <button className="text-gold" onClick={() => { onClose(); navigate('/dashboard/notifications'); }} style={{ fontSize: '0.75rem', width: '100%', textAlign: 'center', marginTop: '0.5rem' }}>View Full Ledger</button>
-                    </>
-                  ) : (
-                    <div className="sidebar-notif-empty">
-                      <p>You have no recent alerts.</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {isLoggedIn && <div className="sidebar-divider" />}
-
             <div className="sidebar-actions">
-              <NavLink to="/booking" className="btn-filled sidebar-book-btn" onClick={onClose}>
-                <BookOpen size={18} /> Book Your Chair
-              </NavLink>
+              {!isLoggedIn && (
+                <NavLink to="/booking" className="btn-filled sidebar-book-btn" onClick={onClose}>
+                  <BookOpen size={18} /> Book Your Chair
+                </NavLink>
+              )}
               
               {isLoggedIn && (
                 <button className="sidebar-logout-btn" onClick={handleLogout}>
