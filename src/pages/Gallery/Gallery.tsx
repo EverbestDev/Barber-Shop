@@ -8,41 +8,49 @@ import './Gallery.css';
 const categories = ['All', 'Haircuts', 'Fades', 'Beard', 'Styling', 'Kids', 'Ladies'];
 
 const galleryHeroSlides = [
-  '/images/beardshavinghero.jpg',
+  '/images/LuxuryLounge.jpg',
   '/images/barbers/2.jpg',
   '/images/viphomevisit.jpg',
-  '/images/premiumtools.jpg'
+  '/images/premiumtools.jpg',
+  '/images/epertbarbers.jpg'
 ];
 
 const staticImages = [
-  // Original / Base Images
+  // Base Images
   { id: 1, category: 'Haircuts', src: '/images/mensignature.jpg', title: 'Signature Cut' },
   { id: 2, category: 'Fades', src: '/images/taperfade.jpg', title: 'Sharp Skin Fade' },
-  { id: 3, category: 'Beard', src: '/images/beardshaving.jpg', title: 'Beard Sculpting' },
-  { id: 6, category: 'Haircuts', src: '/images/In The Barbershop.jpg', title: 'Classic Grooming' },
+  { id: 3, category: 'Beard', src: '/images/herobeard.jpg', title: 'Beard Sculpting' },
+  { id: 6, category: 'Haircuts', src: '/images/InTheBarbershop.jpg', title: 'Classic Grooming' },
 
   // Men Collection
-  { id: 7, category: 'Beard', src: '/images/men/beardandfade.jpg', title: 'Premium Beard & Fade' },
+  { id: 7, category: 'Beard', src: '/images/men/beardandfademen.jpg', title: 'Premium Beard & Fade' },
   { id: 8, category: 'Beard', src: '/images/men/cleanbeard.jpg', title: 'Defined Beard Lineup' },
   { id: 9, category: 'Haircuts', src: '/images/men/curly.jpg', title: 'Natural Curly Texture' },
-  { id: 10, category: 'Fades', src: '/images/men/hottappperfade.jpg', title: 'Hot Taper Fade' },
   { id: 11, category: 'Haircuts', src: '/images/men/skincutbaldmen.jpg', title: 'Precision Razor Head Shave' },
   { id: 12, category: 'Haircuts', src: '/images/men/viphomevisit.jpg', title: 'VIP Signature Cut' },
   { id: 13, category: 'Styling', src: '/images/men/youthbraid.jpg', title: 'Artistic Youth Braids' },
   { id: 14, category: 'Styling', src: '/images/men/youthbraid2.jpg', title: 'Intricate Braid Patterns' },
+  { id: 34, category: 'Haircuts', src: '/images/men/baldmen1.jpg', title: 'Classic Clean Shave' },
+  { id: 35, category: 'Haircuts', src: '/images/men/baldmen2.jpg', title: 'Elite Smooth Shave' },
+  { id: 36, category: 'Beard', src: '/images/men/menbeardcuts.jpg', title: 'Artistic Beard Design' },
+  { id: 37, category: 'Styling', src: '/images/men/menbraids.jpg', title: 'Signature Men Braids' },
+  { id: 38, category: 'Styling', src: '/images/men/menbraids2.jpg', title: 'Patterned Braids' },
+  { id: 39, category: 'Haircuts', src: '/images/men/menfadedread.jpg', title: 'Fade & Dread Lock Combination' },
+  { id: 40, category: 'Fades', src: '/images/men/menfadesignature3.jpg', title: 'Master Level Skin Fade' },
 
   // Ladies Collection
   { id: 15, category: 'Ladies', src: '/images/ladies/womencurly.jpg', title: "Women's Curly Taper" },
   { id: 16, category: 'Ladies', src: '/images/ladies/womensig2.jpg', title: "Elite Women's Styling" },
   { id: 17, category: 'Ladies', src: '/images/ladies/womensignature.jpg', title: "Women's Master Cut" },
   { id: 18, category: 'Ladies', src: '/images/ladies/womentapperfade.jpg', title: "Sharp Female Taper" },
+  { id: 41, category: 'Ladies', src: '/images/ladies/baldwomen1.jpg', title: "Elite Bold Shave" },
+  { id: 42, category: 'Ladies', src: '/images/ladies/baldwomen2.jpg', title: "Graceful Clean Cut" },
+  { id: 43, category: 'Ladies', src: '/images/ladies/womenfadesignature.jpg', title: "Signature Lady Fade" },
+  { id: 44, category: 'Ladies', src: '/images/ladies/womensignaturecurly.jpg', title: "Artistic Curly Styling" },
+  { id: 45, category: 'Ladies', src: '/images/ladies/womensignaturecut.jpg', title: "Master Female Styling" },
 
   // Kids Collection
   { id: 19, category: 'Kids', src: '/images/kids/childbarreltwists.jpg', title: 'Child Barrel Twists' },
-  { id: 20, category: 'Kids', src: '/images/kids/childfade.jpg', title: 'Child Fade' },
-  { id: 21, category: 'Kids', src: '/images/kids/coolfade.jpg', title: 'Cool Child Fade' },
-  { id: 22, category: 'Kids', src: '/images/kids/curlychild.jpg', title: 'Curly Child Style' },
-  { id: 23, category: 'Kids', src: '/images/kids/curlyfadekid.jpg', title: 'Curly Fade Kid' },
   { id: 24, category: 'Kids', src: '/images/kids/fade.jpg', title: 'Classic Kid Fade' },
   { id: 25, category: 'Kids', src: '/images/kids/femalechilddeepfadepattern.jpg', title: 'Female Child Deep Fade' },
   { id: 26, category: 'Kids', src: '/images/kids/greatfade.jpg', title: 'Great Kid Fade' },
@@ -51,8 +59,12 @@ const staticImages = [
   { id: 29, category: 'Kids', src: '/images/kids/kidcutsignature.jpg', title: 'Elite Kid Styling' },
   { id: 30, category: 'Kids', src: '/images/kids/kidlowcut.jpg', title: 'Kid Low Cut' },
   { id: 31, category: 'Kids', src: '/images/kids/kidslowcut.jpg', title: 'Balanced Kid Cut' },
-  { id: 32, category: 'Kids', src: '/images/kids/signatureandcurlyfade.jpg', title: 'Signature Curly Fade' },
-  { id: 33, category: 'Kids', src: '/images/kids/urlyfade.jpg', title: 'Curly Artistic Fade' }
+  { id: 46, category: 'Kids', src: '/images/kids/childfadesignature.jpg', title: 'Sharp Child Fade' },
+  { id: 47, category: 'Kids', src: '/images/kids/fadekidsignature.jpg', title: 'Elite Kid Fade' },
+  { id: 48, category: 'Kids', src: '/images/kids/freshkidfadesignature.jpg', title: 'Fresh Kid Signature' },
+  { id: 49, category: 'Kids', src: '/images/kids/kidlowcutsignature.jpg', title: 'Classic Kid Low Cut' },
+  { id: 50, category: 'Kids', src: '/images/kids/kidsignaturevariant.jpg', title: 'Artistic Kid Variant' },
+  { id: 51, category: 'Kids', src: '/images/kids/lowcutkid.jpg', title: 'Clean Child Low Cut' }
 ];
 
 const Gallery: React.FC = () => {
