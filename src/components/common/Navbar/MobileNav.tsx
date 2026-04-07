@@ -3,6 +3,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Bell, Home, Info, Scissors, Tag, Image, Phone, BookOpen, LogOut, LayoutDashboard, User } from 'lucide-react';
 import { useAuth } from '../../../context/AuthContext';
+import { fetchNotifications, type Notification } from '../../../api/notifications';
 import './Navbar.css';
 
 interface MobileNavProps {
@@ -14,6 +15,18 @@ interface MobileNavProps {
 const MobileNav: React.FC<MobileNavProps> = ({ isOpen, onClose, onAuthOpen }) => {
   const { isLoggedIn, user, logout } = useAuth();
   const navigate = useNavigate();
+  const [notifications, setNotifications] = React.useState<Notification[]>([]);
+
+  React.useEffect(() => {
+    if (!isLoggedIn || !isOpen) return;
+    const getNotifs = async () => {
+      try {
+        const notifs = await fetchNotifications();
+        setNotifications(notifs);
+      } catch (e) {}
+    };
+    getNotifs();
+  }, [isLoggedIn, isOpen]);
 
   const handleLogout = () => {
     logout();
@@ -24,9 +37,10 @@ const MobileNav: React.FC<MobileNavProps> = ({ isOpen, onClose, onAuthOpen }) =>
   const dashboardItems = [
     { to: '/dashboard', label: 'Overview', icon: <LayoutDashboard size={18} /> },
     { to: '/booking', label: 'New Booking', icon: <BookOpen size={18} /> },
+    { to: '/dashboard/history', label: 'Booking History', icon: <BookOpen size={18} /> },
+    { to: '/dashboard/transactions', label: 'Transactions', icon: <Tag size={18} /> },
+    { to: '/dashboard/notifications', label: 'Notifications', icon: <Bell size={18} /> },
     { to: '/profile', label: 'Profile Settings', icon: <User size={18} /> },
-    { to: '/pricing', label: 'Pricing Table', icon: <Tag size={18} /> },
-    { to: '/contact', label: 'Support', icon: <Phone size={18} /> },
   ];
 
   const publicItems = [
@@ -90,28 +104,34 @@ const MobileNav: React.FC<MobileNavProps> = ({ isOpen, onClose, onAuthOpen }) =>
 
             <div className="sidebar-divider" />
 
-            <div className="sidebar-notif-section">
-              <div className="sidebar-section-title">
-                <Bell size={16} />
-                <span>Notifications</span>
-                {isLoggedIn && <span className="sidebar-notif-badge" />}
+            {isLoggedIn && (
+              <div className="sidebar-notif-section">
+                <div className="sidebar-section-title">
+                  <Bell size={16} />
+                  <span>Recent Alerts</span>
+                  {notifications.some(n => n.isNew) && <span className="sidebar-notif-badge" />}
+                </div>
+                <div className="sidebar-notif-body">
+                  {notifications.length > 0 ? (
+                    <>
+                      {notifications.slice(0, 2).map((n) => (
+                        <div className="sidebar-notif-item" key={n.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '0.5rem', marginBottom: '0.5rem' }}>
+                          <p style={{ fontWeight: n.isNew ? 600 : 400, color: '#fff' }}>{n.text}</p>
+                          <span style={{ color: 'var(--gold)' }}>{n.time}</span>
+                        </div>
+                      ))}
+                      <button className="text-gold" onClick={() => { onClose(); navigate('/dashboard/notifications'); }} style={{ fontSize: '0.75rem', width: '100%', textAlign: 'center', marginTop: '0.5rem' }}>View Full Ledger</button>
+                    </>
+                  ) : (
+                    <div className="sidebar-notif-empty">
+                      <p>You have no recent alerts.</p>
+                    </div>
+                  )}
+                </div>
               </div>
-              <div className="sidebar-notif-body">
-                {isLoggedIn ? (
-                  <div className="sidebar-notif-item">
-                    <p>Your appointment with Master J is confirmed for tomorrow at 2:00 PM.</p>
-                    <span>2 hours ago</span>
-                  </div>
-                ) : (
-                  <div className="sidebar-notif-empty">
-                    <p>Sign in to view your notifications.</p>
-                    <button className="text-gold-btn" onClick={() => { onClose(); onAuthOpen(); }}>Sign in</button>
-                  </div>
-                )}
-              </div>
-            </div>
+            )}
 
-            <div className="sidebar-divider" />
+            {isLoggedIn && <div className="sidebar-divider" />}
 
             <div className="sidebar-actions">
               <NavLink to="/booking" className="btn-filled sidebar-book-btn" onClick={onClose}>
