@@ -3,13 +3,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, ChevronLeft, Check } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useOutletContext } from 'react-router-dom';
-import { fetchBarbers } from '../../api/admin';
 import { createBooking } from '../../api/bookings';
 import { createCheckoutSession } from '../../api/payments';
-import type { UserInfo } from '../../api/types';
 import './Booking.css';
 
-const steps = ['Type', 'Service', 'Barber', 'Time', 'Review'];
+const steps = ['Type', 'Service', 'Time', 'Review'];
 
 interface Category {
   id: string;
@@ -49,9 +47,8 @@ const BookingPage: React.FC = () => {
   const [step, setStep] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
-  const [allBarbers, setAllBarbers] = useState<UserInfo[]>([]);
-  const [selectedBarber, setSelectedBarber] = useState<UserInfo | null>(null);
-  const [selectedDate, setSelectedDate] = useState<string>('');
+  const today = new Date().toISOString().split('T')[0];
+  const [selectedDate, setSelectedDate] = useState<string>(today);
   const [selectedTime, setSelectedTime] = useState<string>('');
   const [guestName, setGuestName] = useState('');
   const [guestEmail, setGuestEmail] = useState('');
@@ -60,10 +57,13 @@ const BookingPage: React.FC = () => {
   const { onAuthOpen } = useOutletContext<{ onAuthOpen: () => void }>();
 
   const today = new Date().toISOString().split('T')[0];
-  const allTimeSlots = ['10:00', '11:00', '12:00', '14:00', '15:00', '16:00', '17:00', '18:00'];
+  const allTimeSlots = [
+    '10:00 AM', '11:00 AM', '12:00 PM', '01:00 PM', '02:00 PM', 
+    '03:00 PM', '04:00 PM', '05:00 PM', '06:00 PM'
+  ];
 
   useEffect(() => {
-    fetchBarbers().then(setAllBarbers).catch(console.error);
+    // No longer need to fetch barbers for selection
   }, []);
 
   const nextStep = () => setStep(s => s + 1);
@@ -78,9 +78,14 @@ const BookingPage: React.FC = () => {
       const currentMin = now.getMinutes();
       
       return allTimeSlots.filter(slot => {
-        const [slotHour, slotMin] = slot.split(':').map(Number);
-        if (slotHour > currentHour) return true;
-        if (slotHour === currentHour && slotMin > currentMin + 30) return true; // 30 min buffer
+        const [time, modifier] = slot.split(' ');
+        let [hour, min] = time.split(':').map(Number);
+        
+        if (modifier === 'PM' && hour < 12) hour += 12;
+        if (modifier === 'AM' && hour === 12) hour = 0;
+
+        if (hour > currentHour) return true;
+        if (hour === currentHour && min > currentMin + 30) return true; // 30 min buffer
         return false;
       });
     }
@@ -99,11 +104,17 @@ const BookingPage: React.FC = () => {
 
     setLoading(true);
     try {
+      const [timeStr, modifier] = selectedTime.split(' ');
+      let [hour, min] = timeStr.split(':').map(Number);
+      if (modifier === 'PM' && hour < 12) hour += 12;
+      if (modifier === 'AM' && hour === 12) hour = 0;
+      
+      const formattedTime = `${hour.toString().padStart(2, '0')}:${min.toString().padStart(2, '0')}:00`;
+
       const bookingData = {
         service: selectedService.name,
-        date: `${selectedDate}T${selectedTime.split(' ')[0]}:00`,
-        barber: selectedBarber?.name || 'Any',
-        barber_id: selectedBarber?.id,
+        date: `${selectedDate}T${formattedTime}`,
+        barber: 'Any',
         amount: selectedService.price,
         guest_name: !user ? guestName : undefined,
         guest_email: !user ? guestEmail : undefined
@@ -181,29 +192,6 @@ const BookingPage: React.FC = () => {
 
             {step === 3 && (
               <motion.div key="s3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="step-view">
-                <h2 className="step-title">Select Barber</h2>
-                <div className="options-grid">
-                  <div className={`barber-card ${!selectedBarber ? 'selected' : ''}`} onClick={() => setSelectedBarber(null)}>
-                    <div className="recommend-badge">Studio Recommended</div>
-                    <h3>Any Barber</h3>
-                    <span>First Expert Available</span>
-                  </div>
-                  {allBarbers.map(b => (
-                    <div 
-                      key={b.id} 
-                      className={`barber-card ${selectedBarber?.id === b.id ? 'selected' : ''}`}
-                      onClick={() => setSelectedBarber(b)}
-                    >
-                      <h3>{b.name}</h3>
-                      <span>Master Barber</span>
-                    </div>
-                  ))}
-                </div>
-              </motion.div>
-            )}
-
-            {step === 4 && (
-              <motion.div key="s4" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="step-view">
                 <h2 className="step-title">Date & Time</h2>
                 <div className="datetime-layout">
                   <div className="input-group">
@@ -220,7 +208,7 @@ const BookingPage: React.FC = () => {
                   </div>
                   
                   <div className="time-section">
-                    <label className="section-label">Available Ritual Times</label>
+                    <label className="section-label">Available Times</label>
                     <div className="time-grid">
                       {visibleTimes.length > 0 ? visibleTimes.map(t => (
                         <button 
@@ -231,7 +219,7 @@ const BookingPage: React.FC = () => {
                           {t}
                         </button>
                       )) : (
-                        <p className="no-times-msg">No more rituals available for today. Please select another date.</p>
+                        <p className="no-times-msg">No more times available for today. Please select another date.</p>
                       )}
                     </div>
                   </div>
@@ -239,14 +227,13 @@ const BookingPage: React.FC = () => {
               </motion.div>
             )}
 
-            {step === 5 && (
-              <motion.div key="s5" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="step-view">
+            {step === 4 && (
+              <motion.div key="s4" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="step-view">
                 <h2 className="step-title">Review & Contact</h2>
                 <div className="review-layout">
                   <div className="review-box">
                     <h3>Booking Summary</h3>
                     <p><b>Service:</b> {selectedService?.name}</p>
-                    <p><b>Barber:</b> {selectedBarber?.name || 'Any'}</p>
                     <p><b>Time:</b> {selectedDate} at {selectedTime}</p>
                     <p><b>Price:</b> £{selectedService?.price}</p>
                   </div>
@@ -272,7 +259,7 @@ const BookingPage: React.FC = () => {
                         <label>Email Address</label>
                         <input 
                           type="email" 
-                          placeholder="For your ritual confirmation" 
+                          placeholder="For your confirmation" 
                           className="luxury-input"
                           value={guestEmail}
                           onChange={(e) => setGuestEmail(e.target.value)}
@@ -291,11 +278,11 @@ const BookingPage: React.FC = () => {
           <div className="booking-footer">
             {step > 1 && <button className="btn-outlined" onClick={prevStep}><ChevronLeft size={18} /> Back</button>}
             <div style={{ flex: 1 }}></div>
-            {step < 5 && (
+            {step < 4 && (
               <button 
                 className="btn-filled next-btn" 
                 onClick={nextStep}
-                disabled={(step === 1 && !selectedCategory) || (step === 2 && !selectedService) || (step === 4 && (!selectedDate || !selectedTime))}
+                disabled={(step === 1 && !selectedCategory) || (step === 2 && !selectedService) || (step === 3 && (!selectedDate || !selectedTime))}
               >
                 Next <ChevronRight size={18} />
               </button>
