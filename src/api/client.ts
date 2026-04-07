@@ -20,12 +20,27 @@ apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      if (localStorage.getItem('token')) {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        window.dispatchEvent(new Event("storage"));
-        if (window.location.pathname !== '/') {
-            window.location.href = '/?session_expired=true';
+      const token = localStorage.getItem('token');
+      if (token) {
+        // Decode JWT locally to confirm it's actually expired before clearing session.
+        // This prevents network hiccups / transient 401s from logging the user out prematurely.
+        try {
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          const isExpired = payload.exp && Date.now() / 1000 > payload.exp;
+          if (isExpired) {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.dispatchEvent(new Event("storage"));
+            if (window.location.pathname !== '/') {
+              window.location.href = '/?session_expired=true';
+            }
+          }
+          // If token is NOT expired, silently reject - don't log out
+        } catch {
+          // If we can't decode the token, it's malformed - clear it
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          window.dispatchEvent(new Event("storage"));
         }
       }
     }
