@@ -79,7 +79,7 @@ const Gallery: React.FC = () => {
 
   const filteredImages = activeFilter === 'All' 
     ? (shuffledImages.length > 0 ? shuffledImages : staticImages)
-    : staticImages.filter(img => img.category === activeFilter);
+    : (shuffledImages.length > 0 ? shuffledImages : staticImages).filter(img => img.category === activeFilter);
 
   return (
     <div className="gallery-page-wrapper">
