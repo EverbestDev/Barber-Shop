@@ -1,7 +1,7 @@
 .booking-page-wrapper {
   background-color: var(--primary);
   color: var(--white);
-  padding: 10rem 2rem 6rem;
+  padding: 10rem 0 6rem; /* Removed left/right padding because .container handles it */
   min-height: 90vh;
 }
 
@@ -256,12 +256,12 @@
 
 @media (max-width: 600px) {
   .booking-page-wrapper {
-    padding-left: 1rem;
-    padding-right: 1rem;
+    padding-top: 7rem;
+    padding-bottom: 4rem;
   }
 
   .booking-card {
-    padding: 2rem 1rem;
+    padding: 1.5rem 1rem;
   }
 
   .option-card {

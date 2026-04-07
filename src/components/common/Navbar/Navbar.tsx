@@ -49,7 +49,7 @@ const Navbar: React.FC<NavbarProps> = ({ isScrolled, isMobileMenuOpen, setIsMobi
           
           <button className="book-now-btn desktop-only" onClick={() => navigate('/booking')}>Book Now</button>
 
-          <div className="nav-notif-wrapper">
+          <div className="nav-notif-wrapper desktop-only">
             <button className="nav-icon-btn" onClick={() => setIsNotifOpen(!isNotifOpen)}>
               <Bell size={20} />
               {isLoggedIn && <span className="notif-badge"></span>}
