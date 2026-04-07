@@ -9,6 +9,7 @@ import Gallery from './pages/Gallery/Gallery'
 import Contact from './pages/Contact/Contact'
 import Profile from './pages/Profile/Profile'
 import Booking from './pages/Booking/Booking'
+import BookingSuccess from './pages/Booking/BookingSuccess'
 import Dashboard from './pages/Dashboard/Dashboard'
 import Terms from './pages/Legal/Terms'
 import Privacy from './pages/Legal/Privacy'
@@ -58,6 +59,10 @@ const router = createBrowserRouter([
       {
         path: 'booking',
         element: <Booking />,
+      },
+      {
+        path: 'booking/success',
+        element: <BookingSuccess />,
       },
       {
         path: 'terms',

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, ChevronLeft, Check } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useOutletContext } from 'react-router-dom';
 import { fetchBarbers } from '../../api/admin';
 import { createBooking } from '../../api/bookings';
 import { createCheckoutSession } from '../../api/payments';
@@ -56,6 +57,7 @@ const BookingPage: React.FC = () => {
   const [guestEmail, setGuestEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const { user } = useAuth();
+  const { onAuthOpen } = useOutletContext<{ onAuthOpen: () => void }>();
 
   useEffect(() => {
     fetchBarbers().then(setAllBarbers).catch(console.error);
@@ -217,8 +219,11 @@ const BookingPage: React.FC = () => {
 
                   {!user && (
                     <div className="guest-details-box">
-                      <h3>Guest Details</h3>
-                      <p className="guest-note">Log in or provide details to secure your chair.</p>
+                      <div className="guest-header">
+                        <h3>Guest Details</h3>
+                        <button onClick={onAuthOpen} className="inline-login-btn">Already a member? Login</button>
+                      </div>
+                      <p className="guest-note">Checkout as guest or secure your chair with an account for history tracking.</p>
                       <div className="input-group">
                         <label>Display Name</label>
                         <input 

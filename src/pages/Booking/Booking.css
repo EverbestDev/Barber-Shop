@@ -212,22 +212,40 @@
   }
 }
 
-.guest-details-box {
+.guest-header {
   display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
 }
 
 .guest-details-box h3 {
   color: var(--gold);
   font-size: 1.25rem;
-  margin-bottom: 0.25rem;
+  margin: 0;
+}
+
+.inline-login-btn {
+  background: none;
+  border: none;
+  color: var(--gold);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+  opacity: 0.8;
+  transition: opacity 0.2s ease;
+}
+
+.inline-login-btn:hover {
+  opacity: 1;
 }
 
 .guest-note {
   color: var(--text-secondary);
   font-size: 0.9rem;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
 }
 
 .input-group {
