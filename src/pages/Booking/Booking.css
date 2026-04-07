@@ -6,7 +6,7 @@
 }
 
 .booking-container {
-  max-width: 800px;
+  max-width: 1000px;
   margin: 0 auto;
 }
 
@@ -196,15 +196,73 @@
   color: var(--primary);
 }
 
-/* Review Box */
+/* Review Layout - Split for Guest Info */
+.review-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  margin-bottom: 3rem;
+  text-align: left;
+}
+
+@media (max-width: 992px) {
+  .review-layout {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
+
+.guest-details-box {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.guest-details-box h3 {
+  color: var(--gold);
+  font-size: 1.25rem;
+  margin-bottom: 0.25rem;
+}
+
+.guest-note {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.input-group label {
+  color: var(--white);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
 .review-box {
   background-color: var(--primary);
   padding: 2.5rem;
-  border-radius: 8px;
+  border-radius: 12px;
   display: flex;
   flex-direction: column;
-  gap: 2rem;
-  margin-bottom: 2rem;
+  gap: 1rem;
+}
+
+.review-box h3 {
+  color: var(--gold);
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.review-box p {
+  font-size: 1rem;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  padding-bottom: 0.5rem;
 }
 
 .review-item {

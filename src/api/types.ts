@@ -37,11 +37,16 @@ export interface BookingBase {
   amount?: number;
 }
 
-export type BookingCreate = BookingBase;
+export interface BookingCreate extends BookingBase {
+  guest_email?: string;
+  guest_name?: string;
+}
 
 export interface Booking extends BookingBase {
   id?: string;
-  user_id: string;
+  user_id?: string;
+  guest_email?: string;
+  guest_name?: string;
   status: string;
   payment_status: string;
   stripe_session_id?: string;

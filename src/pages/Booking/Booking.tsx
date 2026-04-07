@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, ChevronLeft, Check } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
 import { fetchBarbers } from '../../api/admin';
 import { createBooking } from '../../api/bookings';
 import { createCheckoutSession } from '../../api/payments';
@@ -53,9 +52,10 @@ const BookingPage: React.FC = () => {
   const [selectedBarber, setSelectedBarber] = useState<UserInfo | null>(null);
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [selectedTime, setSelectedTime] = useState<string>('');
+  const [guestName, setGuestName] = useState('');
+  const [guestEmail, setGuestEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const { user } = useAuth();
-  const navigate = useNavigate();
 
   useEffect(() => {
     fetchBarbers().then(setAllBarbers).catch(console.error);
@@ -67,13 +67,13 @@ const BookingPage: React.FC = () => {
   const filteredServices = allServices.filter(s => s.cat === selectedCategory?.id);
 
   const handleBookingSubmit = async () => {
-    if (!user) {
-      alert("Please login to book an appointment.");
-      navigate('/auth');
+    if (!selectedService) return;
+
+    // Validate if guest
+    if (!user && (!guestName || !guestEmail)) {
+      alert("Please provide your name and email to continue as a guest.");
       return;
     }
-
-    if (!selectedService) return;
 
     setLoading(true);
     try {
@@ -82,7 +82,9 @@ const BookingPage: React.FC = () => {
         date: `${selectedDate}T${selectedTime.split(' ')[0]}:00`,
         barber: selectedBarber?.name || 'Any',
         barber_id: selectedBarber?.id,
-        amount: selectedService.price
+        amount: selectedService.price,
+        guest_name: !user ? guestName : undefined,
+        guest_email: !user ? guestEmail : undefined
       };
 
       const newBooking = await createBooking(bookingData);
@@ -202,15 +204,47 @@ const BookingPage: React.FC = () => {
 
             {step === 5 && (
               <motion.div key="s5" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="step-view">
-                <h2 className="step-title">Review Booking</h2>
-                <div className="review-box">
-                  <p><b>Service:</b> {selectedService?.name}</p>
-                  <p><b>Barber:</b> {selectedBarber?.name || 'Any'}</p>
-                  <p><b>Time:</b> {selectedDate} at {selectedTime}</p>
-                  <p><b>Price:</b> £{selectedService?.price}</p>
+                <h2 className="step-title">Review & Contact</h2>
+                
+                <div className="review-layout">
+                  <div className="review-box">
+                    <h3>Booking Summary</h3>
+                    <p><b>Service:</b> {selectedService?.name}</p>
+                    <p><b>Barber:</b> {selectedBarber?.name || 'Any'}</p>
+                    <p><b>Time:</b> {selectedDate} at {selectedTime}</p>
+                    <p><b>Price:</b> £{selectedService?.price}</p>
+                  </div>
+
+                  {!user && (
+                    <div className="guest-details-box">
+                      <h3>Guest Details</h3>
+                      <p className="guest-note">Log in or provide details to secure your chair.</p>
+                      <div className="input-group">
+                        <label>Display Name</label>
+                        <input 
+                          type="text" 
+                          placeholder="How should we address you?" 
+                          className="luxury-input"
+                          value={guestName}
+                          onChange={(e) => setGuestName(e.target.value)}
+                        />
+                      </div>
+                      <div className="input-group">
+                        <label>Email Address</label>
+                        <input 
+                          type="email" 
+                          placeholder="For your ritual confirmation" 
+                          className="luxury-input"
+                          value={guestEmail}
+                          onChange={(e) => setGuestEmail(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
+
                 <button className="btn-filled wide-booking-btn" onClick={handleBookingSubmit} disabled={loading}>
-                  {loading ? 'Processing...' : 'Proceed to Stripe Payment'}
+                  {loading ? 'Processing...' : 'Secure Chair & Pay'}
                 </button>
               </motion.div>
             )}
