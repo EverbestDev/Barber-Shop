@@ -65,7 +65,7 @@ const Hero: React.FC = () => {
       <div className="hero-overlay"></div>
 
       <div className="hero-content">
-        <AnimatePresence mode="popLayout">
+        <AnimatePresence mode="wait">
           <motion.div 
             key={`text-${current}`}
             className="hero-text-box"
