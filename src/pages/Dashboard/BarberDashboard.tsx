@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { LogOut, Calendar, Clock, CheckCircle2, Scissors, TrendingUp, User } from 'lucide-react';
+import { Calendar, Clock, CheckCircle2, TrendingUp, User } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
 import { fetchBarberBookings, updateBookingStatus } from '../../api/bookings';
 import type { Booking } from '../../api/types';
 
 const BarberDashboard: React.FC = () => {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
+  const { user } = useAuth();
   const [schedule, setSchedule] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -37,10 +35,7 @@ const BarberDashboard: React.FC = () => {
     }
   };
 
-  const handleLogout = () => {
-    logout();
-    navigate('/');
-  };
+
 
   const todayBookings = schedule.filter(b => b.status === 'confirmed');
   const pastBookings = schedule.filter(b => b.status === 'completed' || b.status === 'cancelled');

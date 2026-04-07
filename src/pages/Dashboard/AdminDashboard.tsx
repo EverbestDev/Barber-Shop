@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Users, Calendar, LogOut, Scissors, Shield, Trash2 } from 'lucide-react';
+import { Users, Calendar, Trash2 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
 import { fetchAllUsers, updateUserRole, deleteUser } from '../../api/admin';
 import { fetchAllBookings, updateBookingStatus } from '../../api/bookings';
 import type { UserInfo, Booking } from '../../api/types';
 
 const AdminDashboard: React.FC = () => {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
+  const { user } = useAuth();
   const [users, setUsers] = useState<UserInfo[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
 
@@ -56,10 +54,7 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  const handleLogout = () => {
-    logout();
-    navigate('/');
-  };
+
 
   return (
     <div className="dashboard-content-main">
