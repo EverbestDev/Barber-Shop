@@ -9,7 +9,7 @@ const categories = ['All', 'Haircuts', 'Fades', 'Beard', 'Styling', 'Kids', 'Lad
 
 const galleryHeroSlides = [
   '/images/beardshavinghero.jpg',
-  '/images/masterbarbers.jpg',
+  '/images/barbers/2.jpg',
   '/images/viphomevisit.jpg',
   '/images/premiumtools.jpg'
 ];

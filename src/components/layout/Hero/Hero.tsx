@@ -18,9 +18,10 @@ const slides = [
   },
   {
     id: 3,
-    image: "/images/men/skincutbaldmen.jpg",
+    image: "/images/herobeard.jpg",
     title: <>BEARD <br /> <span className="text-gold">SCULPTING</span></>,
-    subtitle: "Keep your facial hair sharp and defined with precise trimming, shaping, and soothing hot towel shaves."
+    subtitle: "Keep your facial hair sharp and defined with precise trimming, shaping, and soothing hot towel shaves.",
+    objectPosition: "bottom"
   },
   {
     id: 4,
@@ -58,7 +59,11 @@ const Hero: React.FC = () => {
           exit={{ opacity: 0 }}
           transition={{ duration: 1 }}
         >
-          <img src={slides[current].image} alt={`Hero slide ${current}`} />
+          <img 
+            src={slides[current].image} 
+            alt={`Hero slide ${current}`} 
+            style={{ objectPosition: slides[current].objectPosition }}
+          />
         </motion.div>
       </AnimatePresence>
       

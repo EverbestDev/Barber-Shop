@@ -4,7 +4,7 @@
 }
 
 .contact-hero {
-  padding: 8rem 0 4rem;
+  padding: 10rem 0 6rem;
   text-align: left;
   background: linear-gradient(to right, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.5) 100%), url('/images/epertbarbers.jpg');
   background-size: cover;
@@ -13,6 +13,7 @@
   min-height: 50vh;
   display: flex;
   align-items: center;
+  justify-content: flex-start;
   position: relative;
 }
 
@@ -29,6 +30,8 @@
 
 .contact-hero-desc {
   color: var(--text-secondary);
+  text-align: left;
+  margin: 0;
 }
 
 .contact-main {

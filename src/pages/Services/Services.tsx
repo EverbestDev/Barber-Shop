@@ -12,7 +12,9 @@ const categories = [
     services: [
       { name: "Signature Haircut", desc: "Our most popular service, tailored exactly to your head shape and hair type.", price: "£35", time: "45 mins" },
       { name: "Skin Fade", desc: "Expert fading from skin to your desired length on top.", price: "£38", time: "60 mins" },
-      { name: "Kids Haircut", desc: "Sharp styles for our younger guests under 14.", price: "£20", time: "30 mins" },
+      { name: "Buzz Cut", desc: "Uniform short cut all over with precise lineup and neck finish.", price: "£25", time: "30 mins" },
+      { name: "Shape Up (Lineup)", desc: "Quick maintenance: Razored hairline, temples, and neck only.", price: "£15", time: "20 mins" },
+      { name: "Kids Haircut", desc: "Sharp styles for our younger guests under 14.", price: "£22", time: "30 mins" },
       { name: "Seniors (65+)", desc: "Classic cuts for our established clients.", price: "£20", time: "30 mins" }
     ]
   },
@@ -21,8 +23,10 @@ const categories = [
     title: 'Beard & Face',
     services: [
       { name: "Beard Sculpture", desc: "A detailed trim, shape and razor line to define your facial hair.", price: "£25", time: "30 mins" },
-      { name: "Hot Towel Shave", desc: "Traditional straight-razor shave with steam and soothing oils.", price: "£30", time: "45 mins" },
-      { name: "The Beard & Mask", desc: "Sculpture combined with a detoxifying charcoal face mask.", price: "£35", time: "45 mins" }
+      { name: "Beard Line-up (Razored)", desc: "Quick razor lining for the cheeks and neck.", price: "£15", time: "15 mins" },
+      { name: "Hot Towel Shave", desc: "Traditional straight-razor shave with steam and soothing oils.", price: "£35", time: "45 mins" },
+      { name: "The Beard & Mask", desc: "Sculpture combined with a detoxifying charcoal face mask.", price: "£40", time: "45 mins" },
+      { name: "Nose & Ear Waxing", desc: "Professional and painless removal of unwanted hair.", price: "£10", time: "10 mins" }
     ]
   },
   {
@@ -30,7 +34,8 @@ const categories = [
     title: 'Grooming Packages',
     services: [
       { name: "The Executive", desc: "Signature Haircut + Beard Sculpture. The full look.", price: "£55", time: "75 mins" },
-      { name: "The Royal Treatment", desc: "Haircut + Beard Sculpture + Face Mask + Nose/Ear Wax.", price: "£75", time: "105 mins" }
+      { name: "The Royal Treatment", desc: "Haircut + Beard Sculpture + Face Mask + Nose/Ear Wax.", price: "£80", time: "105 mins" },
+      { name: "The Wedding Ritual", desc: "Signature Haircut + Royal Shave + Detailed Styling + Drink.", price: "£100", time: "120 mins" }
     ]
   },
   {
@@ -47,16 +52,19 @@ const categories = [
     title: "Women's Specialized Cuts",
     services: [
       { name: "Women's Taper Fade", desc: "Edgy and precise taper fades for women. A bold look executed with artistic precision and flair.", price: "£40", time: "60 mins" },
-      { name: "Women's Signature", desc: "Customized women's styling and cutting. From classic bobs to modern pixie cuts, tailored to you.", price: "£45", time: "60 mins" }
+      { name: "Women's Signature", desc: "Customized women's styling and cutting. From classic bobs to modern pixie cuts, tailored to you.", price: "£45", time: "60 mins" },
+      { name: "Undercut Design", desc: "Precision shaved patterns or artistic lines added to your undercut for a unique look.", price: "£25", time: "30 mins" },
+      { name: "Short Cut & Style", desc: "Classic precision short cuts (jawline and above), expertly styled and finished.", price: "£35", time: "45 mins" }
     ]
   },
   {
     id: 'group',
     title: 'Group & Family Packages',
     services: [
-      { name: "The Father & Son", desc: "Adult Haircut + Child (under 14). Perfect bonding time.", price: "£50", time: "90 mins" },
+      { name: "The Father & Son", desc: "Adult Haircut + Child (under 14). Perfect bonding time.", price: "£55", time: "90 mins" },
+      { name: "The Duo Pack", desc: "Two signature haircuts for you and a friend.", price: "£65", time: "90 mins" },
       { name: "The Grooming Party (3-5 users)", desc: "Perfect for weddings or events. Exclusive booking for your group.", price: "From £150", time: "3 hours+" },
-      { name: "The Duo Pack", desc: "Two signature haircuts for you and a friend.", price: "£65", time: "90 mins" }
+      { name: "The Triple Threat (3 Friends)", desc: "Three signature cuts for you and two buddies.", price: "£90", time: "120 mins" }
     ]
   }
 ];

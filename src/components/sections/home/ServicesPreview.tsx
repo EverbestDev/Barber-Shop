@@ -19,7 +19,7 @@ const services = [
     desc: "Luxury beard trim, shaping, and precise razor lining combined with a soothing hot towel treatment.",
     price: "£25",
     time: "30 mins",
-    image: "/images/beardshaving.jpg"
+    image: "/images/herobeard.jpg"
   },
   {
     title: "Baby Cut",
@@ -27,7 +27,7 @@ const services = [
     desc: "Gentle and stylish haircuts for the little ones. We make sure they feel comfortable and look sharp.",
     price: "£20",
     time: "30 mins",
-    image: "/images/In The Barbershop.jpg"
+    image: "/images/kids/kidcutsignature.jpg"
   },
   {
     title: "Women's Taper Fade",
@@ -59,7 +59,7 @@ const services = [
     desc: "Experience our premium grooming from the comfort of your home. We bring the full studio to your doorstep.",
     price: "£85",
     time: "60 mins",
-    image: "/images/hairwashing.jpg"
+    image: "/images/men/viphomevisit.jpg"
   },
   {
     title: "Father & Son Pack",
@@ -75,7 +75,7 @@ const services = [
     desc: "Booking for 3+ people. Perfect for weddings, events, or a group day out. Includes refreshments and VIP tools.",
     price: "From £150",
     time: "3 hours+",
-    image: "/images/cuttingbeardwithsscissors.jpg"
+    image: "/images/epertbarbers.jpg"
   }
 ];
 

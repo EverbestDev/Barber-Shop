@@ -4,7 +4,7 @@
 }
 
 .services-page-hero {
-  padding: 8rem 0 4rem;
+  padding: 10rem 0 6rem;
   text-align: left;
   background: linear-gradient(to right, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.5) 100%), url('/images/viphomevisit.jpg');
   background-size: cover;
@@ -13,6 +13,7 @@
   min-height: 50vh;
   display: flex;
   align-items: center;
+  justify-content: flex-start;
 }
 
 .services-hero-title {
@@ -28,7 +29,7 @@
 
 .services-hero-desc {
   max-width: 600px;
-  margin: 0 auto;
+  margin: 0;
   font-size: 1.25rem;
   color: var(--text-primary);
   opacity: 0.9;

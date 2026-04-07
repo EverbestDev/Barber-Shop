@@ -8,7 +8,7 @@ const features = [
     icon: <UserCheck size={32} />,
     title: "Master Barbers",
     desc: "Our team consists of highly trained professionals dedicated to the craft of precision grooming.",
-    image: "/images/masterbarbers.jpg"
+    image: "/images/barbers/2.jpg"
   },
   {
     icon: <Zap size={32} />,

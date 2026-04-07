@@ -144,9 +144,16 @@ button {
 
 /* Utilities */
 .container {
-  max-width: 1400px;
+  max-width: 1440px;
+  width: 95%;
   margin: 0 auto;
-  padding: 0 1.5rem;
+  padding: 0 4rem; /* Matching Navbar for strict horizontal alignment */
+}
+
+@media (max-width: 1024px) {
+  .container {
+    padding: 0 2rem;
+  }
 }
 
 .section-padding {

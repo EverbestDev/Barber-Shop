@@ -8,13 +8,29 @@ import './Pricing.css';
 const pricingList = [
   { name: "Signature Haircut", price: "£35", duration: "45 min" },
   { name: "Skin Fade Master", price: "£38", duration: "60 min" },
-  { name: "Baby Cut", price: "£20", duration: "30 min" },
+  { name: "Buzz Cut", price: "£25", duration: "30 min" },
+  { name: "Shape Up (Lineup)", price: "£15", duration: "20 min" },
+  { name: "Kids Haircut", price: "£22", duration: "30 min" },
+  { name: "Seniors (65+)", price: "£20", duration: "30 min" },
   { name: "Beard Sculpture", price: "£25", duration: "30 min" },
-  { name: "Women's Taper Fade", price: "£40", duration: "60 min" },
-  { name: "Women's Signature", price: "£45", duration: "60 min" },
-  { name: "Hot Towel Shave", price: "£30", duration: "45 min" },
+  { name: "Beard Line-up (Razored)", price: "£15", duration: "15 min" },
+  { name: "Hot Towel Shave", price: "£35", duration: "45 min" },
   { name: "Haircut & Beard", price: "£55", duration: "75 min" },
-  { name: "The Royal Treatment", price: "£75", duration: "105 min" }
+  { name: "The Royal Treatment", price: "£80", duration: "105 min" },
+  { name: "The Wedding Ritual", price: "£100", duration: "120 min" },
+  { name: "Undercut Design", price: "£25", duration: "30 min" },
+  { name: "Short Cut & Style", price: "£35", duration: "45 min" },
+  { name: "Women's Signature", price: "£45", duration: "60 min" },
+  { name: "Women's Taper Fade", price: "£40", duration: "60 min" },
+  { name: "The Father & Son", price: "£55", duration: "90 min" },
+  { name: "The Duo Pack", price: "£65", duration: "90 min" },
+  { name: "The Triple Threat (3 Friends)", price: "£90", duration: "120 min" },
+  { name: "Executive Home Visit (Doorstep)", price: "£85", duration: "60 min" },
+  { name: "Full Grooming Home Visit (Doorstep)", price: "£110", duration: "90 min" },
+  { name: "V.I.P Doorstep Session", price: "£140", duration: "120 min" },
+  { name: "The Beard & Mask", price: "£40", duration: "45 min" },
+  { name: "Nose & Ear Waxing", price: "£10", duration: "10 min" },
+  { name: "The Grooming Party (3-5 users)", price: "From £150", duration: "3 hours+" }
 ];
 
 const packages = [
