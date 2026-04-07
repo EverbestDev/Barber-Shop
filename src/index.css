@@ -44,14 +44,6 @@ body {
   overflow-x: hidden;
 }
 
-img, video {
-  filter: grayscale(100%);
-  transition: filter 0.3s ease;
-}
-
-img:hover, video:hover {
-  filter: grayscale(0%);
-}
 
 #root {
   width: 100%;
