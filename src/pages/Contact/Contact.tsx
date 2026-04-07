@@ -20,7 +20,7 @@ const Contact: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             className="contact-title"
           >
-            GET IN <br /> TOUCH
+            GET IN <br /> <span className="text-gold">TOUCH</span>
           </motion.h1>
           <p className="contact-hero-desc">Have a question or want to book via WhatsApp? We're here for you.</p>
         </div>

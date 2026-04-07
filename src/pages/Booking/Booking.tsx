@@ -128,8 +128,10 @@ const BookingPage: React.FC = () => {
                       className={`option-card ${selectedCategory?.id === cat.id ? 'selected' : ''}`}
                       onClick={() => { setSelectedCategory(cat); setSelectedService(null); }}
                     >
-                      <h3>{cat.name}</h3>
-                      <p>{cat.desc}</p>
+                      <div className="option-info">
+                        <h3>{cat.name}</h3>
+                        <p>{cat.desc}</p>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -146,8 +148,10 @@ const BookingPage: React.FC = () => {
                       className={`option-card ${selectedService?.id === s.id ? 'selected' : ''}`}
                       onClick={() => setSelectedService(s)}
                     >
-                      <h3>{s.name}</h3>
-                      <span>{s.duration} - £{s.price}</span>
+                      <div className="option-info">
+                        <h3>{s.name}</h3>
+                        <span>{s.duration} - £{s.price}</span>
+                      </div>
                     </div>
                   ))}
                 </div>

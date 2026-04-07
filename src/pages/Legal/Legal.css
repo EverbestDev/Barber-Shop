@@ -7,10 +7,10 @@
   position: relative;
   padding: 10rem 0 6rem;
   background-color: #050505;
-  background-image: linear-gradient(to right, rgba(0,0,0,0.9) 20%, rgba(0,0,0,0.4) 100%), url('https://images.unsplash.com/photo-1503951914875-452162b0f3f1?q=80&w=2000&auto=format&fit=crop');
+  background-image: linear-gradient(to right, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.6) 100%), url('/images/purehygiene.jpg');
   background-size: cover;
   background-position: center;
-  min-height: 45vh;
+  min-height: 50vh;
   display: flex;
   align-items: center;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
@@ -27,9 +27,9 @@
 
 .legal-title {
   font-family: var(--font-main);
-  font-size: 4.4rem; /* Match the reduced About hero title size */
+  font-size: 4.4rem; 
   font-weight: 900;
-  line-height: 0.95;
+  line-height: 0.9;
   letter-spacing: -3px;
   margin-bottom: 1.5rem;
   text-transform: uppercase;
@@ -46,7 +46,7 @@
 }
 
 .legal-content-section {
-  padding: 6rem 2rem;
+  padding: 6rem 0;
 }
 
 .narrow-container {
@@ -176,6 +176,6 @@
   }
   
   .legal-container {
-    padding: 0 2rem;
+    padding: 0 1rem;
   }
 }

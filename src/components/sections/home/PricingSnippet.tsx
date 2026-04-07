@@ -13,6 +13,10 @@ const mainServices = [
     { name: "Beard Sculpture", price: "£25" },
     { name: "Hot Towel Shave", price: "£30" },
     { name: "The Beard & Mask", price: "£35" }
+  ]},
+  { group: 'Ladies Styling', items: [
+    { name: "Women's Taper Fade", price: "£40" },
+    { name: "Women's Signature", price: "£45" }
   ]}
 ];
 

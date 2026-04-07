@@ -4,21 +4,28 @@
 }
 
 .contact-hero {
-  padding: 8rem 2rem 4rem;
+  padding: 8rem 0 4rem;
   text-align: left;
-  min-height: 40vh;
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.5) 100%), url('/images/epertbarbers.jpg');
+  background-size: cover;
+  background-position: center;
+  background-color: #000;
+  background-blend-mode: luminosity;
+  min-height: 50vh;
   display: flex;
   align-items: center;
+  position: relative;
 }
 
 .contact-title {
   font-family: var(--font-main);
-  font-size: 4.5rem;
+  font-size: 4.4rem;
   font-weight: 900;
-  color: var(--gold);
+  color: var(--white);
   margin-bottom: 1rem;
-  letter-spacing: -2px;
+  letter-spacing: -3px;
   text-transform: uppercase;
+  line-height: 0.9;
 }
 
 .contact-hero-desc {
@@ -26,7 +33,7 @@
 }
 
 .contact-main {
-  padding: 6rem 2rem;
+  padding: 6rem 0;
 }
 
 .contact-grid {

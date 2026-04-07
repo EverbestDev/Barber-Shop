@@ -46,7 +46,7 @@ const Pricing: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             className="pricing-title"
           >
-            TRANSPARENT <br /> PRICING
+            TRANSPARENT <br /> <span className="text-gold">PRICING</span>
           </motion.h1>
           <p className="pricing-desc">
             Premium value for expert results. View our simple, all-inclusive pricing structure.

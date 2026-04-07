@@ -1,6 +1,5 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Lock } from 'lucide-react';
 import './Legal.css';
 
 const Privacy: React.FC = () => {
@@ -9,21 +8,24 @@ const Privacy: React.FC = () => {
       <section className="legal-hero">
         <div className="legal-container">
           <motion.h1 
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="legal-title text-gold"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="legal-title"
           >
-            PRIVACY <br /> POLICY
+            PRIVACY <br /> <span className="text-gold">POLICY</span>
           </motion.h1>
-          <p className="privacy-desc">Your privacy is our priority. This policy outlines how we handle your data.</p>
+          <p className="legal-desc">Your privacy is our priority. This policy outlines how we handle your data.</p>
         </div>
       </section>
 
-      <section className="legal-content-section section-padding">
-        <div className="container narrow-container">
-          <div className="legal-card">
-            <div className="legal-icon-box"><Lock size={32} /></div>
-            
+      <section className="legal-content-section">
+        <div className="legal-container">
+          <div className="legal-content-intro">
+            <h3>Our approach to your data</h3>
+            <p>At Baze 2 Barbers, we respect your privacy and are committed to protecting your personal data. This policy will inform you as to how we look after your personal data when you visit our website (regardless of where you visit it from) and tell you about your privacy rights and how the law protects you.</p>
+          </div>
+
+          <div className="legal-text-block">
             <h3>1. Data Collection</h3>
             <p>We collect essential information to facilitate your bookings, such as your name, phone number, email address, and payment details.</p>
 
@@ -37,7 +39,7 @@ const Privacy: React.FC = () => {
             <p>All sensitive information, including payment and contact details, is encrypted via industry-standard protocols to prevent unauthorized access.</p>
 
             <h3>5. Cookies</h3>
-            <p>Our website uses cookies to improve navigation and remember your preferences for future visits.</p>
+            <p>Our website uses cookies to improve navigation and remember your preferences for future visits. Please see our Cookie Policy for more details.</p>
 
             <h3>6. Your Rights</h3>
             <p>You have the right to request access to, deletion of, or correction of any personal information we hold about you. Contact our support team for any such requests.</p>

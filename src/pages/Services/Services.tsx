@@ -76,7 +76,7 @@ const Services: React.FC = () => {
             transition={{ duration: 0.8 }}
             className="services-hero-title"
           >
-            OUR <br /> SERVICES
+            OUR <br /> <span className="text-gold">SERVICES</span>
           </motion.h1>
           <motion.p 
             initial={{ opacity: 0, y: 30 }}

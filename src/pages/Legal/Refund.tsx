@@ -1,6 +1,5 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { CreditCard } from 'lucide-react';
 import './Legal.css';
 
 const Refund: React.FC = () => {
@@ -11,19 +10,22 @@ const Refund: React.FC = () => {
           <motion.h1 
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="legal-title text-gold"
+            className="legal-title"
           >
-            REFUND <br /> & CANCELLATION
+            REFUND <br /> <span className="text-gold">& CANCELLATION</span>
           </motion.h1>
-          <p className="refund-desc">Everything you need to know about deposits and refunds.</p>
+          <p className="legal-desc">Everything you need to know about deposits and refunds.</p>
         </div>
       </section>
 
-      <section className="legal-content-section section-padding">
-        <div className="container narrow-container">
-          <div className="legal-card bounce-on-hover">
-            <div className="legal-icon-box"><CreditCard size={32} /></div>
-            
+      <section className="legal-content-section">
+        <div className="legal-container">
+          <div className="legal-content-intro">
+            <h3>Our commitment to fair booking</h3>
+            <p>To provide a consistent and professional environment for both our clients and barbers, we have established clear policies regarding deposits and cancellations. By booking an appointment, you acknowledge and agree to these terms.</p>
+          </div>
+
+          <div className="legal-text-block">
             <h3>1. Deposit Requirement</h3>
             <p>To ensure our master barbers' time is respected, we require a 50% non-refundable deposit for all premium grooming services booked online.</p>
 

@@ -254,22 +254,40 @@
   cursor: not-allowed;
 }
 
-@media (max-width: 600px) {
-  .booking-page-wrapper {
-    padding-top: 7rem;
-    padding-bottom: 4rem;
+@media (max-width: 768px) {
+  .booking-progress {
+    justify-content: flex-start;
+    overflow-x: auto;
+    gap: 1.5rem;
+    padding-bottom: 2rem;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    mask-image: linear-gradient(to right, black 85%, transparent 100%);
   }
 
+  .booking-progress::-webkit-scrollbar {
+    display: none;
+  }
+
+  .progress-step {
+    flex-shrink: 0;
+  }
+
+  .step-title {
+    font-size: 1.5rem;
+  }
+
+  .time-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
   .booking-card {
-    padding: 1.5rem 1rem;
+    padding: 2.5rem 1.25rem;
   }
 
-  .option-card {
-    padding: 1.25rem 1rem;
+  .booking-progress {
     gap: 1rem;
-  }
-  
-  .options-grid.cols-3 {
-    grid-template-columns: 1fr;
   }
 }

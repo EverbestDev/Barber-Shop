@@ -4,9 +4,9 @@
 }
 
 .services-page-hero {
-  padding: 8rem 2rem 4rem;
+  padding: 8rem 0 4rem;
   text-align: left;
-  background: linear-gradient(to right, rgba(0,0,0,0.8), transparent), url('https://images.unsplash.com/photo-1512592534063-8aee09da4cbb?q=80&w=2000&auto=format&fit=crop');
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.5) 100%), url('/images/viphomevisit.jpg');
   background-size: cover;
   background-position: center;
   background-color: #000;
@@ -18,12 +18,13 @@
 
 .services-hero-title {
   font-family: var(--font-main);
-  font-size: 3.6rem;
+  font-size: 4.4rem;
   font-weight: 900;
-  color: var(--gold);
+  color: var(--white);
   margin-bottom: 2rem;
-  letter-spacing: -2px;
+  letter-spacing: -3px;
   text-transform: uppercase;
+  line-height: 0.9;
 }
 
 .services-hero-desc {
@@ -36,7 +37,7 @@
 }
 
 .services-list-section {
-  padding: 6rem 2rem;
+  padding: 6rem 0;
 }
 
 .service-category {
@@ -62,7 +63,7 @@
 
 .services-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr));
   gap: 2rem;
 }
 
@@ -141,7 +142,7 @@
 }
 
 .deposit-policy-section {
-  padding: 4rem 2rem;
+  padding: 4rem 0;
   background-color: var(--secondary);
 }
 
@@ -179,5 +180,8 @@
 @media (max-width: 768px) {
   .services-hero-title {
     font-size: 3rem;
+  }
+  .service-card-full {
+    padding: 1.5rem;
   }
 }

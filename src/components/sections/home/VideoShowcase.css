@@ -38,9 +38,7 @@
   display: block;
 }
 
-.video-viewport.is-playing .main-showcase-video {
-  filter: grayscale(0%);
-}
+
 
 .video-glass-overlay {
   position: absolute;

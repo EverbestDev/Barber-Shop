@@ -8,25 +8,25 @@ const team = [
   {
     name: "Master J",
     role: "Senior Barber & Founder",
-    image: "https://images.unsplash.com/photo-1585747860715-2ba37e788b70?q=80&w=600&auto=format&fit=crop",
+    image: "/images/barbers/1.jpg",
     bio: "Over 15 years of absolute mastery in traditional grooming and urban styling."
   },
   {
     name: "Dexter",
     role: "Lead Stylist",
-    image: "https://images.unsplash.com/photo-1599351431202-1e0f0137899a?q=80&w=600&auto=format&fit=crop",
+    image: "/images/barbers/2.jpg",
     bio: "The specialist for sharp skin fades and contemporary beard design."
   },
   {
     name: "Leo 'The Blade'",
     role: "Master Artisan",
-    image: "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?q=80&w=600&auto=format&fit=crop",
+    image: "/images/barbers/3.jpg",
     bio: "Expert in straight-razor precision and luxury hot-towel experiences."
   },
   {
     name: "Sarah V.",
     role: "Executive Stylist",
-    image: "https://images.unsplash.com/photo-1621605815841-aa34440051e7?q=80&w=600&auto=format&fit=crop",
+    image: "/images/barbers/4.jpg",
     bio: "Specializing in family cuts and premium hair health treatments."
   }
 ];
