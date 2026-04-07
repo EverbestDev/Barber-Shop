@@ -140,23 +140,34 @@
 /* Barber Card */
 .barber-card {
   background-color: var(--primary);
-  padding: 2rem 1rem;
-  border-radius: 8px;
+  padding: 2.5rem 1rem;
+  border-radius: 12px;
   text-align: center;
   cursor: pointer;
   border: 1px solid rgba(255, 255, 255, 0.05);
+  position: relative;
+  transition: all 0.3s ease;
 }
 
-.barber-card img {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  margin-bottom: 1.25rem;
-  object-fit: cover;
+.recommend-badge {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--gold);
+  color: var(--primary);
+  padding: 4px 12px;
+  border-radius: 100px;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 10px rgba(255, 204, 0, 0.3);
 }
 
 .barber-card.selected {
   border-color: var(--gold);
+  background: rgba(255, 204, 0, 0.03);
 }
 
 /* Time Picker */

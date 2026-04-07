@@ -59,6 +59,9 @@ const BookingPage: React.FC = () => {
   const { user } = useAuth();
   const { onAuthOpen } = useOutletContext<{ onAuthOpen: () => void }>();
 
+  const today = new Date().toISOString().split('T')[0];
+  const allTimeSlots = ['10:00', '11:00', '12:00', '14:00', '15:00', '16:00', '17:00', '18:00'];
+
   useEffect(() => {
     fetchBarbers().then(setAllBarbers).catch(console.error);
   }, []);
@@ -68,10 +71,27 @@ const BookingPage: React.FC = () => {
 
   const filteredServices = allServices.filter(s => s.cat === selectedCategory?.id);
 
+  const getVisibleTimes = () => {
+    if (selectedDate === today) {
+      const now = new Date();
+      const currentHour = now.getHours();
+      const currentMin = now.getMinutes();
+      
+      return allTimeSlots.filter(slot => {
+        const [slotHour, slotMin] = slot.split(':').map(Number);
+        if (slotHour > currentHour) return true;
+        if (slotHour === currentHour && slotMin > currentMin + 30) return true; // 30 min buffer
+        return false;
+      });
+    }
+    return allTimeSlots;
+  };
+
+  const visibleTimes = getVisibleTimes();
+
   const handleBookingSubmit = async () => {
     if (!selectedService) return;
 
-    // Validate if guest
     if (!user && (!guestName || !guestEmail)) {
       alert("Please provide your name and email to continue as a guest.");
       return;
@@ -90,7 +110,6 @@ const BookingPage: React.FC = () => {
       };
 
       const newBooking = await createBooking(bookingData);
-      
       const { url } = await createCheckoutSession(newBooking.id!);
       
       if (url) {
@@ -98,7 +117,6 @@ const BookingPage: React.FC = () => {
       } else {
         throw new Error('Stripe checkout URL not returned.');
       }
-
     } catch (err) {
       console.error(err);
       alert("Booking failed. Please check your details.");
@@ -110,7 +128,6 @@ const BookingPage: React.FC = () => {
   return (
     <div className="booking-page-wrapper">
       <div className="container booking-container">
-        
         <div className="booking-progress">
           {steps.map((s, i) => (
             <div key={s} className={`progress-step ${step > i ? 'completed' : ''} ${step === i + 1 ? 'active' : ''}`}>
@@ -166,6 +183,11 @@ const BookingPage: React.FC = () => {
               <motion.div key="s3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="step-view">
                 <h2 className="step-title">Select Barber</h2>
                 <div className="options-grid">
+                  <div className={`barber-card ${!selectedBarber ? 'selected' : ''}`} onClick={() => setSelectedBarber(null)}>
+                    <div className="recommend-badge">Studio Recommended</div>
+                    <h3>Any Barber</h3>
+                    <span>First Expert Available</span>
+                  </div>
                   {allBarbers.map(b => (
                     <div 
                       key={b.id} 
@@ -176,10 +198,6 @@ const BookingPage: React.FC = () => {
                       <span>Master Barber</span>
                     </div>
                   ))}
-                  <div className={`barber-card ${!selectedBarber ? 'selected' : ''}`} onClick={() => setSelectedBarber(null)}>
-                    <h3>Any Barber</h3>
-                    <span>Next Available</span>
-                  </div>
                 </div>
               </motion.div>
             )}
@@ -188,17 +206,34 @@ const BookingPage: React.FC = () => {
               <motion.div key="s4" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="step-view">
                 <h2 className="step-title">Date & Time</h2>
                 <div className="datetime-layout">
-                  <input type="date" className="luxury-input" onChange={(e) => setSelectedDate(e.target.value)} />
-                  <div className="time-grid">
-                    {['10:00', '11:00', '12:00', '14:00', '15:00', '16:00'].map(t => (
-                      <button 
-                        key={t} 
-                        className={`time-chip ${selectedTime === t ? 'active' : ''}`}
-                        onClick={() => setSelectedTime(t)}
-                      >
-                        {t}
-                      </button>
-                    ))}
+                  <div className="input-group">
+                    <label>Select Date</label>
+                    <input 
+                      type="date" 
+                      className="luxury-input" 
+                      min={today}
+                      onChange={(e) => {
+                        setSelectedDate(e.target.value);
+                        setSelectedTime(''); 
+                      }} 
+                    />
+                  </div>
+                  
+                  <div className="time-section">
+                    <label className="section-label">Available Ritual Times</label>
+                    <div className="time-grid">
+                      {visibleTimes.length > 0 ? visibleTimes.map(t => (
+                        <button 
+                          key={t} 
+                          className={`time-chip ${selectedTime === t ? 'active' : ''}`}
+                          onClick={() => setSelectedTime(t)}
+                        >
+                          {t}
+                        </button>
+                      )) : (
+                        <p className="no-times-msg">No more rituals available for today. Please select another date.</p>
+                      )}
+                    </div>
                   </div>
                 </div>
               </motion.div>
@@ -207,7 +242,6 @@ const BookingPage: React.FC = () => {
             {step === 5 && (
               <motion.div key="s5" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="step-view">
                 <h2 className="step-title">Review & Contact</h2>
-                
                 <div className="review-layout">
                   <div className="review-box">
                     <h3>Booking Summary</h3>
@@ -247,7 +281,6 @@ const BookingPage: React.FC = () => {
                     </div>
                   )}
                 </div>
-
                 <button className="btn-filled wide-booking-btn" onClick={handleBookingSubmit} disabled={loading}>
                   {loading ? 'Processing...' : 'Secure Chair & Pay'}
                 </button>
