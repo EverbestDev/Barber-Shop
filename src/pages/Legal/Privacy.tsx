@@ -5,7 +5,7 @@ import './Legal.css';
 const Privacy: React.FC = () => {
   return (
     <div className="legal-page-wrapper">
-      <section className="legal-hero">
+      <section className="legal-hero privacy-bg">
         <div className="legal-container">
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}

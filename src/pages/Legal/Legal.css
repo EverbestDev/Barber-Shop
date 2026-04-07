@@ -7,13 +7,28 @@
   position: relative;
   padding: 10rem 0 6rem;
   background-color: #050505;
-  background-image: linear-gradient(to right, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.6) 100%), url('/images/purehygiene.jpg');
   background-size: cover;
   background-position: center;
   min-height: 50vh;
   display: flex;
   align-items: center;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.legal-hero.terms-bg {
+  background-image: linear-gradient(to right, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.6) 100%), url('/images/LuxuryLounge.jpg');
+}
+
+.legal-hero.privacy-bg {
+  background-image: linear-gradient(to right, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.6) 100%), url('/images/purehygiene.jpg');
+}
+
+.legal-hero.refund-bg {
+  background-image: linear-gradient(to right, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.6) 100%), url('/images/InTheBarbershop.jpg');
+}
+
+.legal-hero.cookie-bg {
+  background-image: linear-gradient(to right, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.6) 100%), url('/images/premiumtools.jpg');
 }
 
 .legal-container {

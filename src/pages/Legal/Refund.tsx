@@ -5,7 +5,7 @@ import './Legal.css';
 const Refund: React.FC = () => {
   return (
     <div className="legal-page-wrapper">
-      <section className="legal-hero">
+      <section className="legal-hero refund-bg">
         <div className="legal-container">
           <motion.h1 
             initial={{ opacity: 0, x: -20 }}

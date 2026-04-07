@@ -5,7 +5,7 @@ import CTA from '../../components/sections/home/CTA';
 import { useOutletContext } from 'react-router-dom';
 import './Gallery.css';
 
-const categories = ['All', 'Haircuts', 'Fades', 'Beard', 'Styling', 'Kids', 'Ladies'];
+const categories = ['All', 'Men', 'Ladies', 'Kids', 'Fades', 'Beard', 'Styling'];
 
 const galleryHeroSlides = [
   '/images/LuxuryLounge.jpg',
@@ -17,26 +17,26 @@ const galleryHeroSlides = [
 
 const staticImages = [
   // Base Images
-  { id: 1, category: 'Haircuts', src: '/images/mensignature.jpg', title: 'Signature Cut' },
-  { id: 2, category: 'Fades', src: '/images/taperfade.jpg', title: 'Sharp Skin Fade' },
-  { id: 3, category: 'Beard', src: '/images/herobeard.jpg', title: 'Beard Sculpting' },
-  { id: 6, category: 'Haircuts', src: '/images/InTheBarbershop.jpg', title: 'Classic Grooming' },
+  { id: 1, category: 'Men', src: '/images/mensignature.jpg', title: 'Signature Cut' },
+  { id: 2, category: 'Men', src: '/images/taperfade.jpg', title: 'Sharp Skin Fade' },
+  { id: 3, category: 'Men', src: '/images/herobeard.jpg', title: 'Beard Sculpting' },
+  { id: 6, category: 'Men', src: '/images/InTheBarbershop.jpg', title: 'Classic Grooming' },
 
   // Men Collection
-  { id: 7, category: 'Beard', src: '/images/men/beardandfademen.jpg', title: 'Premium Beard & Fade' },
-  { id: 8, category: 'Beard', src: '/images/men/cleanbeard.jpg', title: 'Defined Beard Lineup' },
-  { id: 9, category: 'Haircuts', src: '/images/men/curly.jpg', title: 'Natural Curly Texture' },
-  { id: 11, category: 'Haircuts', src: '/images/men/skincutbaldmen.jpg', title: 'Precision Razor Head Shave' },
-  { id: 12, category: 'Haircuts', src: '/images/men/viphomevisit.jpg', title: 'VIP Signature Cut' },
-  { id: 13, category: 'Styling', src: '/images/men/youthbraid.jpg', title: 'Artistic Youth Braids' },
-  { id: 14, category: 'Styling', src: '/images/men/youthbraid2.jpg', title: 'Intricate Braid Patterns' },
-  { id: 34, category: 'Haircuts', src: '/images/men/baldmen1.jpg', title: 'Classic Clean Shave' },
-  { id: 35, category: 'Haircuts', src: '/images/men/baldmen2.jpg', title: 'Elite Smooth Shave' },
-  { id: 36, category: 'Beard', src: '/images/men/menbeardcuts.jpg', title: 'Artistic Beard Design' },
-  { id: 37, category: 'Styling', src: '/images/men/menbraids.jpg', title: 'Signature Men Braids' },
-  { id: 38, category: 'Styling', src: '/images/men/menbraids2.jpg', title: 'Patterned Braids' },
-  { id: 39, category: 'Haircuts', src: '/images/men/menfadedread.jpg', title: 'Fade & Dread Lock Combination' },
-  { id: 40, category: 'Fades', src: '/images/men/menfadesignature3.jpg', title: 'Master Level Skin Fade' },
+  { id: 7, category: 'Men', src: '/images/men/beardandfademen.jpg', title: 'Premium Beard & Fade' },
+  { id: 8, category: 'Men', src: '/images/men/cleanbeard.jpg', title: 'Defined Beard Lineup' },
+  { id: 9, category: 'Men', src: '/images/men/curly.jpg', title: 'Natural Curly Texture' },
+  { id: 11, category: 'Men', src: '/images/men/skincutbaldmen.jpg', title: 'Precision Razor Head Shave' },
+  { id: 12, category: 'Men', src: '/images/men/viphomevisit.jpg', title: 'VIP Signature Cut' },
+  { id: 13, category: 'Men', src: '/images/men/youthbraid.jpg', title: 'Artistic Youth Braids' },
+  { id: 14, category: 'Men', src: '/images/men/youthbraid2.jpg', title: 'Intricate Braid Patterns' },
+  { id: 34, category: 'Men', src: '/images/men/baldmen1.jpg', title: 'Classic Clean Shave' },
+  { id: 35, category: 'Men', src: '/images/men/baldmen2.jpg', title: 'Elite Smooth Shave' },
+  { id: 36, category: 'Men', src: '/images/men/menbeardcuts.jpg', title: 'Artistic Beard Design' },
+  { id: 37, category: 'Men', src: '/images/men/menbraids.jpg', title: 'Signature Men Braids' },
+  { id: 38, category: 'Men', src: '/images/men/menbraids2.jpg', title: 'Patterned Braids' },
+  { id: 39, category: 'Men', src: '/images/men/menfadedread.jpg', title: 'Fade & Dread Lock Combination' },
+  { id: 40, category: 'Men', src: '/images/men/menfadesignature3.jpg', title: 'Master Level Skin Fade' },
 
   // Ladies Collection
   { id: 15, category: 'Ladies', src: '/images/ladies/womencurly.jpg', title: "Women's Curly Taper" },

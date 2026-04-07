@@ -5,7 +5,7 @@ import './Legal.css';
 const CookiePolicy: React.FC = () => {
   return (
     <div className="legal-page-wrapper">
-      <section className="legal-hero">
+      <section className="legal-hero cookie-bg">
         <div className="legal-container">
           <h1 className="legal-title">COOKIE <br /> <span className="text-gold">POLICY</span></h1>
           <p className="legal-desc">Last updated: April 2026. This policy explains how Baze 2 Barbers uses cookies and similar technologies.</p>
