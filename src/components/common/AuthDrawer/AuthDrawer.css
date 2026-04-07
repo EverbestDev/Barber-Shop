@@ -210,3 +210,23 @@
     padding: 2rem 1.5rem;
   }
 }
+.auth-submit-btn:disabled {
+  opacity: 0.7 !important;
+  cursor: not-allowed !important;
+  filter: saturate(0.5) !important;
+}
+
+.spinning-icon-btn {
+  animation: spin-auth 1s linear infinite;
+  margin-right: 0.75rem;
+}
+
+@keyframes spin-auth {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+input:read-only {
+  opacity: 0.6 !important;
+  cursor: not-allowed !important;
+}

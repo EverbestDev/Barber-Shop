@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronRight, ChevronLeft, Check } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Check, Loader2 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useOutletContext } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { createBooking } from '../../api/bookings';
 import { createCheckoutSession } from '../../api/payments';
 import './Booking.css';
@@ -56,7 +57,7 @@ const BookingPage: React.FC = () => {
   const { user } = useAuth();
   const { onAuthOpen } = useOutletContext<{ onAuthOpen: () => void }>();
 
-  const today = new Date().toISOString().split('T')[0];
+
   const allTimeSlots = [
     '10:00 AM', '11:00 AM', '12:00 PM', '01:00 PM', '02:00 PM', 
     '03:00 PM', '04:00 PM', '05:00 PM', '06:00 PM'
@@ -98,11 +99,12 @@ const BookingPage: React.FC = () => {
     if (!selectedService) return;
 
     if (!user && (!guestName || !guestEmail)) {
-      alert("Please provide your name and email to continue as a guest.");
+      toast.error("Please provide contact details to secure your chair.");
       return;
     }
 
     setLoading(true);
+    const loadingToast = toast.loading("Securing your chair...");
     try {
       const [timeStr, modifier] = selectedTime.split(' ');
       let [hour, min] = timeStr.split(':').map(Number);
@@ -121,16 +123,23 @@ const BookingPage: React.FC = () => {
       };
 
       const newBooking = await createBooking(bookingData);
-      const { url } = await createCheckoutSession(newBooking.id!);
+      const bookingId = newBooking.id || (newBooking as any)._id;
+
+      if (!bookingId) {
+        throw new Error('Studio ID ritual error—please contact support.');
+      }
+      
+      const { url } = await createCheckoutSession(bookingId);
       
       if (url) {
+        toast.success("Ready for session checkout!", { id: loadingToast });
         window.location.href = url;
       } else {
-        throw new Error('Stripe checkout URL not returned.');
+        throw new Error('Stripe gateway session failed.');
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert("Booking failed. Please check your details.");
+      toast.error(err.message || "Booking failed. Please check your ritual details.", { id: loadingToast });
     } finally {
       setLoading(false);
     }
@@ -138,6 +147,21 @@ const BookingPage: React.FC = () => {
 
   return (
     <div className="booking-page-wrapper">
+      <AnimatePresence>
+        {loading && (
+          <motion.div 
+            className="booking-loader-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <div className="loader-content">
+              <Loader2 className="spinning-icon" size={40} />
+              <p>Preparing Checkout...</p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       <div className="container booking-container">
         <div className="booking-progress">
           {steps.map((s, i) => (
@@ -200,6 +224,7 @@ const BookingPage: React.FC = () => {
                       type="date" 
                       className="luxury-input" 
                       min={today}
+                      value={selectedDate}
                       onChange={(e) => {
                         setSelectedDate(e.target.value);
                         setSelectedTime(''); 

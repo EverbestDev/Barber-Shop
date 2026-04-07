@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { X, Mail, Lock, User, ArrowRight } from 'lucide-react';
+import { X, Mail, Lock, User, ArrowRight, Loader2 } from 'lucide-react';
 import { FaGoogle } from 'react-icons/fa';
 import { useAuth } from '../../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { loginUser, registerUser, fetchCurrentUser } from '../../../api/auth';
 import './AuthDrawer.css';
 
@@ -16,11 +17,15 @@ const AuthDrawer: React.FC<AuthDrawerProps> = ({ onClose }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
+  const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
+    const loadToast = toast.loading(isLogin ? "Authenticating ritual..." : "Establishing profile...");
+    
     try {
       let response;
       if (isLogin) {
@@ -32,11 +37,16 @@ const AuthDrawer: React.FC<AuthDrawerProps> = ({ onClose }) => {
       localStorage.setItem('token', response.access_token);
       const userData = await fetchCurrentUser();
       login(userData);
+      
+      toast.success(isLogin ? `Welcome back, ${userData.name}. Rituals synchronized.` : "Profile established. Welcome to the family.", { id: loadToast });
       onClose();
       navigate('/dashboard');
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Authentication failed';
-      alert((err as { response?: { data?: { detail?: string } } }).response?.data?.detail || message);
+    } catch (err: any) {
+      console.error(err);
+      const message = err.response?.data?.detail || (err instanceof Error ? err.message : 'Authentication failed');
+      toast.error(message, { id: loadToast });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -62,8 +72,8 @@ const AuthDrawer: React.FC<AuthDrawerProps> = ({ onClose }) => {
         </div>
 
         <div className="auth-tabs mini-tabs">
-          <button className={isLogin ? 'active' : ''} onClick={() => setIsLogin(true)}>Login</button>
-          <button className={!isLogin ? 'active' : ''} onClick={() => setIsLogin(false)}>Register</button>
+          <button className={isLogin ? 'active' : ''} onClick={() => setIsLogin(true)} disabled={loading}>Login</button>
+          <button className={!isLogin ? 'active' : ''} onClick={() => setIsLogin(false)} disabled={loading}>Register</button>
         </div>
 
         <form className="auth-form drawer-form" onSubmit={handleAuth}>
@@ -74,6 +84,7 @@ const AuthDrawer: React.FC<AuthDrawerProps> = ({ onClose }) => {
                 type="text" 
                 placeholder="Full Name" 
                 required 
+                readOnly={loading}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
               />
@@ -85,6 +96,7 @@ const AuthDrawer: React.FC<AuthDrawerProps> = ({ onClose }) => {
               type="email" 
               placeholder="Email Address" 
               required 
+              readOnly={loading}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
@@ -95,13 +107,18 @@ const AuthDrawer: React.FC<AuthDrawerProps> = ({ onClose }) => {
               type="password" 
               placeholder="Password" 
               required 
+              readOnly={loading}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
           
-          <button type="submit" className="btn-filled auth-submit-btn">
-            {isLogin ? 'Log In' : 'Sign Up'} <ArrowRight size={18} />
+          <button type="submit" className="btn-filled auth-submit-btn" disabled={loading}>
+            {loading ? (
+              <><Loader2 className="spinning-icon-btn" size={18} /> Authenticating...</>
+            ) : (
+              <>{isLogin ? 'Log In' : 'Sign Up'} <ArrowRight size={18} /></>
+            )}
           </button>
         </form>
 
@@ -109,16 +126,18 @@ const AuthDrawer: React.FC<AuthDrawerProps> = ({ onClose }) => {
           <span>Or continue with</span>
         </div>
 
-        <button className="social-btn google-btn">
+        <button className="social-btn google-btn" disabled={loading}>
           <FaGoogle size={20} /> Google
         </button>
 
-        <p className="drawer-footer-text">
-          {isLogin ? "Don't have an account?" : "Already have an account?"}
-          <button onClick={() => setIsLogin(!isLogin)}>
-            {isLogin ? 'Register' : 'Login'}
-          </button>
-        </p>
+        <div className="drawer-footer-text">
+          <p>
+            {isLogin ? "Don't have an account?" : "Already have an account?"}
+            <button onClick={() => setIsLogin(!isLogin)} disabled={loading}>
+              {isLogin ? 'Register' : 'Login'}
+            </button>
+          </p>
+        </div>
       </div>
     </motion.div>
   );

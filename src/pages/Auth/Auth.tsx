@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Mail, Lock, User, ArrowRight } from 'lucide-react';
+import { Mail, Lock, User, ArrowRight, Loader2 } from 'lucide-react';
 import { FaGoogle } from 'react-icons/fa';
 import { loginUser, registerUser, fetchCurrentUser } from '../../api/auth';
+import toast from 'react-hot-toast';
 import './Auth.css';
 
 const Auth: React.FC = () => {
@@ -12,11 +13,15 @@ const Auth: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
+  const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
+    const loadToast = toast.loading(isLogin ? "Authenticating ritual..." : "Establishing profile...");
+    
     try {
       let response;
       if (isLogin) {
@@ -28,10 +33,15 @@ const Auth: React.FC = () => {
       localStorage.setItem('token', response.access_token);
       const userData = await fetchCurrentUser();
       login(userData);
+      
+      toast.success(isLogin ? `Welcome back, ${userData.name}. Rituals synchronized.` : "Profile established. Welcome to the family.", { id: loadToast });
       navigate('/dashboard');
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Authentication failed';
-      alert((err as { response?: { data?: { detail?: string } } }).response?.data?.detail || message);
+    } catch (err: any) {
+      console.error(err);
+      const message = err.response?.data?.detail || (err instanceof Error ? err.message : 'Authentication failed');
+      toast.error(message, { id: loadToast });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -73,12 +83,14 @@ const Auth: React.FC = () => {
               <button 
                 className={isLogin ? 'active' : ''} 
                 onClick={() => setIsLogin(true)}
+                disabled={loading}
               >
                 Login
               </button>
               <button 
                 className={!isLogin ? 'active' : ''} 
                 onClick={() => setIsLogin(false)}
+                disabled={loading}
               >
                 Register
               </button>
@@ -92,6 +104,7 @@ const Auth: React.FC = () => {
                     type="text" 
                     placeholder="Full Name" 
                     required 
+                    readOnly={loading}
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                   />
@@ -103,6 +116,7 @@ const Auth: React.FC = () => {
                   type="email" 
                   placeholder="Email Address" 
                   required 
+                  readOnly={loading}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
@@ -113,15 +127,20 @@ const Auth: React.FC = () => {
                   type="password" 
                   placeholder="Password" 
                   required 
+                  readOnly={loading}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
               </div>
               
-              {isLogin && <button type="button" className="forgot-pass-btn">Forgot Password?</button>}
+              {isLogin && <button type="button" className="forgot-pass-btn" disabled={loading}>Forgot Password?</button>}
 
-              <button type="submit" className="btn-filled auth-submit-btn">
-                {isLogin ? 'Log In' : 'Sign Up'} <ArrowRight size={18} />
+              <button type="submit" className="btn-filled auth-submit-btn" disabled={loading}>
+                {loading ? (
+                  <><Loader2 className="spinning-icon-btn" size={18} /> Authenticating...</>
+                ) : (
+                  <>{isLogin ? 'Log In' : 'Sign Up'} <ArrowRight size={18} /></>
+                )}
               </button>
             </form>
 
@@ -130,17 +149,19 @@ const Auth: React.FC = () => {
             </div>
 
             <div className="social-auth-btns">
-              <button className="social-btn google-btn">
+              <button className="social-btn google-btn" disabled={loading}>
                 <FaGoogle size={20} /> Continue with Google
               </button>
             </div>
 
-            <p className="auth-footer">
-              {isLogin ? "Don't have an account?" : "Already have an account?"}
-              <button onClick={() => setIsLogin(!isLogin)}>
-                {isLogin ? 'Register now' : 'Log in' }
-              </button>
-            </p>
+            <div className="auth-footer">
+              <p>
+                {isLogin ? "Don't have an account?" : "Already have an account?"}
+                <button onClick={() => setIsLogin(!isLogin)} disabled={loading}>
+                  {isLogin ? 'Register now' : 'Log in' }
+                </button>
+              </p>
+            </div>
           </motion.div>
         </div>
       </div>

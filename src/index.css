@@ -224,3 +224,34 @@ button {
     margin-bottom: 2rem;
   }
 }
+/* Custom Toast Animations - Drawer Style */
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOutRight {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+/* Base style for the premium studio toast */
+[role="status"] {
+  animation: slideInRight 0.45s cubic-bezier(0.19, 1, 0.22, 1) forwards !important;
+}
+
+.studio-toast-container {
+  z-index: 9999 !important;
+}
