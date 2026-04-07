@@ -6,19 +6,19 @@ import './Hero.css';
 const slides = [
   {
     id: 1,
-    image: "/images/sprayingsprayonhairlandscape.jpg",
+    image: "/images/mensignature.jpg",
     title: <>PREMIUM <br /> <span className="text-gold">GROOMING</span></>,
     subtitle: "Exceptional cuts, precise styling, and unmatched attention to detail designed for the modern gentleman."
   },
   {
     id: 2,
-    image: "/images/kidcutherobg.jpg",
+    image: "/images/kids/greatfade.jpg",
     title: <>KIDS HAIR <br /> <span className="text-gold">STYLE</span></>,
     subtitle: "Safe, comfortable, and stylish haircuts for kids. We ensure a fun experience while keeping them sharp."
   },
   {
     id: 3,
-    image: "/images/beardshavinghero.jpg",
+    image: "/images/men/skincutbaldmen.jpg",
     title: <>BEARD <br /> <span className="text-gold">SCULPTING</span></>,
     subtitle: "Keep your facial hair sharp and defined with precise trimming, shaping, and soothing hot towel shaves."
   },

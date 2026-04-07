@@ -23,7 +23,7 @@
   background-size: cover;
   background-position: center;
   background-color: #000;
-  background-blend-mode: luminosity;
+  min-height: 50vh;
   z-index: 1;
 }
 

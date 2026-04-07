@@ -33,7 +33,7 @@
   width: 100% !important; /* Force stability */
   height: 100% !important;
   object-fit: cover;
-  filter: grayscale(100%);
+
   transition: filter 0.8s ease;
   display: block;
 }
