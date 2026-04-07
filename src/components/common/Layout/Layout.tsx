@@ -10,15 +10,21 @@ const Layout: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isAuthDrawerOpen, setIsAuthDrawerOpen] = useState(false);
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
   
+  useEffect(() => {
+     if (searchParams.get('session_expired') === 'true') {
+         setIsAuthDrawerOpen(true);
+     }
+  }, [location.search]);
+
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, {
     stiffness: 100,
     damping: 30,
     restDelta: 0.001
   });
-  
-  const location = useLocation();
 
   // Reset scroll on path change
   useEffect(() => {
@@ -76,7 +82,7 @@ const Layout: React.FC = () => {
         )}
       </AnimatePresence>
 
-      {location.pathname !== '/auth' && <Footer />}
+      <Footer />
       <CookieConsent />
     </div>
   );

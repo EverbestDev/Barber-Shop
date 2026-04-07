@@ -18,13 +18,17 @@ const AuthDrawer: React.FC<AuthDrawerProps> = ({ onClose }) => {
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showOTP, setShowOTP] = useState(false);
+  const [otpCode, setOtpCode] = useState('');
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
+  const [isResettingPassword, setIsResettingPassword] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const loadToast = toast.loading(isLogin ? "Authenticating ritual..." : "Establishing profile...");
+    const loadToast = toast.loading(isLogin ? "Synchronizing your session..." : "Entering the studio...");
     
     try {
       let response;
@@ -38,7 +42,7 @@ const AuthDrawer: React.FC<AuthDrawerProps> = ({ onClose }) => {
       const userData = await fetchCurrentUser();
       login(userData);
       
-      toast.success(isLogin ? `Welcome back, ${userData.name}. Rituals synchronized.` : "Profile established. Welcome to the family.", { id: loadToast });
+      toast.success(isLogin ? `Welcome back, ${userData.name.split(' ')[0]}.` : "Welcome to the family.", { id: loadToast });
       onClose();
       navigate('/dashboard');
     } catch (err: any) {
@@ -49,6 +53,95 @@ const AuthDrawer: React.FC<AuthDrawerProps> = ({ onClose }) => {
       setLoading(false);
     }
   };
+
+  const handleVerifyOTP = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    const verifToast = toast.loading("Verifying security ritual...");
+    try {
+      await import('../../../api/auth').then(m => m.verifyOTP(email, otpCode));
+      toast.success("Identity Verified. Synchronizing profile...", { id: verifToast });
+      
+      const loginResp = await loginUser({ email, password });
+      localStorage.setItem('token', loginResp.access_token);
+      const userData = await fetchCurrentUser();
+      login(userData);
+      onClose();
+      navigate('/dashboard');
+    } catch (err: any) {
+      toast.error(err.response?.data?.detail || "Invalid code", { id: verifToast });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleForgotPasswordSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return toast.error("Please provide your email.");
+    setLoading(true);
+    const passToast = toast.loading("Locating your profile...");
+    try {
+      await import('../../../api/auth').then(m => m.forgotPassword(email));
+      toast.success("Security code dispatched to your email.", { id: passToast });
+      setIsForgotPassword(false);
+      setIsResettingPassword(true);
+    } catch (err: any) {
+      toast.error(err.response?.data?.detail || "Action failed.", { id: passToast });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResetPasswordSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    const rsToast = toast.loading("Resetting credentials...");
+    try {
+      await import('../../../api/auth').then(m => m.resetPassword(email, otpCode, password));
+      toast.success("Password secured. Synchronizing...", { id: rsToast });
+      const loginResp = await loginUser({ email, password });
+      localStorage.setItem('token', loginResp.access_token);
+      const userData = await fetchCurrentUser();
+      login(userData);
+      onClose();
+      navigate('/dashboard');
+    } catch (err: any) {
+      toast.error(err.response?.data?.detail || "Invalid code or action failed.", { id: rsToast });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (showOTP || isResettingPassword) {
+    return (
+      <motion.div className="auth-drawer" initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 25, stiffness: 200 }}>
+        <div className="drawer-header"><button className="close-drawer-btn" onClick={onClose}><X size={24} /></button><h2 className="drawer-logo">BAZE 2 BARBERS</h2></div>
+        <div className="drawer-content">
+          <div className="auth-header-snippet">
+            <h3>{isResettingPassword ? "Reset Password" : "Verify Identity"}</h3>
+            <p style={{ fontSize: '0.85rem' }}>We've sent a 6-digit security code to <strong>{email}</strong></p>
+          </div>
+          <form className="auth-form drawer-form" onSubmit={isResettingPassword ? handleResetPasswordSubmit : handleVerifyOTP}>
+            <div className="input-group">
+              <input type="text" placeholder="000000" maxLength={6} required value={otpCode} onChange={(e) => setOtpCode(e.target.value.replace(/\D/g,''))} style={{ textAlign: 'center', letterSpacing: '4px', fontSize: '1.25rem', fontWeight: 800 }} />
+            </div>
+            {isResettingPassword && (
+              <div className="input-group" style={{ marginTop: '1rem' }}>
+                <Lock size={18} className="input-icon" />
+                <input type="password" placeholder="New Secure Password" required readOnly={loading} value={password} onChange={(e) => setPassword(e.target.value)} />
+              </div>
+            )}
+            <button type="submit" className="btn-filled auth-submit-btn" disabled={loading || otpCode.length < 6 || (isResettingPassword && password.length < 6)}>
+              {loading ? <><Loader2 className="spinning-icon-btn" size={18} /> {isResettingPassword ? 'Securing...' : 'Verifying...'}</> : <>{isResettingPassword ? 'Confirm Password' : 'Synchronize Profile'} <ArrowRight size={18} /></>}
+            </button>
+          </form>
+          <div className="drawer-footer-text" style={{ marginTop: '2rem' }}>
+             <button className="text-gold" onClick={() => { setShowOTP(false); setIsResettingPassword(false); }} disabled={loading}>Back to {isResettingPassword ? 'Login' : 'Register'}</button>
+          </div>
+        </div>
+      </motion.div>
+    );
+  }
 
   return (
     <motion.div 
@@ -67,58 +160,41 @@ const AuthDrawer: React.FC<AuthDrawerProps> = ({ onClose }) => {
 
       <div className="drawer-content">
         <div className="auth-header-snippet">
-          <h3>{isLogin ? 'Welcome Back' : 'Join the Elite'}</h3>
-          <p>{isLogin ? 'Sign in to manage your bookings.' : 'Create an account for the full experience.'}</p>
+          <h3>{isForgotPassword ? 'Recover Access' : isLogin ? 'Welcome Back' : 'Join the Elite'}</h3>
+          <p>{isForgotPassword ? 'Enter your email to request an unlock ritual.' : isLogin ? 'Sign in to manage your bookings.' : 'Create an account for the full experience.'}</p>
         </div>
 
-        <div className="auth-tabs mini-tabs">
-          <button className={isLogin ? 'active' : ''} onClick={() => setIsLogin(true)} disabled={loading}>Login</button>
-          <button className={!isLogin ? 'active' : ''} onClick={() => setIsLogin(false)} disabled={loading}>Register</button>
-        </div>
+        {!isForgotPassword && (
+          <div className="auth-tabs mini-tabs">
+            <button className={isLogin ? 'active' : ''} onClick={() => setIsLogin(true)} disabled={loading}>Login</button>
+            <button className={!isLogin ? 'active' : ''} onClick={() => setIsLogin(false)} disabled={loading}>Register</button>
+          </div>
+        )}
 
-        <form className="auth-form drawer-form" onSubmit={handleAuth}>
-          {!isLogin && (
+        <form className="auth-form drawer-form" onSubmit={isForgotPassword ? handleForgotPasswordSubmit : handleAuth}>
+          {!isLogin && !isForgotPassword && (
             <div className="input-group">
               <User size={18} className="input-icon" />
-              <input 
-                type="text" 
-                placeholder="Full Name" 
-                required 
-                readOnly={loading}
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
+              <input type="text" placeholder="Full Name" required readOnly={loading} value={name} onChange={(e) => setName(e.target.value)} />
             </div>
           )}
           <div className="input-group">
             <Mail size={18} className="input-icon" />
-            <input 
-              type="email" 
-              placeholder="Email Address" 
-              required 
-              readOnly={loading}
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
+            <input type="email" placeholder="Email Address" required readOnly={loading} value={email} onChange={(e) => setEmail(e.target.value)} />
           </div>
-          <div className="input-group">
-            <Lock size={18} className="input-icon" />
-            <input 
-              type="password" 
-              placeholder="Password" 
-              required 
-              readOnly={loading}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </div>
+          {!isForgotPassword && (
+            <div className="input-group">
+              <Lock size={18} className="input-icon" />
+              <input type="password" placeholder="Password" required readOnly={loading} value={password} onChange={(e) => setPassword(e.target.value)} />
+            </div>
+          )}
           
+          {isLogin && !isForgotPassword && (
+             <button type="button" onClick={() => setIsForgotPassword(true)} disabled={loading} style={{ background: 'none', border: 'none', color: 'var(--gold)', fontSize: '0.75rem', fontWeight: 600, textAlign: 'right', display: 'block', width: '100%', marginBottom: '1rem', cursor: 'pointer' }}>Forgot Password?</button>
+          )}
+
           <button type="submit" className="btn-filled auth-submit-btn" disabled={loading}>
-            {loading ? (
-              <><Loader2 className="spinning-icon-btn" size={18} /> Authenticating...</>
-            ) : (
-              <>{isLogin ? 'Log In' : 'Sign Up'} <ArrowRight size={18} /></>
-            )}
+            {loading ? <><Loader2 className="spinning-icon-btn" size={18} /> Processing...</> : <>{isForgotPassword ? 'Send Recovery Code' : isLogin ? 'Log In' : 'Sign Up'} <ArrowRight size={18} /></>}
           </button>
         </form>
 
@@ -132,10 +208,13 @@ const AuthDrawer: React.FC<AuthDrawerProps> = ({ onClose }) => {
 
         <div className="drawer-footer-text">
           <p>
-            {isLogin ? "Don't have an account?" : "Already have an account?"}
-            <button onClick={() => setIsLogin(!isLogin)} disabled={loading}>
-              {isLogin ? 'Register' : 'Login'}
-            </button>
+            {isForgotPassword ? (
+               <button onClick={() => setIsForgotPassword(false)} disabled={loading}>Return to Login</button>
+            ) : isLogin ? (
+              <>Don't have an account? <button onClick={() => setIsLogin(!isLogin)} disabled={loading}>Register</button></>
+            ) : (
+              <>Already have an account? <button onClick={() => setIsLogin(!isLogin)} disabled={loading}>Login</button></>
+            )}
           </p>
         </div>
       </div>

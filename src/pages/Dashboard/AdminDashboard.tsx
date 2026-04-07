@@ -62,27 +62,21 @@ const AdminDashboard: React.FC = () => {
   };
 
   return (
-    <div className="dashboard-container">
-      <aside className="dashboard-sidebar">
-        <div className="sidebar-brand">
-          <img src="/images/logo.jpeg" alt="Logo" className="sidebar-logo-img" />
-          <span>ADMIN PORTAL</span>
-        </div>
-        <nav className="sidebar-nav">
-          <button className="nav-item active"><Shield size={20} /> Management</button>
-          <button className="nav-item" onClick={() => navigate('/booking')}><Calendar size={20} /> All Bookings</button>
-          <button className="nav-item" onClick={() => navigate('/services')}><Scissors size={20} /> Services</button>
-        </nav>
-        <div className="sidebar-footer">
-          <button className="logout-btn" onClick={handleLogout}>
-            <LogOut size={20} /> Log Out
-          </button>
-        </div>
-      </aside>
-
-      <main className="dashboard-main">
-        <header className="dashboard-header">
-          <h1>Admin Overview: <span className="text-gold">{user?.name}</span></h1>
+    <div className="dashboard-content-main">
+      <main className="dashboard-main-view">
+        <header className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <div>
+            <h1>Admin Overview: <span className="text-gold">{user?.name}</span></h1>
+            <p>Full control over studio operations and financial ledgers.</p>
+          </div>
+          <div className="mini-stat-card" style={{ padding: '1rem 1.5rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
+            <div className="stat-text text-right">
+              <span className="stat-label">Total Revenue</span>
+              <div className="stat-value text-gold" style={{ fontSize: '1.5rem' }}>
+                £{bookings.filter(b => b.payment_status === 'paid').reduce((sum, b) => sum + (b.amount || 0), 0).toFixed(2)}
+              </div>
+            </div>
+          </div>
         </header>
 
         <section className="dashboard-grid">
@@ -141,6 +135,7 @@ const AdminDashboard: React.FC = () => {
                     <th>Customer</th>
                     <th>Service</th>
                     <th>Date</th>
+                    <th>Amount</th>
                     <th>Status</th>
                     <th>Payment</th>
                     <th>Actions</th>
@@ -151,7 +146,8 @@ const AdminDashboard: React.FC = () => {
                     <tr key={b.id}>
                       <td>{b.user_id}</td>
                       <td>{b.service}</td>
-                      <td>{new Date(b.date).toLocaleString()}</td>
+                      <td>{new Date(b.date).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}</td>
+                      <td style={{ fontWeight: 'bold' }}>£{(b.amount || 0).toFixed(2)}</td>
                       <td><span className={`status-badge ${b.status}`}>{b.status}</span></td>
                       <td><span className={`payment-badge ${b.payment_status}`}>{b.payment_status}</span></td>
                       <td>

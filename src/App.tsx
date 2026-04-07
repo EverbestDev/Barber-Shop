@@ -11,16 +11,18 @@ import Profile from './pages/Profile/Profile'
 import Booking from './pages/Booking/Booking'
 import BookingSuccess from './pages/Booking/BookingSuccess'
 import Dashboard from './pages/Dashboard/Dashboard'
+import UserBookings from './pages/Dashboard/UserBookings'
+import UserTransactions from './pages/Dashboard/UserTransactions'
+import UserNotifications from './pages/Dashboard/UserNotifications'
 import Terms from './pages/Legal/Terms'
 import Privacy from './pages/Legal/Privacy'
 import Refund from './pages/Legal/Refund'
 import Cookie from './pages/Legal/Cookie'
-import Auth from './pages/Auth/Auth'
 import { AuthProvider, useAuth } from './context/AuthContext'
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isLoggedIn } = useAuth();
-  return isLoggedIn ? <>{children}</> : <Navigate to="/auth" replace />;
+  return isLoggedIn ? <>{children}</> : <Navigate to="/?session_expired=true" replace />;
 };
 
 const router = createBrowserRouter([
@@ -51,10 +53,6 @@ const router = createBrowserRouter([
       {
         path: 'contact',
         element: <Contact />,
-      },
-      {
-        path: 'auth',
-        element: <Auth />,
       },
       {
         path: 'booking',
@@ -97,6 +95,18 @@ const router = createBrowserRouter([
       {
         path: 'booking',
         element: <Booking />,
+      },
+      {
+        path: 'history',
+        element: <UserBookings />,
+      },
+      {
+        path: 'transactions',
+        element: <UserTransactions />,
+      },
+      {
+        path: 'notifications',
+        element: <UserNotifications />,
       }
     ]
   },

@@ -20,3 +20,18 @@ export const updateCurrentUser = async (data: import('./types.ts').UserUpdate): 
   const response = await apiClient.patch<UserInfo>('/users/me', data);
   return response.data;
 };
+
+export const verifyOTP = async (email: string, code: string): Promise<{ message: string }> => {
+  const response = await apiClient.post<{ message: string }>(`/users/verify-otp?email=${email}&code=${code}`);
+  return response.data;
+};
+
+export const forgotPassword = async (email: string): Promise<{ message: string }> => {
+  const response = await apiClient.post<{ message: string }>(`/users/forgot-password?email=${email}`);
+  return response.data;
+};
+
+export const resetPassword = async (email: string, code: string, new_password: string): Promise<{ message: string }> => {
+  const response = await apiClient.post<{ message: string }>(`/users/reset-password?email=${email}&code=${code}&new_password=${new_password}`);
+  return response.data;
+};

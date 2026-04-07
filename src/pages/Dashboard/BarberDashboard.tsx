@@ -46,24 +46,8 @@ const BarberDashboard: React.FC = () => {
   const pastBookings = schedule.filter(b => b.status === 'completed' || b.status === 'cancelled');
 
   return (
-    <div className="dashboard-container">
-      <aside className="dashboard-sidebar">
-        <div className="sidebar-brand">
-          <img src="/images/logo.jpeg" alt="Logo" className="sidebar-logo-img" />
-          <span>BARBER PANEL</span>
-        </div>
-        <nav className="sidebar-nav">
-          <button className="nav-item active"><Clock size={20} /> My Schedule</button>
-          <button className="nav-item" onClick={() => navigate('/services')}><Scissors size={20} /> Services</button>
-        </nav>
-        <div className="sidebar-footer">
-          <button className="logout-btn" onClick={handleLogout}>
-            <LogOut size={20} /> Log Out
-          </button>
-        </div>
-      </aside>
-
-      <main className="dashboard-main">
+    <div className="dashboard-content-main">
+      <main className="dashboard-main-view">
         <header className="dashboard-header">
           <div className="header-greeting">
             <h1>Master Barber: <span className="text-gold">{user?.name}</span></h1>

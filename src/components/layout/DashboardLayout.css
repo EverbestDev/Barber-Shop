@@ -16,11 +16,21 @@
   top: 0;
   height: 100vh;
   z-index: 100;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+.d-sidebar.collapsed {
+  width: 80px;
 }
 
 .d-sidebar-header {
-  padding: 2rem;
+  height: 80px;
+  padding: 0 1.5rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .d-logo {
@@ -30,6 +40,11 @@
   text-decoration: none;
   font-weight: 900;
   color: var(--gold);
+  white-space: nowrap;
+}
+
+.d-logo span {
+  transition: opacity 0.2s ease;
 }
 
 .d-logo img {
@@ -37,10 +52,31 @@
   height: 32px;
   border-radius: 50%;
   border: 1.5px solid var(--gold);
+  flex-shrink: 0;
+}
+
+.d-collapse-btn {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-secondary);
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.d-collapse-btn:hover {
+  background-color: var(--gold);
+  color: var(--primary);
+  border-color: var(--gold);
 }
 
 .d-sidebar-nav {
-  padding: 2rem 1rem;
+  padding: 2rem 0.75rem;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -50,16 +86,26 @@
 .d-nav-item {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  padding: 1rem 1.25rem;
+  gap: 1.25rem;
+  padding: 0.875rem 1.25rem;
   border-radius: 12px;
   color: var(--text-secondary);
   text-decoration: none;
-  font-size: 0.8125rem;
-  font-weight: 600;
+  font-size: 0.75rem;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.d-sidebar.collapsed .d-nav-item {
+  padding: 0.875rem;
+  justify-content: center;
+}
+
+.d-nav-item span {
+  transition: opacity 0.2s ease;
 }
 
 .d-nav-item:hover, .d-nav-item.active {
@@ -68,29 +114,35 @@
 }
 
 .d-sidebar-footer {
-  padding: 1.5rem;
+  padding: 1.25rem 0.75rem;
   border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.d-sidebar.collapsed .d-logout-btn {
+  justify-content: center;
+  padding: 0.875rem;
 }
 
 .d-logout-btn {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 1rem;
   width: 100%;
-  padding: 1rem;
+  padding: 0.875rem 1.25rem;
   background-color: rgba(255, 68, 68, 0.05);
   border: 1px solid rgba(255, 68, 68, 0.1);
   color: #ff4444;
   border-radius: 10px;
-  font-weight: 600;
-  font-size: 0.875rem;
+  font-weight: 700;
+  font-size: 0.75rem;
+  text-transform: uppercase;
   cursor: pointer;
   transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
-.d-logout-btn:hover {
-  background-color: #ff4444;
-  color: var(--white);
+.d-logout-btn span {
+  transition: opacity 0.2s ease;
 }
 
 /* Main Content Wrapper */
@@ -98,7 +150,8 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  min-width: 0; /* Prevent flex overflow */
+  min-width: 0;
+  transition: all 0.3s ease;
 }
 
 /* TopBar */
