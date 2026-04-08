@@ -17,8 +17,20 @@
 }
 
 .nav-content {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  width: 100%;
+}
+
+.nav-logo-wrapper {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
+}
+
+.nav-actions-wrapper {
+  display: flex;
+  justify-content: flex-end;
   align-items: center;
 }
 
@@ -78,8 +90,9 @@
 /* Middle links (Desktop) */
 .nav-links {
   display: flex;
-  gap: 3rem;
+  gap: 1.75rem; /* Reduced from 3rem */
   align-items: center;
+  justify-content: center;
 }
 
 .nav-link {
