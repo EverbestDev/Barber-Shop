@@ -37,8 +37,6 @@ const allTimeSlots = [
 ];
 
 type Flow = 'INITIAL' | 'BOOKING' | 'COMPLAINT';
-type BookingStep = 'CATEGORY' | 'SERVICE' | 'DATE' | 'TIME' | 'GUEST_NAME' | 'GUEST_EMAIL' | 'CONFIRM';
-type ComplaintStep = 'NAME' | 'EMAIL' | 'WHATSAPP' | 'MESSAGE' | 'CONFIRM';
 
 const ChatBot: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
