@@ -14,6 +14,7 @@ interface User {
 
 interface AuthContextType {
   isLoggedIn: boolean;
+  isLoading: boolean;
   user: User | null;
   login: (userData: User) => void;
   logout: () => void;
@@ -22,15 +23,21 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
+  // Synchronous initialization to prevent premature redirection on refresh
+  const [user, setUser] = useState<User | null>(() => {
+    const savedUser = localStorage.getItem('user');
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
+  
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(() => {
+    return !!localStorage.getItem('token') && !!localStorage.getItem('user');
+  });
+
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const savedUser = localStorage.getItem('user');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-      setIsLoggedIn(true);
-    }
+    // Perform any background validation here if needed
+    setIsLoading(false);
   }, []);
 
   const login = (userData: User) => {
@@ -47,7 +54,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, user, login, logout }}>
+    <AuthContext.Provider value={{ isLoggedIn, isLoading, user, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

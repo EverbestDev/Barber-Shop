@@ -1,4 +1,5 @@
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom'
+import { Loader2 } from 'lucide-react'
 import Layout from './components/common/Layout/Layout'
 import DashboardLayout from './components/layout/DashboardLayout'
 import Home from './pages/Home/Home'
@@ -21,7 +22,16 @@ import Cookie from './pages/Legal/Cookie'
 import { AuthProvider, useAuth } from './context/AuthContext'
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, isLoading } = useAuth();
+  
+  if (isLoading) {
+    return (
+      <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0a0a0a', color: 'var(--gold)' }}>
+        <Loader2 className="spinning-icon" size={40} />
+      </div>
+    );
+  }
+  
   return isLoggedIn ? <>{children}</> : <Navigate to="/?session_expired=true" replace />;
 };
 

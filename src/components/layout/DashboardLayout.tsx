@@ -17,6 +17,7 @@ import { useAuth } from '../../context/AuthContext';
 import { fetchNotifications, markNotificationRead, markAllNotificationsRead } from '../../api/notifications';
 import type { Notification } from '../../api/notifications';
 import MobileNav from '../common/Navbar/MobileNav';
+import ChatBot from '../common/ChatBot/ChatBot';
 import './DashboardLayout.css';
 
 const DashboardLayout: React.FC = () => {
@@ -213,6 +214,7 @@ const DashboardLayout: React.FC = () => {
                 onClose={() => setIsMobileMenuOpen(false)} 
                 onAuthOpen={() => {}} 
             />
+            <ChatBot />
         </div>
     );
 };

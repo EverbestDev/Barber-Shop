@@ -5,6 +5,7 @@ import Navbar from '../Navbar/Navbar';
 import Footer from '../Footer/Footer';
 import AuthDrawer from '../AuthDrawer/AuthDrawer';
 import CookieConsent from '../CookieConsent/CookieConsent';
+import ChatBot from '../ChatBot/ChatBot';
 
 const Layout: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -84,6 +85,7 @@ const Layout: React.FC = () => {
 
       <Footer />
       <CookieConsent />
+      <ChatBot />
     </div>
   );
 };

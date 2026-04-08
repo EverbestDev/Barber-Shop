@@ -6,7 +6,7 @@ const DesktopNav: React.FC = () => {
   const { isLoggedIn } = useAuth();
   
   return (
-    <div className="nav-links desktop-only">
+    <div className="nav-links">
       <NavLink to="/" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>Home</NavLink>
       {isLoggedIn && (
         <NavLink to="/dashboard" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>Dashboard</NavLink>
