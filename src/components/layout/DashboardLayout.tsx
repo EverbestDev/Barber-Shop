@@ -52,6 +52,24 @@ const DashboardLayout: React.FC = () => {
         } catch (e) {}
     };
 
+    const formatTimeRitual = (time?: string, createdAt?: string) => {
+        if (time && time !== 'Just now') return time;
+        if (!createdAt) return 'Just now';
+        
+        try {
+            const now = new Date();
+            const past = new Date(createdAt);
+            const diffInSeconds = Math.floor((now.getTime() - past.getTime()) / 1000);
+            
+            if (diffInSeconds < 60) return 'Just now';
+            if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`;
+            if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
+            return past.toLocaleDateString();
+        } catch (e) {
+            return time || 'Just now';
+        }
+    };
+
     const handleMarkAsRead = async (id: string) => {
         try {
             await markNotificationRead(id);
@@ -177,7 +195,7 @@ const DashboardLayout: React.FC = () => {
                                               onClick={() => { if(n.id) handleMarkAsRead(n.id) }}
                                             >
                                                 <p style={{ fontSize: '0.8125rem', marginBottom: '0.25rem', color: '#fff', fontWeight: n.isNew ? 600 : 400 }}>{n.text}</p>
-                                                <span style={{ fontSize: '0.625rem', color: 'var(--gold)', fontWeight: 700, textTransform: 'uppercase' }}>{n.time}</span>
+                                                <span style={{ fontSize: '0.625rem', color: 'var(--gold)', fontWeight: 700, textTransform: 'uppercase' }}>{formatTimeRitual(n.time, n.created_at)}</span>
                                             </div>
                                         )) : (
                                             <div style={{ padding: '2rem 1rem', textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.8125rem' }}>
@@ -222,7 +240,7 @@ const DashboardLayout: React.FC = () => {
                 </header>
 
                 <main className="d-content">
-                    <Outlet context={{ notifications, handleMarkAllAsRead, handleMarkAsRead }} />
+                    <Outlet context={{ notifications, handleMarkAllAsRead, handleMarkAsRead, formatTimeRitual }} />
                 </main>
             </div>
 

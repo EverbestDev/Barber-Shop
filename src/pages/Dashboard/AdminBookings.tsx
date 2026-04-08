@@ -4,21 +4,38 @@ import {
   Scissors, 
   Search, 
   Filter, 
-  ExternalLink,
   Download,
   CheckCircle2,
   Clock,
-  XCircle
+  XCircle,
+  SortAsc
 } from 'lucide-react';
 import { fetchAllBookings, updateBookingStatus } from '../../api/bookings';
 import type { Booking } from '../../api/types';
 import toast from 'react-hot-toast';
+
+const AdminBookingsSkeleton = () => (
+    <div className="dashboard-content-main">
+      <div className="dashboard-main-view">
+        <div className="dashboard-header">
+          <div className="skeleton skeleton-title" />
+          <div className="header-stats-row">
+            {[1,2,3].map(i => <div key={i} className="mini-stat-card skeleton skeleton-card" />)}
+          </div>
+        </div>
+        <div className="dashboard-card premium-card-bg">
+          {[1,2,3,4,5].map(i => <div key={i} className="skeleton skeleton-table-row" />)}
+        </div>
+      </div>
+    </div>
+);
 
 const AdminBookings: React.FC = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [sortBy, setSortBy] = useState('recent');
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
 
   useEffect(() => {
@@ -44,33 +61,44 @@ const AdminBookings: React.FC = () => {
       };
   }, [bookings]);
 
-  const sortedBookings = useMemo(() => {
-    return [...bookings].sort((a, b) => {
-        if (a.payment_status === 'pending' && b.payment_status !== 'pending') return -1;
-        if (a.payment_status !== 'pending' && b.payment_status === 'pending') return 1;
-        return new Date(b.date).getTime() - new Date(a.date).getTime();
-    });
-  }, [bookings]);
+  const sortedAndFilteredBookings = useMemo(() => {
+    let result = [...bookings];
 
-  const filteredBookings = sortedBookings.filter(b => {
-    const matchesSearch = b.service.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                         (b.user_id && b.user_id.toLowerCase().includes(searchQuery.toLowerCase()));
-    const matchesFilter = statusFilter === 'all' || b.status === statusFilter;
-    return matchesSearch && matchesFilter;
-  });
+    // Filter
+    if (statusFilter !== 'all') {
+      result = result.filter(b => b.status === statusFilter);
+    }
+    if (searchQuery) {
+      result = result.filter(b => 
+        b.service.toLowerCase().includes(searchQuery.toLowerCase()) || 
+        (b.user_id && b.user_id.toLowerCase().includes(searchQuery.toLowerCase()))
+      );
+    }
+
+    // Sort
+    result.sort((a, b) => {
+      if (sortBy === 'recent') return new Date(b.date).getTime() - new Date(a.date).getTime();
+      if (sortBy === 'oldest') return new Date(a.date).getTime() - new Date(b.date).getTime();
+      if (sortBy === 'amount') return (b.amount || 0) - (a.amount || 0);
+      if (sortBy === 'service') return a.service.localeCompare(b.service);
+      return 0;
+    });
+
+    return result;
+  }, [bookings, statusFilter, searchQuery, sortBy]);
 
   const handleStatusChange = async (bookingId: string, status: string) => {
     const loadToast = toast.loading("Updating session status...");
     try {
       await updateBookingStatus(bookingId, status);
-      setBookings(bookings.map(b => b.id === bookingId ? { ...b, status } : b));
+      setBookings(bookings.map(b => (b.id === bookingId || (b as any)._id === bookingId) ? { ...b, status } : b));
       toast.success("Status updated.", { id: loadToast });
     } catch (err) {
       toast.error("Status update failed.", { id: loadToast });
     }
   };
 
-  if (loading) return <div className="loading-ritual"><p>Syncing Sessions...</p></div>;
+  if (loading) return <AdminBookingsSkeleton />;
 
   return (
     <div className="dashboard-content-main">
@@ -127,13 +155,22 @@ const AdminBookings: React.FC = () => {
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
                 </div>
-                <div className="filter-wrapper" style={{ display: 'flex', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: '12px', padding: '0 1rem', border: '1px solid rgba(255,255,255,0.05)' }}>
+                <div className="filter-wrapper">
                     <Filter size={16} color="var(--text-secondary)" />
-                    <select className="status-selector" style={{ border: 'none', background: 'none' }} value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
-                      <option value="all">ALL SESSIONS</option>
+                    <select className="status-selector" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+                      <option value="all">ALL STATUS</option>
                       <option value="confirmed">CONFIRMED</option>
                       <option value="completed">COMPLETED</option>
                       <option value="cancelled">CANCELLED</option>
+                    </select>
+                </div>
+                <div className="filter-wrapper">
+                    <SortAsc size={16} color="var(--text-secondary)" />
+                    <select className="status-selector" value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+                      <option value="recent">RECENT</option>
+                      <option value="oldest">OLDEST</option>
+                      <option value="amount">AMOUNT</option>
+                      <option value="service">SERVICE</option>
                     </select>
                 </div>
               </div>
@@ -151,8 +188,8 @@ const AdminBookings: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredBookings.map(b => (
-                    <tr key={b.id} style={{ cursor: 'pointer' }} onClick={() => setSelectedBooking(b)}>
+                  {sortedAndFilteredBookings.map((b, idx) => (
+                    <tr key={`${b.id || (b as any)._id}-${idx}`} style={{ cursor: 'pointer' }} onClick={() => setSelectedBooking(b)}>
                       <td style={{ fontWeight: 800 }}>{b.service}</td>
                       <td>{new Date(b.date).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}</td>
                       <td style={{ fontWeight: 'bold' }}>£{(b.amount || 0).toFixed(2)}</td>
@@ -162,7 +199,7 @@ const AdminBookings: React.FC = () => {
                           <select 
                             value={b.status} 
                             onClick={(e) => e.stopPropagation()} 
-                            onChange={(e) => handleStatusChange(b.id!, e.target.value)} 
+                            onChange={(e) => handleStatusChange(b.id || (b as any)._id, e.target.value)} 
                             className="status-selector"
                           >
                             <option value="confirmed">Confirm</option>
@@ -176,7 +213,7 @@ const AdminBookings: React.FC = () => {
                 </tbody>
               </table>
 
-              {filteredBookings.length === 0 && (
+              {sortedAndFilteredBookings.length === 0 && (
                 <div className="empty-state-ritual" style={{ padding: '4rem 2rem', textAlign: 'center' }}>
                   <div className="empty-icon-chamber">
                     <Scissors size={48} style={{ opacity: 0.1, marginBottom: '1.5rem' }} />

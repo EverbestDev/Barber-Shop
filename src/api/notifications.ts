@@ -2,10 +2,11 @@ import api from './client';
 
 export interface Notification {
   _id?: string;
-  id?: string; // Sometimes mapped
+  id?: string;
   text: string;
-  time: string;
+  time?: string;
   isNew: boolean;
+  created_at?: string;
 }
 
 export const fetchNotifications = async (): Promise<Notification[]> => {
@@ -13,8 +14,9 @@ export const fetchNotifications = async (): Promise<Notification[]> => {
   return response.data.map((n: any) => ({
     id: n._id || n.id,
     text: n.text,
-    time: n.time,
-    isNew: n.isNew
+    time: n.time || null,
+    isNew: n.isNew,
+    created_at: n.created_at
   }));
 };
 

@@ -5,20 +5,22 @@ import { useOutletContext } from 'react-router-dom';
 import './Dashboard.css';
 
 interface Notification {
-  id: number;
+  id: string;
   text: string;
-  time: string;
+  time?: string;
   isNew: boolean;
+  created_at?: string;
 }
 
 interface OutletContextType {
   notifications: Notification[];
   handleMarkAllAsRead: () => void;
-  handleMarkAsRead: (id: number) => void;
+  handleMarkAsRead: (id: string) => void;
+  formatTimeRitual: (time?: string, createdAt?: string) => string;
 }
 
 const UserNotifications: React.FC = () => {
-  const { notifications, handleMarkAllAsRead, handleMarkAsRead } = useOutletContext<OutletContextType>();
+  const { notifications, handleMarkAllAsRead, handleMarkAsRead, formatTimeRitual } = useOutletContext<OutletContextType>();
 
   return (
     <div className="dashboard-content-main">
@@ -56,7 +58,7 @@ const UserNotifications: React.FC = () => {
                     </div>
                     <div className="notif-list-content">
                       <div className="notif-list-text">{n.text}</div>
-                      <div className="notif-list-time">{n.time}</div>
+                      <div className="notif-list-time">{formatTimeRitual(n.time, n.created_at)}</div>
                     </div>
                     {n.isNew && (
                        <div className="new-badge-ritual">

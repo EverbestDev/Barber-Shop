@@ -202,7 +202,11 @@ const AuthDrawer: React.FC<AuthDrawerProps> = ({ onClose }) => {
           <span>Or continue with</span>
         </div>
 
-        <button className="social-btn google-btn" disabled={loading}>
+        <button 
+          className="social-btn google-btn" 
+          disabled={loading}
+          onClick={() => toast.error("Google synchronization is currently unavailable. Please use the studio's standard email ritual.", { icon: '🔒', duration: 4000 })}
+        >
           <FaGoogle size={20} /> Google
         </button>
 

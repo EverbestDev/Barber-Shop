@@ -4,16 +4,36 @@ import {
   CreditCard, 
   Search, 
   Download,
-  TrendingUp
+  CheckCircle2,
+  Clock,
+  RefreshCcw,
+  SortAsc
 } from 'lucide-react';
 import { fetchAllBookings } from '../../api/bookings';
 import type { Booking } from '../../api/types';
 import toast from 'react-hot-toast';
 
+const AdminTransactionsSkeleton = () => (
+    <div className="dashboard-content-main">
+      <div className="dashboard-main-view">
+        <div className="dashboard-header">
+          <div className="skeleton skeleton-title" />
+          <div className="header-stats-row">
+            {[1,2,3].map(i => <div key={i} className="mini-stat-card skeleton skeleton-card" />)}
+          </div>
+        </div>
+        <div className="dashboard-card premium-card-bg">
+          {[1,2,3,4,5].map(i => <div key={i} className="skeleton skeleton-table-row" />)}
+        </div>
+      </div>
+    </div>
+);
+
 const AdminTransactions: React.FC = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState('recent');
 
   useEffect(() => {
     const getData = async () => {
@@ -31,20 +51,36 @@ const AdminTransactions: React.FC = () => {
 
   const transactions = useMemo(() => {
       return [...bookings]
-        .filter(b => b.payment_status !== 'unpaid')
-        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        .filter(b => b.payment_status !== 'unpaid');
   }, [bookings]);
 
-  const filteredTransactions = transactions.filter(t => 
-    (t.user_id && t.user_id.toLowerCase().includes(searchQuery.toLowerCase())) || 
-    t.service.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const totalRevenue = useMemo(() => {
-    return transactions.filter(t => t.payment_status === 'paid').reduce((sum, t) => sum + (t.amount || 0), 0);
+  const transactionStats = useMemo(() => {
+      return {
+          total: transactions.filter(t => t.payment_status === 'paid').reduce((sum, t) => sum + (t.amount || 0), 0),
+          pending: transactions.filter(t => t.payment_status === 'pending').reduce((sum, t) => sum + (t.amount || 0), 0),
+          successCount: transactions.filter(t => t.payment_status === 'paid').length,
+          pendingCount: transactions.filter(t => t.payment_status === 'pending').length
+      };
   }, [transactions]);
 
-  if (loading) return <div className="loading-ritual"><p>Syncing Ledger...</p></div>;
+  const sortedAndFilteredTransactions = useMemo(() => {
+    let result = transactions.filter(t => 
+      (t.user_id && t.user_id.toLowerCase().includes(searchQuery.toLowerCase())) || 
+      t.service.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    result.sort((a, b) => {
+      if (sortBy === 'recent') return new Date(b.date).getTime() - new Date(a.date).getTime();
+      if (sortBy === 'oldest') return new Date(a.date).getTime() - new Date(b.date).getTime();
+      if (sortBy === 'amount') return (b.amount || 0) - (a.amount || 0);
+      if (sortBy === 'patron') return (a.user_id || '').localeCompare(b.user_id || '');
+      return 0;
+    });
+
+    return result;
+  }, [transactions, searchQuery, sortBy]);
+
+  if (loading) return <AdminTransactionsSkeleton />;
 
   return (
     <div className="dashboard-content-main">
@@ -61,13 +97,39 @@ const AdminTransactions: React.FC = () => {
                </button>
             </div>
           </div>
+
+          <div className="header-stats-row">
+            <div className="mini-stat-card">
+              <div className="stat-icon-chamber" style={{ color: '#4caf50' }}><CheckCircle2 size={18} /></div>
+              <div className="stat-text">
+                <span className="stat-label">Successful Flow</span>
+                <div className="stat-value">£{transactionStats.total.toFixed(2)}</div>
+                <span style={{ fontSize: '0.7rem', opacity: 0.6 }}>{transactionStats.successCount} rituals</span>
+              </div>
+            </div>
+            <div className="mini-stat-card">
+              <div className="stat-icon-chamber" style={{ color: 'var(--gold)' }}><Clock size={18} /></div>
+              <div className="stat-text">
+                <span className="stat-label">Pending Intake</span>
+                <div className="stat-value">£{transactionStats.pending.toFixed(2)}</div>
+                <span style={{ fontSize: '0.7rem', opacity: 0.6 }}>{transactionStats.pendingCount} in queue</span>
+              </div>
+            </div>
+            <div className="mini-stat-card">
+              <div className="stat-icon-chamber" style={{ color: '#2196f3' }}><RefreshCcw size={18} /></div>
+              <div className="stat-text">
+                <span className="stat-label">Total Volume</span>
+                <div className="stat-value">£{(transactionStats.total + transactionStats.pending).toFixed(2)}</div>
+              </div>
+            </div>
+          </div>
         </motion.header>
 
         <section className="dashboard-grid" style={{ gridTemplateColumns: '1fr' }}>
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="dashboard-card premium-card-bg">
             <div className="card-header" style={{ flexWrap: 'wrap', gap: '1rem' }}>
               <h2><CreditCard size={20} /> Financial Transactions</h2>
-              <div style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
+              <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
                 <div className="search-bar-ritual">
                   <Search size={16} color="var(--text-secondary)" />
                   <input 
@@ -77,12 +139,18 @@ const AdminTransactions: React.FC = () => {
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
                 </div>
-                <div className="header-actions desktop-only">
-                    <span className="text-muted" style={{ fontSize: '0.75rem' }}><TrendingUp size={12} /> Total Processed: </span>
-                    <span className="text-gold" style={{ fontWeight: 800 }}>£{totalRevenue.toFixed(2)}</span>
+                <div className="filter-wrapper">
+                    <SortAsc size={16} color="var(--text-secondary)" />
+                    <select className="status-selector" value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+                      <option value="recent">RECENT</option>
+                      <option value="oldest">OLDEST</option>
+                      <option value="amount">AMOUNT</option>
+                      <option value="patron">PATRON</option>
+                    </select>
                 </div>
               </div>
             </div>
+
             <div className="table-responsive">
               <table className="admin-table">
                 <thead>
@@ -95,8 +163,8 @@ const AdminTransactions: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredTransactions.map(t => (
-                    <tr key={t.id}>
+                  {sortedAndFilteredTransactions.map((t, idx) => (
+                    <tr key={`${t.id || (t as any)._id}-${idx}`}>
                       <td className="truncate" title={t.user_id || 'Guest'}>{t.user_id || 'Guest'}</td>
                       <td style={{ fontWeight: 700 }}>{t.service}</td>
                       <td style={{ fontWeight: 800, color: 'var(--gold)' }}>£{(t.amount || 0).toFixed(2)}</td>
@@ -104,11 +172,18 @@ const AdminTransactions: React.FC = () => {
                       <td>{new Date(t.date).toLocaleDateString()}</td>
                     </tr>
                   ))}
-                  {filteredTransactions.length === 0 && (
-                    <tr><td colSpan={5} style={{ textAlign: 'center', padding: '3rem' }}>No transaction records found.</td></tr>
-                  )}
                 </tbody>
               </table>
+
+              {sortedAndFilteredTransactions.length === 0 && (
+                <div className="empty-state-ritual" style={{ padding: '4rem 2rem', textAlign: 'center' }}>
+                  <div className="empty-icon-chamber">
+                    <CreditCard size={48} style={{ opacity: 0.1, marginBottom: '1.5rem' }} />
+                  </div>
+                  <h3 style={{ color: 'var(--gold)', marginBottom: '0.5rem' }}>No Records Found</h3>
+                  <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>The financial ledger is currently clear of transaction logs.</p>
+                </div>
+              )}
             </div>
           </motion.div>
         </section>

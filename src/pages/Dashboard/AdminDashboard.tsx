@@ -12,6 +12,22 @@ import { fetchAllBookings } from '../../api/bookings';
 import type { UserInfo, Booking } from '../../api/types';
 import toast from 'react-hot-toast';
 
+const AdminOverviewSkeleton = () => (
+  <div className="dashboard-content-main">
+    <div className="dashboard-main-view">
+      <div className="dashboard-header">
+        <div className="skeleton skeleton-title" />
+        <div className="header-stats-row">
+          {[1,2,3,4].map(i => <div key={i} className="mini-stat-card skeleton skeleton-card" />)}
+        </div>
+      </div>
+      <div className="dashboard-card premium-card-bg">
+        <div className="skeleton skeleton-table-row" style={{ height: '300px' }} />
+      </div>
+    </div>
+  </div>
+);
+
 const AdminDashboard: React.FC = () => {
   const [users, setUsers] = useState<UserInfo[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -47,7 +63,7 @@ const AdminDashboard: React.FC = () => {
     return bookings.filter(b => b.date.startsWith(today));
   }, [bookings]);
 
-  if (loading) return <div className="loading-ritual"><p>Syncing Studio Overview...</p></div>;
+  if (loading) return <AdminOverviewSkeleton />;
 
   return (
     <div className="dashboard-content-main">
