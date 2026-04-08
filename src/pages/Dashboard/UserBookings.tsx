@@ -43,7 +43,7 @@ const UserBookings: React.FC = () => {
               <h2><Calendar size={20} /> All Bookings</h2>
             </div>
             {loading ? (
-              <div className="loading-state">Synchronizing history...</div>
+              <div className="loading-state">Loading history...</div>
             ) : bookings.length > 0 ? (
               <div className="history-list">
                 {bookings.map(app => (

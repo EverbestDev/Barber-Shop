@@ -129,7 +129,7 @@ const UserDashboard: React.FC = () => {
               <h2><Calendar size={20} /> Upcoming Session</h2>
             </div>
             {loading ? (
-              <div className="loading-state">Synchronizing schedule...</div>
+              <div className="loading-state">Loading schedule...</div>
             ) : upcomingBookings.length > 0 ? (
               upcomingBookings.map(app => (
                 <div key={app.id} className="appointment-banner">

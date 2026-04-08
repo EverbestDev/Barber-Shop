@@ -26,8 +26,8 @@ const UserNotifications: React.FC = () => {
         <motion.header className="dashboard-header" initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
           <div className="header-greeting" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
-              <h1>System <span className="text-gold">Notifications</span></h1>
-              <p>Your transparent transmission log from the studio.</p>
+              <h1>Your <span className="text-gold">Alerts</span></h1>
+              <p>Keep track of your bookings and studio updates.</p>
             </div>
             {notifications.some(n => n.isNew) && (
               <button className="btn-outlined-studio slim" onClick={handleMarkAllAsRead}>
@@ -46,19 +46,28 @@ const UserNotifications: React.FC = () => {
             {notifications.length > 0 ? (
               <div className="transaction-list">
                 {notifications.map(n => (
-                  <div key={n.id} className="transaction-item" style={{ cursor: n.isNew ? 'pointer' : 'default', backgroundColor: n.isNew ? 'rgba(212, 175, 55, 0.05)' : 'rgba(255, 255, 255, 0.015)' }} onClick={() => { if(n.isNew) handleMarkAsRead(n.id) }}>
-                    <div className="tx-icon" style={{ backgroundColor: n.isNew ? 'rgba(212, 175, 55, 0.15)' : 'rgba(255, 255, 255, 0.05)' }}>
-                       <Bell size={18} className={n.isNew ? 'text-gold' : 'text-muted'} />
-                    </div>
-                    <div className="tx-info">
-                      <div className="tx-service" style={{ color: n.isNew ? '#fff' : 'var(--text-secondary)' }}>{n.text}</div>
-                      <div className="tx-date">{n.time}</div>
-                    </div>
-                    {n.isNew && (
-                       <div className="tx-amount-status text-right">
-                         <div className="tx-status" style={{ color: 'var(--gold)' }}>UNREAD</div>
+                  <div key={n.id} className="notification-ritual-item" style={{ cursor: n.isNew ? 'pointer' : 'default', backgroundColor: n.isNew ? 'rgba(212, 175, 55, 0.05)' : 'rgba(255, 255, 255, 0.015)' }} onClick={() => { if(n.isNew) handleMarkAsRead(n.id) }}>
+                    <div className="notif-ritual-header">
+                       <div className="tx-icon" style={{ backgroundColor: n.isNew ? 'rgba(212, 175, 55, 0.15)' : 'rgba(255, 255, 255, 0.05)' }}>
+                          <Bell size={18} className={n.isNew ? 'text-gold' : 'text-muted'} />
                        </div>
-                    )}
+                       {n.isNew && (
+                          <div className="unread-ritual-indicator">
+                            <span className="ritual-dot"></span>
+                          </div>
+                       )}
+                    </div>
+                    <div className="notif-ritual-body">
+                      <div className="tx-service" style={{ color: n.isNew ? '#fff' : 'rgba(255,255,255,0.4)', fontWeight: n.isNew ? 600 : 400 }}>{n.text}</div>
+                      <div className="notif-ritual-meta">
+                        <span className="tx-date">{n.time}</span>
+                        {n.isNew && (
+                          <div className="new-badge-ritual">
+                            <CheckCircle2 size={12} /> <span>UNREAD</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 ))}
               </div>

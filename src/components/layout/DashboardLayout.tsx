@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Outlet, useNavigate, Link } from 'react-router-dom';
+import { Outlet, useNavigate, Link, useLocation } from 'react-router-dom';
 import { 
   Bell, 
   User, 
@@ -64,6 +64,12 @@ const DashboardLayout: React.FC = () => {
 
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isCollapsed, setIsCollapsed] = useState(false);
+    const location = useLocation();
+
+    const isActive = (path: string) => {
+        if (path === '/dashboard') return location.pathname === '/dashboard';
+        return location.pathname.startsWith(path);
+    };
 
     const handleLogout = () => {
         logout();
@@ -84,33 +90,33 @@ const DashboardLayout: React.FC = () => {
                 </div>
                 
                 <nav className="d-sidebar-nav">
-                    <Link to="/dashboard" className="d-nav-item active" title="Overview">
+                    <Link to="/dashboard" className={`d-nav-item ${isActive('/dashboard') ? 'active' : ''}`} title="Overview">
                         <LayoutDashboard size={20} /> 
                         {!isCollapsed && <span>Overview</span>}
                     </Link>
                     {user?.role === 'user' && (
                         <>
-                            <Link to="/booking" className="d-nav-item" title="New Booking">
+                            <Link to="/booking" className={`d-nav-item ${isActive('/booking') ? 'active' : ''}`} title="New Booking">
                                 <Calendar size={20} /> 
                                 {!isCollapsed && <span>New Booking</span>}
                             </Link>
-                            <Link to="/dashboard/history" className="d-nav-item" title="Booking History">
+                            <Link to="/dashboard/history" className={`d-nav-item ${isActive('/dashboard/history') ? 'active' : ''}`} title="Booking History">
                                 <Clock size={20} /> 
                                 {!isCollapsed && <span>Booking History</span>}
                             </Link>
-                            <Link to="/dashboard/transactions" className="d-nav-item" title="Transactions">
+                            <Link to="/dashboard/transactions" className={`d-nav-item ${isActive('/dashboard/transactions') ? 'active' : ''}`} title="Transactions">
                                 <CreditCard size={20} /> 
                                 {!isCollapsed && <span>Transactions</span>}
                             </Link>
                         </>
                     )}
-                    <Link to="/dashboard/notifications" className="d-nav-item" title="Notifications">
+                    <Link to="/dashboard/notifications" className={`d-nav-item ${isActive('/dashboard/notifications') ? 'active' : ''}`} title="Notifications">
                         <Bell size={20} /> 
                         {!isCollapsed && <span>Notifications</span>}
                         {hasUnread && !isCollapsed && <span style={{ marginLeft: 'auto', backgroundColor: 'var(--gold)', color: 'var(--primary)', padding: '2px 8px', borderRadius: '10px', fontSize: '0.65rem', fontWeight: 800 }}>{unreadCount}</span>}
                         {hasUnread && isCollapsed && <span style={{ position: 'absolute', right: '10px', top: '10px', width: '8px', height: '8px', backgroundColor: 'var(--gold)', borderRadius: '50%' }}></span>}
                     </Link>
-                    <Link to="/profile" className="d-nav-item" title="Profile">
+                    <Link to="/profile" className={`d-nav-item ${isActive('/profile') ? 'active' : ''}`} title="Profile">
                         <User size={20} /> 
                         {!isCollapsed && <span>Profile Settings</span>}
                     </Link>
@@ -182,7 +188,7 @@ const DashboardLayout: React.FC = () => {
                             {isProfileOpen && (
                                 <div className="d-profile-dropdown">
                                     <div className="dropdown-header">
-                                        <p>{user?.email}</p>
+                                        <p title={user?.email}>{user?.email && user.email.length > 20 ? user.email.substring(0, 17) + '...' : user?.email}</p>
                                     </div>
                                     <button onClick={() => { navigate('/profile'); setIsProfileOpen(false); }}>
                                         <Settings size={16} /> Profile Settings

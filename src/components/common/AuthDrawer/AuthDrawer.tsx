@@ -28,26 +28,27 @@ const AuthDrawer: React.FC<AuthDrawerProps> = ({ onClose }) => {
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const loadToast = toast.loading(isLogin ? "Synchronizing your session..." : "Entering the studio...");
+    const loadToast = toast.loading(isLogin ? "Signing you in..." : "Creating your account...");
     
     try {
-      let response;
       if (isLogin) {
-        response = await loginUser({ email, password });
+        const response = await loginUser({ email, password });
+        localStorage.setItem('token', response.access_token);
+        const userData = await fetchCurrentUser();
+        login(userData);
+        toast.success(`Welcome back, ${userData.name.split(' ')[0]}!`, { id: loadToast });
+        onClose();
+        navigate('/dashboard');
       } else {
-        response = await registerUser({ name, email, password });
+        // Registration: get token but show OTP screen first, don't go to dashboard yet
+        const response = await registerUser({ name, email, password });
+        localStorage.setItem('token', response.access_token);
+        toast.success("Account created! Please check your email for the verification code.", { id: loadToast });
+        setShowOTP(true); // Show OTP verification before going to dashboard
       }
-      
-      localStorage.setItem('token', response.access_token);
-      const userData = await fetchCurrentUser();
-      login(userData);
-      
-      toast.success(isLogin ? `Welcome back, ${userData.name.split(' ')[0]}.` : "Welcome to the family.", { id: loadToast });
-      onClose();
-      navigate('/dashboard');
     } catch (err: any) {
       console.error(err);
-      const message = err.response?.data?.detail || (err instanceof Error ? err.message : 'Authentication failed');
+      const message = err.response?.data?.detail || (err instanceof Error ? err.message : 'Something went wrong');
       toast.error(message, { id: loadToast });
     } finally {
       setLoading(false);
@@ -57,19 +58,17 @@ const AuthDrawer: React.FC<AuthDrawerProps> = ({ onClose }) => {
   const handleVerifyOTP = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const verifToast = toast.loading("Verifying security ritual...");
+    const verifToast = toast.loading("Verifying your code...");
     try {
       await import('../../../api/auth').then(m => m.verifyOTP(email, otpCode));
-      toast.success("Identity Verified. Synchronizing profile...", { id: verifToast });
+      toast.success("Email verified! Welcome to the studio.", { id: verifToast });
       
-      const loginResp = await loginUser({ email, password });
-      localStorage.setItem('token', loginResp.access_token);
       const userData = await fetchCurrentUser();
       login(userData);
       onClose();
       navigate('/dashboard');
     } catch (err: any) {
-      toast.error(err.response?.data?.detail || "Invalid code", { id: verifToast });
+      toast.error(err.response?.data?.detail || "Invalid code. Please try again.", { id: verifToast });
     } finally {
       setLoading(false);
     }
@@ -77,16 +76,16 @@ const AuthDrawer: React.FC<AuthDrawerProps> = ({ onClose }) => {
 
   const handleForgotPasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) return toast.error("Please provide your email.");
+    if (!email) return toast.error("Please enter your email address.");
     setLoading(true);
-    const passToast = toast.loading("Locating your profile...");
+    const passToast = toast.loading("Sending recovery email...");
     try {
       await import('../../../api/auth').then(m => m.forgotPassword(email));
-      toast.success("Security code dispatched to your email.", { id: passToast });
+      toast.success("Recovery code sent! Check your inbox.", { id: passToast });
       setIsForgotPassword(false);
       setIsResettingPassword(true);
     } catch (err: any) {
-      toast.error(err.response?.data?.detail || "Action failed.", { id: passToast });
+      toast.error(err.response?.data?.detail || "Something went wrong. Please try again.", { id: passToast });
     } finally {
       setLoading(false);
     }
@@ -95,10 +94,10 @@ const AuthDrawer: React.FC<AuthDrawerProps> = ({ onClose }) => {
   const handleResetPasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const rsToast = toast.loading("Resetting credentials...");
+    const rsToast = toast.loading("Saving your new password...");
     try {
       await import('../../../api/auth').then(m => m.resetPassword(email, otpCode, password));
-      toast.success("Password secured. Synchronizing...", { id: rsToast });
+      toast.success("Password updated! Signing you in...", { id: rsToast });
       const loginResp = await loginUser({ email, password });
       localStorage.setItem('token', loginResp.access_token);
       const userData = await fetchCurrentUser();
@@ -106,20 +105,21 @@ const AuthDrawer: React.FC<AuthDrawerProps> = ({ onClose }) => {
       onClose();
       navigate('/dashboard');
     } catch (err: any) {
-      toast.error(err.response?.data?.detail || "Invalid code or action failed.", { id: rsToast });
+      toast.error(err.response?.data?.detail || "Invalid code. Please try again.", { id: rsToast });
     } finally {
       setLoading(false);
     }
   };
 
   if (showOTP || isResettingPassword) {
+    const isEmailVerify = showOTP && !isResettingPassword;
     return (
       <motion.div className="auth-drawer" initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 25, stiffness: 200 }}>
         <div className="drawer-header"><button className="close-drawer-btn" onClick={onClose}><X size={24} /></button><h2 className="drawer-logo">BAZE 2 BARBERS</h2></div>
         <div className="drawer-content">
           <div className="auth-header-snippet">
-            <h3>{isResettingPassword ? "Reset Password" : "Verify Identity"}</h3>
-            <p style={{ fontSize: '0.85rem' }}>We've sent a 6-digit security code to <strong>{email}</strong></p>
+            <h3>{isResettingPassword ? "Create New Password" : "Verify Your Email"}</h3>
+            <p style={{ fontSize: '0.85rem' }}>We sent a 6-digit code to <strong>{email}</strong>. Enter it below to {isEmailVerify ? 'activate your account' : 'reset your password'}.</p>
           </div>
           <form className="auth-form drawer-form" onSubmit={isResettingPassword ? handleResetPasswordSubmit : handleVerifyOTP}>
             <div className="input-group">
@@ -128,15 +128,15 @@ const AuthDrawer: React.FC<AuthDrawerProps> = ({ onClose }) => {
             {isResettingPassword && (
               <div className="input-group" style={{ marginTop: '1rem' }}>
                 <Lock size={18} className="input-icon" />
-                <input type="password" placeholder="New Secure Password" required readOnly={loading} value={password} onChange={(e) => setPassword(e.target.value)} />
+                <input type="password" placeholder="New Password" required readOnly={loading} value={password} onChange={(e) => setPassword(e.target.value)} />
               </div>
             )}
             <button type="submit" className="btn-filled auth-submit-btn" disabled={loading || otpCode.length < 6 || (isResettingPassword && password.length < 6)}>
-              {loading ? <><Loader2 className="spinning-icon-btn" size={18} /> {isResettingPassword ? 'Securing...' : 'Verifying...'}</> : <>{isResettingPassword ? 'Confirm Password' : 'Synchronize Profile'} <ArrowRight size={18} /></>}
+              {loading ? <><Loader2 className="spinning-icon-btn" size={18} /> Please wait...</> : <>{isResettingPassword ? 'Save New Password' : 'Verify & Continue'} <ArrowRight size={18} /></>}
             </button>
           </form>
           <div className="drawer-footer-text" style={{ marginTop: '2rem' }}>
-             <button className="text-gold" onClick={() => { setShowOTP(false); setIsResettingPassword(false); }} disabled={loading}>Back to {isResettingPassword ? 'Login' : 'Register'}</button>
+             <button className="text-gold" onClick={() => { setShowOTP(false); setIsResettingPassword(false); }} disabled={loading}>Go back</button>
           </div>
         </div>
       </motion.div>

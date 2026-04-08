@@ -1,29 +1,15 @@
-installHook.js:1 AxiosError: Network Error
-    at h.onerror (index-z65V9hRl.js:198:6115)
-    at xS.request (index-z65V9hRl.js:200:1994)
-    at async jS (index-z65V9hRl.js:201:6271)
-    at async _.children.children.onSubmit (index-z65V9hRl.js:201:11340)
-overrideMethod @ installHook.js:1Understand this error
-localhost:8000/api/users/login:1  Failed to load resource: net::ERR_CONNECTION_REFUSEDUnderstand this error
-installHook.js:1 AxiosError: Network Error
-    at h.onerror (index-z65V9hRl.js:198:6115)
-    at xS.request (index-z65V9hRl.js:200:1994)
-    at async jS (index-z65V9hRl.js:201:6271)
-    at async _.children.children.onSubmit (index-z65V9hRl.js:201:11340)
-overrideMethod @ installHook.js:1
-_.children.children.onSubmit @ index-z65V9hRl.js:201
-await in _.children.children.onSubmit
-wd @ index-z65V9hRl.js:8
-(anonymous) @ index-z65V9hRl.js:8
-fn @ index-z65V9hRl.js:8
-kd @ index-z65V9hRl.js:8
-hp @ index-z65V9hRl.js:9
-pp @ index-z65V9hRl.js:9Understand this error
-index-z65V9hRl.js:198  POST http://localhost:8000/api/users/login net::ERR_CONNECTION_REFUSED
+continue
+also
+When I created a new account, instead of it to first show me the page where the mail verification will happen where it will check for the sent otp, it doesn’t but just route me to the dashboard asap, though I got the mail for the otp but it is not useful since I get access to the dashboard already 
 
-i deplyed the baknd on render and the frontend on vercel and changed the base url and the frontulr o the prod ones
+Sort that and tailor the backend to it
+Also on the dashboard page profile dropdown
+I think t he mail overflows, probably we should truncate it to some words to avoid overflowing
+also, on the notification page on mobile, lets use icon mark icon for the unread instead of the word itself, also when they are currently not marked, the ui looks awkard on monile, lets make the iocn be at the top and not side, then the main notifs, then the action and date under them
 
-but the above was the erro code i get when i wanted to login on prod
-hope its not that we have some harcoded url
-there should not be any hardcoded stuff
-all should point to the env
+also, the date on the email format should not be tecnical, normal date that user can read non technical people, 
+like 12:00 pm, not coded date
+
+also, there are some loaind text that are tecjhnical like cychronizing data
+non technical people can find it difficult, user normal general loading texts, like loading or use skeleton loading for the dashboards
+also remove terms like rituals from the email and use normal genera term instead

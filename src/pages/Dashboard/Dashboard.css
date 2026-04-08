@@ -639,9 +639,95 @@
   padding: 4rem;
   color: var(--text-secondary);
   font-weight: 600;
-  letter-spacing: 1px;
+  letter-spacing: 1.5px;
   text-transform: uppercase;
   font-size: 0.75rem;
+}
+
+/* Notification Ritual Items */
+.notification-ritual-item {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 1.5rem;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-bottom: 1rem;
+}
+
+.notif-ritual-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.unread-ritual-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ritual-dot {
+  width: 8px;
+  height: 8px;
+  background-color: var(--gold);
+  border-radius: 50%;
+  box-shadow: 0 0 10px var(--gold);
+  display: inline-block;
+}
+
+.notif-ritual-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.notif-ritual-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.5rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.unread-text-ritual {
+  font-size: 0.625rem;
+  font-weight: 900;
+  color: var(--gold);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.new-badge-ritual {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  background-color: rgba(212, 175, 55, 0.1);
+  color: var(--gold);
+  padding: 4px 8px;
+  border-radius: 20px;
+  font-size: 0.625rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  border: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.new-badge-ritual span {
+  line-height: 1;
+}
+
+@media (max-width: 640px) {
+  .notification-ritual-item {
+    align-items: center;
+    text-align: center;
+  }
+  
+  .notif-ritual-meta {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
 }
 
 /* Responsive Dashboard */
