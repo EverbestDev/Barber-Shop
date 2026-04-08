@@ -9,16 +9,21 @@ interface MobileNavProps {
   isOpen: boolean;
   onClose: () => void;
   onAuthOpen: () => void;
+  onLogoutRequest?: () => void;
 }
 
-const MobileNav: React.FC<MobileNavProps> = ({ isOpen, onClose }) => {
+const MobileNav: React.FC<MobileNavProps> = ({ isOpen, onClose, onLogoutRequest }) => {
   const { isLoggedIn, user, logout } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    logout();
-    onClose();
-    navigate('/');
+    if (onLogoutRequest) {
+      onLogoutRequest();
+    } else {
+      logout();
+      onClose();
+      navigate('/');
+    }
   };
 
   const userItems = [

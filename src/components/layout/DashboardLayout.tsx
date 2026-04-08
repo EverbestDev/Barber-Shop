@@ -252,6 +252,7 @@ const DashboardLayout: React.FC = () => {
                 isOpen={isMobileMenuOpen} 
                 onClose={() => setIsMobileMenuOpen(false)} 
                 onAuthOpen={() => {}} 
+                onLogoutRequest={() => setIsLogoutModalOpen(true)}
             />
             <ChatBot />
 
