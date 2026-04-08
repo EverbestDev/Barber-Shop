@@ -1,18 +1,14 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { 
   Calendar, 
-  Clock, 
   CheckCircle2, 
-  TrendingUp, 
-  User,
   Scissors,
   Star,
   Award,
   CircleDashed,
   Download,
-  Search,
-  ChevronRight
+  Search
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { fetchBarberBookings, updateBookingStatus } from '../../api/bookings';
@@ -44,7 +40,7 @@ const BarberDashboard: React.FC = () => {
   useEffect(() => {
     const getData = async () => {
       try {
-        if (user?.id || (user as any)?._id) {
+        if (user) {
           const id = user.id || (user as any)._id;
           const data = await fetchBarberBookings(id);
           setSchedule(data || []);
@@ -100,7 +96,7 @@ const BarberDashboard: React.FC = () => {
         <motion.header className="dashboard-header" initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
           <div className="admin-overview-header">
             <div>
-              <h1 className="text-3d">Master Barber: <span className="text-gold">{user?.name}</span></h1>
+              <h1 className="text-3d">Master Barber: <span className="text-gold">{user?.name || 'Stylist'}</span></h1>
               <p>Your chair is ready. You have {stats.upcomingCount} sessions on the horizon today.</p>
             </div>
             <div className="header-actions mobile-hidden">
