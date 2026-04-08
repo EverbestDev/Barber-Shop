@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, useNavigate, Link, useLocation, NavLink } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Bell, 
   User, 
@@ -12,7 +13,8 @@ import {
   ChevronRight,
   Clock,
   CreditCard,
-  Users
+  Users,
+  ShieldAlert
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { fetchNotifications, markNotificationRead, markAllNotificationsRead } from '../../api/notifications';
@@ -26,6 +28,7 @@ const DashboardLayout: React.FC = () => {
     const navigate = useNavigate();
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const [isNotifOpen, setIsNotifOpen] = useState(false);
+    const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
     
     const [notifications, setNotifications] = useState<Notification[]>([]);
 
@@ -91,8 +94,9 @@ const DashboardLayout: React.FC = () => {
         return location.pathname.startsWith(path);
     };
 
-    const handleLogout = () => {
+    const handleLogoutRitual = () => {
         logout();
+        setIsLogoutModalOpen(false);
         navigate('/');
     };
 
@@ -159,7 +163,7 @@ const DashboardLayout: React.FC = () => {
                 </nav>
 
                 <div className="d-sidebar-footer">
-                    <button className="d-logout-btn" onClick={handleLogout} title="Logout">
+                    <button className="d-logout-btn" onClick={() => setIsLogoutModalOpen(true)} title="Logout">
                         <LogOut size={20} /> 
                         {!isCollapsed && <span>Logout</span>}
                     </button>
@@ -230,7 +234,7 @@ const DashboardLayout: React.FC = () => {
                                         <Settings size={16} /> Profile Settings
                                     </button>
                                     <div className="divider"></div>
-                                    <button onClick={handleLogout} className="logout-link">
+                                    <button onClick={() => setIsLogoutModalOpen(true)} className="logout-link">
                                         <LogOut size={16} /> Logout
                                     </button>
                                 </div>
@@ -250,6 +254,36 @@ const DashboardLayout: React.FC = () => {
                 onAuthOpen={() => {}} 
             />
             <ChatBot />
+
+            <AnimatePresence>
+                {isLogoutModalOpen && (
+                    <motion.div 
+                        className="modal-overlay-ritual"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={() => setIsLogoutModalOpen(false)}
+                    >
+                        <motion.div 
+                            className="ritual-modal"
+                            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <div className="ritual-modal-icon">
+                                <ShieldAlert size={32} />
+                            </div>
+                            <h3>End Session?</h3>
+                            <p>You are about to disconnect your master profile from the studio ledgers. Are you ready to end this ritual?</p>
+                            <div className="ritual-modal-actions">
+                                <button className="ritual-btn-cancel" onClick={() => setIsLogoutModalOpen(false)}>Stay Connected</button>
+                                <button className="ritual-btn-confirm" onClick={handleLogoutRitual}>End Ritual</button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };

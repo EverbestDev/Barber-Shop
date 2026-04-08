@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageSquare, X, Send, Clock, CreditCard, Loader2 } from 'lucide-react';
+import { MessageSquare, X, Send, Clock, CreditCard, Loader2, MessageCircle } from 'lucide-react';
 import { useAuth } from '../../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { createBooking } from '../../../api/bookings';
 import { createCheckoutSession } from '../../../api/payments';
+import api from '../../../api/client';
 import toast from 'react-hot-toast';
 import './ChatBot.css';
 
@@ -35,13 +36,16 @@ const allTimeSlots = [
   '10:00 AM', '11:00 AM', '12:00 PM', '01:00 PM', '02:00 PM', '03:00 PM', '04:00 PM', '05:00 PM'
 ];
 
+type Flow = 'INITIAL' | 'BOOKING' | 'COMPLAINT';
 type BookingStep = 'CATEGORY' | 'SERVICE' | 'DATE' | 'TIME' | 'GUEST_NAME' | 'GUEST_EMAIL' | 'CONFIRM';
+type ComplaintStep = 'NAME' | 'EMAIL' | 'WHATSAPP' | 'MESSAGE' | 'CONFIRM';
 
 const ChatBot: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
-  const [step, setStep] = useState<BookingStep>('CATEGORY');
+  const [flow, setFlow] = useState<Flow>('INITIAL');
+  const [step, setStep] = useState<any>('INITIAL');
   const [bookingData, setBookingData] = useState<any>({
     category: null,
     service: null,
@@ -49,6 +53,12 @@ const ChatBot: React.FC = () => {
     time: null,
     guestName: '',
     guestEmail: ''
+  });
+  const [complaintData, setComplaintData] = useState({
+    name: '',
+    email: '',
+    whatsapp: '',
+    message: ''
   });
   const [loading, setLoading] = useState(false);
   
@@ -75,12 +85,12 @@ const ChatBot: React.FC = () => {
     if (hour >= 17) greeting = 'Good evening';
 
     const welcomeMsg = user 
-      ? `${greeting}, ${user.name.split(' ')[0]}! I'm BazeBot. Ready for your next transformation?`
-      : `${greeting}! I'm BazeBot. I can help you book a session in under a minute.`;
+      ? `${greeting}, ${user.name.split(' ')[0]}! I'm BazeBot. How can I assist you today?`
+      : `${greeting}! I'm BazeBot. Your digital studio assistant.`;
 
     addBotMessage(welcomeMsg);
     setTimeout(() => {
-      addBotMessage("What type of service are you looking for today?", serviceCategories.map(c => c.name));
+      addBotMessage("Would you like to secure a session or log a complaint/feedback?", ["Book a Session", "Log a Complaint"]);
     }, 800);
   };
 
@@ -117,75 +127,92 @@ const ChatBot: React.FC = () => {
     
     const lowerText = text.toLowerCase();
     
-    if (lowerText === 'previous' || lowerText === 'back') {
-      goBack();
-      return;
-    }
-
-    if (lowerText === 'next') {
-      // Potentially move forward if enough data exists, but mostly we wait for selection
-      return;
-    }
-
-    switch (step) {
-      case 'CATEGORY':
-        handleCategorySelection(text);
-        break;
-      case 'SERVICE':
-        handleServiceSelection(text);
-        break;
-      case 'DATE':
-        handleDateSelection(text);
-        break;
-      case 'TIME':
-        handleTimeSelection(text);
-        break;
-      case 'GUEST_NAME':
-        setBookingData((prev: any) => ({ ...prev, guestName: text }));
-        setStep('GUEST_EMAIL');
-        addBotMessage(`Thanks, ${text}. And your email? (For your confirmation)`);
-        break;
-      case 'GUEST_EMAIL':
-        if (!text.includes('@')) {
-          addBotMessage("That doesn't look like a valid email. Please try again.");
-          return;
+    if (flow === 'INITIAL') {
+      if (lowerText.includes('book') || lowerText.includes('session')) {
+        setFlow('BOOKING');
+        setStep('CATEGORY');
+        addBotMessage("Excellent choice. What service category should we explore?", serviceCategories.map(c => c.name));
+      } else if (lowerText.includes('complaint') || lowerText.includes('feedback')) {
+        setFlow('COMPLAINT');
+        if (isLoggedIn && user) {
+            setComplaintData(prev => ({ ...prev, name: user.name, email: user.email }));
+            setStep('WHATSAPP');
+            addBotMessage(`I've noted your profile, ${user.name.split(' ')[0]}. What is your WhatsApp number for follow-up?`);
+        } else {
+            setStep('NAME');
+            addBotMessage("I'm sorry to hear that. Let's make this right. What's your name?");
         }
-        setBookingData((prev: any) => ({ ...prev, guestEmail: text }));
-        setStep('CONFIRM');
-        showSummary({ ...bookingData, guestEmail: text });
-        break;
+      } else {
+        addBotMessage("I didn't quite get that. Would you like to Book a Session or Log a Complaint?", ["Book a Session", "Log a Complaint"]);
+      }
+      return;
+    }
+
+    if (flow === 'BOOKING') {
+        handleBookingFlow(text);
+    } else if (flow === 'COMPLAINT') {
+        handleComplaintFlow(text);
     }
   };
 
-  const goBack = () => {
+  const handleBookingFlow = (text: string) => {
     switch (step) {
-      case 'SERVICE':
-        setStep('CATEGORY');
-        addBotMessage("Sure, let's pick a category again.", serviceCategories.map(c => c.name));
-        break;
-      case 'DATE':
-        setStep('SERVICE');
-        const services = allServices.filter(s => s.cat === bookingData.category?.id);
-        addBotMessage(`Back to services. Which one would you like?`, services.map(s => s.name));
-        break;
-      case 'TIME':
-        setStep('DATE');
-        addBotMessage("When would you like to visit us? You can type a date like 'Tomorrow' or pick one below.", ['Today', 'Tomorrow']);
-        break;
-      case 'GUEST_NAME':
-        setStep('TIME');
-        addBotMessage("Pick a time that works for you.", allTimeSlots);
-        break;
-      case 'CONFIRM':
-        if (isLoggedIn) {
-          setStep('TIME');
-          addBotMessage("Pick a time that works for you.", allTimeSlots);
-        } else {
+        case 'CATEGORY':
+          handleCategorySelection(text);
+          break;
+        case 'SERVICE':
+          handleServiceSelection(text);
+          break;
+        case 'DATE':
+          handleDateSelection(text);
+          break;
+        case 'TIME':
+          handleTimeSelection(text);
+          break;
+        case 'GUEST_NAME':
+          setBookingData((prev: any) => ({ ...prev, guestName: text }));
           setStep('GUEST_EMAIL');
-          addBotMessage("Please provide your email address.");
-        }
-        break;
-    }
+          addBotMessage(`Thanks, ${text}. And your email? (For your confirmation)`);
+          break;
+        case 'GUEST_EMAIL':
+          if (!text.includes('@')) {
+            addBotMessage("That doesn't look like a valid email. Please try again.");
+            return;
+          }
+          setBookingData((prev: any) => ({ ...prev, guestEmail: text }));
+          setStep('CONFIRM');
+          showBookingSummary({ ...bookingData, guestEmail: text });
+          break;
+      }
+  };
+
+  const handleComplaintFlow = (text: string) => {
+      switch (step) {
+          case 'NAME':
+              setComplaintData(prev => ({ ...prev, name: text }));
+              setStep('EMAIL');
+              addBotMessage(`Thank you, ${text}. What's your email address?`);
+              break;
+          case 'EMAIL':
+              if (!text.includes('@')) {
+                  addBotMessage("Please provide a valid email ritual.");
+                  return;
+              }
+              setComplaintData(prev => ({ ...prev, email: text }));
+              setStep('WHATSAPP');
+              addBotMessage("Got it. And your WhatsApp number for feedback?");
+              break;
+          case 'WHATSAPP':
+              setComplaintData(prev => ({ ...prev, whatsapp: text }));
+              setStep('MESSAGE');
+              addBotMessage("Understood. Please write exactly how you want the message to be sent to the studio executive.");
+              break;
+          case 'MESSAGE':
+              setComplaintData(prev => ({ ...prev, message: text }));
+              setStep('CONFIRM');
+              addBotMessage(`I have recorded your grievance. Ready to dispatch it to the executive and send a confirmation to your email?`, ["Dispatch Complaint"]);
+              break;
+      }
   };
 
   const handleCategorySelection = (input: string) => {
@@ -227,7 +254,6 @@ const ChatBot: React.FC = () => {
       tomorrow.setDate(tomorrow.getDate() + 1);
       date = tomorrow.toISOString().split('T')[0];
     }
-    // Simplification for now: take today/tomorrow or raw input
     setBookingData((prev: any) => ({ ...prev, date }));
     setStep('TIME');
     addBotMessage(`Seeing you on ${date}. What time works?`, allTimeSlots);
@@ -240,7 +266,7 @@ const ChatBot: React.FC = () => {
       setBookingData((prev: any) => ({ ...prev, time }));
       if (isLoggedIn) {
         setStep('CONFIRM');
-        showSummary({ ...bookingData, time });
+        showBookingSummary({ ...bookingData, time });
       } else {
         setStep('GUEST_NAME');
         addBotMessage("Almost there! What's your name?");
@@ -250,7 +276,7 @@ const ChatBot: React.FC = () => {
     }
   };
 
-  const showSummary = (data: any) => {
+  const showBookingSummary = (data: any) => {
     const summary = `Perfect! Here's your summary:
     Service: ${data.service.name}
     Date: ${data.date}
@@ -298,10 +324,32 @@ const ChatBot: React.FC = () => {
     }
   };
 
+  const handleComplaintSubmit = async () => {
+      setLoading(true);
+      const loadToast = toast.loading("Dispatching grievance ritual...");
+      try {
+          await api.post('/notifications/complaint', complaintData);
+          toast.success("Feedback dispatched. Reviewing now.", { id: loadToast });
+          addBotMessage("I've successfully dispatched your complaint to the studio executive. A confirmation ritual has been sent to your email.");
+          setTimeout(() => {
+              addBotMessage("Is there anything else I can assist with?", ["Book a Session", "Logout"]);
+              setFlow('INITIAL');
+          }, 1500);
+      } catch (err: any) {
+          toast.error("Dispatch ritual failed. Please try later.", { id: loadToast });
+      } finally {
+          setLoading(false);
+      }
+  };
+
   const handleOptionClick = (option: string) => {
     if (option === 'Confirm & Pay') {
       handlePayment();
       return;
+    }
+    if (option === 'Dispatch Complaint') {
+        handleComplaintSubmit();
+        return;
     }
     processUserResponse(option);
   };
@@ -326,7 +374,7 @@ const ChatBot: React.FC = () => {
                 <div className="bot-avatar">B</div>
                 <div>
                   <h3>BazeBot</h3>
-                  <span>Online | Real-time Booking</span>
+                  <span>Online | Real-time Assistant</span>
                 </div>
               </div>
               <button onClick={() => setIsOpen(false)}><X size={20} /></button>
@@ -368,10 +416,13 @@ const ChatBot: React.FC = () => {
             {isLoggedIn && (
                <div className="bot-quick-links">
                   <button onClick={() => { navigate('/dashboard/history'); setIsOpen(false); }}>
-                     <Clock size={12} /> My History
+                     <Clock size={12} /> History
                   </button>
                   <button onClick={() => { navigate('/dashboard/transactions'); setIsOpen(false); }}>
-                     <CreditCard size={12} /> Transactions
+                     <CreditCard size={12} /> Flows
+                  </button>
+                  <button onClick={() => setFlow('INITIAL')}>
+                     <MessageCircle size={12} /> Feedback
                   </button>
                </div>
             )}
