@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageSquare, X, Send, ChevronLeft, Calendar, User, Clock, CreditCard, Loader2 } from 'lucide-react';
+import { MessageSquare, X, Send, Clock, CreditCard, Loader2 } from 'lucide-react';
 import { useAuth } from '../../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { createBooking } from '../../../api/bookings';
@@ -333,7 +333,7 @@ const ChatBot: React.FC = () => {
             </div>
 
             <div className="chatbot-body">
-              {messages.map((m, idx) => (
+              {messages.map((m) => (
                 <div key={m.id} className={`message-row ${m.sender}`}>
                   {m.sender === 'bot' && <div className="mini-bot-avatar">B</div>}
                   <div className="message-bubble">
