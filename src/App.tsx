@@ -15,6 +15,7 @@ import Dashboard from './pages/Dashboard/Dashboard'
 import UserBookings from './pages/Dashboard/UserBookings'
 import UserTransactions from './pages/Dashboard/UserTransactions'
 import UserNotifications from './pages/Dashboard/UserNotifications'
+import AdminDashboard from './pages/Dashboard/AdminDashboard'
 import Terms from './pages/Legal/Terms'
 import Privacy from './pages/Legal/Privacy'
 import Refund from './pages/Legal/Refund'
@@ -117,6 +118,18 @@ const router = createBrowserRouter([
       {
         path: 'notifications',
         element: <UserNotifications />,
+      },
+      {
+        path: 'bookings',
+        element: <AdminBookings />,
+      },
+      {
+        path: 'users',
+        element: <AdminUsers />,
+      },
+      {
+        path: 'transactions-library',
+        element: <AdminTransactions />,
       }
     ]
   },

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Outlet, useNavigate, Link, useLocation } from 'react-router-dom';
+import { Outlet, useNavigate, Link, useLocation, NavLink } from 'react-router-dom';
 import { 
   Bell, 
   User, 
@@ -11,7 +11,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Clock,
-  CreditCard
+  CreditCard,
+  Users
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { fetchNotifications, markNotificationRead, markAllNotificationsRead } from '../../api/notifications';
@@ -91,24 +92,40 @@ const DashboardLayout: React.FC = () => {
                 </div>
                 
                 <nav className="d-sidebar-nav">
-                    <Link to="/dashboard" className={`d-nav-item ${isActive('/dashboard') ? 'active' : ''}`} title="Overview">
+                    <NavLink to="/dashboard" end className={({ isActive }) => `d-nav-item ${isActive ? 'active' : ''}`} title="Overview">
                         <LayoutDashboard size={20} /> 
                         {!isCollapsed && <span>Overview</span>}
-                    </Link>
+                    </NavLink>
                     {user?.role === 'user' && (
                         <>
-                            <Link to="/booking" className={`d-nav-item ${isActive('/booking') ? 'active' : ''}`} title="New Booking">
+                            <NavLink to="/booking" className={({ isActive }) => `d-nav-item ${isActive ? 'active' : ''}`} title="New Booking">
                                 <Calendar size={20} /> 
                                 {!isCollapsed && <span>New Booking</span>}
-                            </Link>
-                            <Link to="/dashboard/history" className={`d-nav-item ${isActive('/dashboard/history') ? 'active' : ''}`} title="Booking History">
+                            </NavLink>
+                            <NavLink to="/dashboard/history" className={({ isActive }) => `d-nav-item ${isActive ? 'active' : ''}`} title="Booking History">
                                 <Clock size={20} /> 
                                 {!isCollapsed && <span>Booking History</span>}
-                            </Link>
-                            <Link to="/dashboard/transactions" className={`d-nav-item ${isActive('/dashboard/transactions') ? 'active' : ''}`} title="Transactions">
+                            </NavLink>
+                            <NavLink to="/dashboard/transactions" className={({ isActive }) => `d-nav-item ${isActive ? 'active' : ''}`} title="Transactions">
                                 <CreditCard size={20} /> 
                                 {!isCollapsed && <span>Transactions</span>}
-                            </Link>
+                            </NavLink>
+                        </>
+                    )}
+                    {user?.role === 'admin' && (
+                        <>
+                            <NavLink to="/dashboard/bookings" className={({ isActive }) => `d-nav-item ${isActive ? 'active' : ''}`} title="All Bookings">
+                                <Calendar size={20} /> 
+                                {!isCollapsed && <span>All Bookings</span>}
+                            </NavLink>
+                            <NavLink to="/dashboard/users" className={({ isActive }) => `d-nav-item ${isActive ? 'active' : ''}`} title="Membership">
+                                <Users size={20} /> 
+                                {!isCollapsed && <span>Membership Registry</span>}
+                            </NavLink>
+                            <NavLink to="/dashboard/transactions-library" className={({ isActive }) => `d-nav-item ${isActive ? 'active' : ''}`} title="Transactions Library">
+                                <CreditCard size={20} /> 
+                                {!isCollapsed && <span>Transaction Library</span>}
+                            </NavLink>
                         </>
                     )}
                     <Link to="/dashboard/notifications" className={`d-nav-item ${isActive('/dashboard/notifications') ? 'active' : ''}`} title="Notifications">

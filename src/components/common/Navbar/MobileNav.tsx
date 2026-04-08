@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Bell, Home, Info, Scissors, Tag, Image, Phone, BookOpen, LogOut, LayoutDashboard, User } from 'lucide-react';
+import { X, Bell, Home, Info, Scissors, Tag, Image, Phone, BookOpen, LogOut, LayoutDashboard, User, Users } from 'lucide-react';
 import { useAuth } from '../../../context/AuthContext';
 import './Navbar.css';
 
@@ -21,11 +21,20 @@ const MobileNav: React.FC<MobileNavProps> = ({ isOpen, onClose }) => {
     navigate('/');
   };
 
-  const dashboardItems = [
+  const userItems = [
     { to: '/dashboard', label: 'Overview', icon: <LayoutDashboard size={18} /> },
     { to: '/booking', label: 'New Booking', icon: <BookOpen size={18} /> },
     { to: '/dashboard/history', label: 'Booking History', icon: <BookOpen size={18} /> },
     { to: '/dashboard/transactions', label: 'Transactions', icon: <Tag size={18} /> },
+    { to: '/dashboard/notifications', label: 'Notifications', icon: <Bell size={18} /> },
+    { to: '/profile', label: 'Profile Settings', icon: <User size={18} /> },
+  ];
+
+  const adminItems = [
+    { to: '/dashboard', label: 'Overview', icon: <LayoutDashboard size={18} /> },
+    { to: '/dashboard/bookings', label: 'All Bookings', icon: <BookOpen size={18} /> },
+    { to: '/dashboard/users', label: 'Membership Registry', icon: <Users size={18} /> },
+    { to: '/dashboard/transactions-library', label: 'Transaction Library', icon: <Tag size={18} /> },
     { to: '/dashboard/notifications', label: 'Notifications', icon: <Bell size={18} /> },
     { to: '/profile', label: 'Profile Settings', icon: <User size={18} /> },
   ];
@@ -39,7 +48,12 @@ const MobileNav: React.FC<MobileNavProps> = ({ isOpen, onClose }) => {
     { to: '/contact', label: 'Contact', icon: <Phone size={18} /> },
   ];
 
-  const currentNavItems = isLoggedIn ? dashboardItems : publicItems;
+  const getNavItems = () => {
+    if (!isLoggedIn) return publicItems;
+    return user?.role === 'admin' ? adminItems : userItems;
+  };
+
+  const currentNavItems = getNavItems();
 
   return (
     <AnimatePresence>
@@ -79,7 +93,7 @@ const MobileNav: React.FC<MobileNavProps> = ({ isOpen, onClose }) => {
                 <NavLink
                   key={item.to}
                   to={item.to}
-                  end={item.to === '/'}
+                  end={item.to === '/' || item.to === '/dashboard'}
                   className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
                   onClick={onClose}
                 >

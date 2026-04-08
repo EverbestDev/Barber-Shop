@@ -1,167 +1,135 @@
-import React, { useEffect, useState } from 'react';
-import { Users, Calendar, Trash2 } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
-import { fetchAllUsers, updateUserRole, deleteUser } from '../../api/admin';
-import { fetchAllBookings, updateBookingStatus } from '../../api/bookings';
+import React, { useEffect, useState, useMemo } from 'react';
+import { motion } from 'framer-motion';
+import { 
+  Calendar, 
+  TrendingUp, 
+  UserCheck, 
+  Clock, 
+  Download
+} from 'lucide-react';
+import { fetchAllUsers } from '../../api/admin';
+import { fetchAllBookings } from '../../api/bookings';
 import type { UserInfo, Booking } from '../../api/types';
+import toast from 'react-hot-toast';
 
 const AdminDashboard: React.FC = () => {
-  const { user } = useAuth();
   const [users, setUsers] = useState<UserInfo[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const getData = async () => {
       try {
         const [u, b] = await Promise.all([fetchAllUsers(), fetchAllBookings()]);
         setUsers(u);
-        setBookings(b);
+        setBookings(b || []);
       } catch (err) {
-        console.error(err);
+        toast.error("Failed to sync studio data.");
+      } finally {
+        setLoading(false);
       }
     };
     getData();
   }, []);
 
-  const handleRoleChange = async (userId: string, newRole: string) => {
-    try {
-      await updateUserRole(userId, newRole);
-      setUsers(users.map(u => u.id === userId ? { ...u, role: newRole } : u));
-    } catch (err) {
-      console.error(err);
-      alert("Role update failed.");
-    }
-  };
+  const stats = useMemo(() => {
+    const today = new Date().toISOString().split('T')[0];
+    return {
+      totalRevenue: bookings.filter(b => b.payment_status === 'paid').reduce((sum, b) => sum + (b.amount || 0), 0),
+      bookingsToday: bookings.filter(b => b.date.startsWith(today)).length,
+      activeUsers: users.length,
+      pendingPayments: bookings.filter(b => b.payment_status === 'pending').length
+    };
+  }, [bookings, users]);
 
-  const handleDeleteUser = async (userId: string) => {
-    if (!window.confirm("Are you sure you want to delete this user? This action cannot be undone.")) return;
-    try {
-      await deleteUser(userId);
-      setUsers(users.filter(u => u.id !== userId));
-    } catch (err) {
-      console.error(err);
-      alert("Delete failed.");
-    }
-  };
+  const todayBookings = useMemo(() => {
+    const today = new Date().toISOString().split('T')[0];
+    return bookings.filter(b => b.date.startsWith(today));
+  }, [bookings]);
 
-  const handleStatusChange = async (bookingId: string, status: string) => {
-    try {
-      await updateBookingStatus(bookingId, status);
-      setBookings(bookings.map(b => b.id === bookingId ? { ...b, status } : b));
-    } catch (err) {
-      console.error(err);
-      alert("Status update failed.");
-    }
-  };
-
-
+  if (loading) return <div className="loading-ritual"><p>Syncing Studio Overview...</p></div>;
 
   return (
     <div className="dashboard-content-main">
       <main className="dashboard-main-view">
-        <header className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-          <div>
-            <h1>Admin Overview: <span className="text-gold">{user?.name}</span></h1>
-            <p>Full control over studio operations and financial ledgers.</p>
+        <motion.header className="dashboard-header" initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
+          <div className="admin-overview-header">
+            <div>
+              <h1 className="text-3d">Executive <span className="text-gold">Intelligence</span></h1>
+              <p>Real-time holistic view of your studio's pulse.</p>
+            </div>
+            <div className="header-actions">
+               <button className="btn-outlined-studio" onClick={() => window.print()}>
+                 <Download size={16} /> Export Overview
+               </button>
+            </div>
           </div>
-          <div className="mini-stat-card" style={{ padding: '1rem 1.5rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
-            <div className="stat-text text-right">
-              <span className="stat-label">Total Revenue</span>
-              <div className="stat-value text-gold" style={{ fontSize: '1.5rem' }}>
-                £{bookings.filter(b => b.payment_status === 'paid').reduce((sum, b) => sum + (b.amount || 0), 0).toFixed(2)}
+
+          <div className="header-stats-row">
+            <div className="mini-stat-card">
+              <div className="stat-icon-chamber"><TrendingUp size={18} /></div>
+              <div className="stat-text">
+                <span className="stat-label">Total Revenue</span>
+                <div className="stat-value text-gold">£{stats.totalRevenue.toFixed(2)}</div>
+              </div>
+            </div>
+            <div className="mini-stat-card">
+              <div className="stat-icon-chamber"><Calendar size={18} /></div>
+              <div className="stat-text">
+                <span className="stat-label">Sessions Today</span>
+                <div className="stat-value">{stats.bookingsToday}</div>
+              </div>
+            </div>
+            <div className="mini-stat-card">
+              <div className="stat-icon-chamber"><UserCheck size={18} /></div>
+              <div className="stat-text">
+                <span className="stat-label">Active Patrons</span>
+                <div className="stat-value">{stats.activeUsers}</div>
+              </div>
+            </div>
+            <div className="mini-stat-card">
+              <div className="stat-icon-chamber"><Clock size={18} /></div>
+              <div className="stat-text">
+                <span className="stat-label">Pending Payments</span>
+                <div className="stat-value text-gold">{stats.pendingPayments}</div>
               </div>
             </div>
           </div>
-        </header>
+        </motion.header>
 
-        <section className="dashboard-grid">
-          <div className="dashboard-card full-width">
-            <h2><Users size={20} /> User Management</h2>
+        <section className="dashboard-grid" style={{ gridTemplateColumns: '1fr' }}>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="dashboard-card premium-card-bg">
+            <div className="card-header">
+              <h2><TrendingUp size={20} /> Today's Live Agenda</h2>
+            </div>
             <div className="table-responsive">
               <table className="admin-table">
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Role</th>
-                    <th>Join Date</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {users.map(u => (
-                    <tr key={u.id}>
-                      <td>{u.name}</td>
-                      <td>{u.email}</td>
-                      <td>
-                        <select 
-                          value={u.role} 
-                          onChange={(e) => handleRoleChange(u.id, e.target.value)}
-                          className="role-selector"
-                        >
-                          <option value="user">User</option>
-                          <option value="barber">Barber</option>
-                          <option value="admin">Admin</option>
-                        </select>
-                      </td>
-                      <td>{new Date(u.created_at).toLocaleDateString()}</td>
-                      <td>
-                        <button 
-                          className="delete-btn"
-                          onClick={() => handleDeleteUser(u.id)}
-                          title="Delete User"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
+                 <thead>
+                   <tr>
+                     <th>Time</th>
+                     <th>Service</th>
+                     <th>Patron</th>
+                     <th>Payment</th>
+                     <th>Status</th>
+                   </tr>
+                 </thead>
+                 <tbody>
+                   {todayBookings.map(b => (
+                     <tr key={b.id}>
+                       <td>{new Date(b.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
+                       <td style={{ fontWeight: 800 }}>{b.service}</td>
+                       <td className="truncate">{b.user_id || 'Guest'}</td>
+                       <td><span className={`payment-badge ${b.payment_status}`}>{b.payment_status}</span></td>
+                       <td><span className={`status-badge ${b.status}`}>{b.status}</span></td>
+                     </tr>
+                   ))}
+                   {todayBookings.length === 0 && (
+                     <tr><td colSpan={5} style={{ textAlign: 'center', padding: '3rem' }}>No sessions scheduled for today yet.</td></tr>
+                   )}
+                 </tbody>
               </table>
             </div>
-          </div>
-
-          <div className="dashboard-card full-width">
-            <h2><Calendar size={20} /> All Bookings</h2>
-            <div className="table-responsive">
-              <table className="admin-table">
-                <thead>
-                  <tr>
-                    <th>Customer</th>
-                    <th>Service</th>
-                    <th>Date</th>
-                    <th>Amount</th>
-                    <th>Status</th>
-                    <th>Payment</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {bookings.map(b => (
-                    <tr key={b.id}>
-                      <td>{b.user_id}</td>
-                      <td>{b.service}</td>
-                      <td>{new Date(b.date).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}</td>
-                      <td style={{ fontWeight: 'bold' }}>£{(b.amount || 0).toFixed(2)}</td>
-                      <td><span className={`status-badge ${b.status}`}>{b.status}</span></td>
-                      <td><span className={`payment-badge ${b.payment_status}`}>{b.payment_status}</span></td>
-                      <td>
-                        <select 
-                          value={b.status} 
-                          onChange={(e) => handleStatusChange(b.id!, e.target.value)}
-                          className="status-selector"
-                        >
-                          <option value="confirmed">Confirmed</option>
-                          <option value="completed">Completed</option>
-                          <option value="cancelled">Cancelled</option>
-                        </select>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
+          </motion.div>
         </section>
       </main>
     </div>
