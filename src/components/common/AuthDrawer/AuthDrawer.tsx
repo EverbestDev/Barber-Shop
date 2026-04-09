@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { X, Mail, Lock, User, ArrowRight, Loader2 } from 'lucide-react';
-import { FaGoogle } from 'react-icons/fa';
+
 import { useAuth } from '../../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
