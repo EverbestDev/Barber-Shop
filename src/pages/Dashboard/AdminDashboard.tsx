@@ -87,7 +87,7 @@ const AdminDashboard: React.FC = () => {
               <div className="stat-icon-chamber"><TrendingUp size={18} /></div>
               <div className="stat-text">
                 <span className="stat-label">Total Revenue</span>
-                <div className="stat-value text-gold">£{stats.totalRevenue.toFixed(2)}</div>
+                <div className="stat-value text-gold">€{stats.totalRevenue.toFixed(2)}</div>
               </div>
             </div>
             <div className="mini-stat-card">

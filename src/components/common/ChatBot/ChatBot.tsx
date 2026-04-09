@@ -24,12 +24,12 @@ const serviceCategories = [
 ];
 
 const allServices = [
-  { id: 1, cat: 'shop', name: 'Signature Haircut', price: 35, duration: '45m' },
-  { id: 2, cat: 'shop', name: 'Skin Fade', price: 38, duration: '60m' },
-  { id: 3, cat: 'shop', name: 'Beard Sculpture', price: 25, duration: '30m' },
-  { id: 4, cat: 'shop', name: 'Executive Package', price: 55, duration: '75m' },
-  { id: 101, cat: 'home', name: 'Executive Home Visit', price: 85, duration: '60m' },
-  { id: 201, cat: 'group', name: 'Father & Son', price: 50, duration: '90m' }
+  { id: 1, cat: 'shop', name: 'Signature Haircut', price: 20, duration: '45m' },
+  { id: 2, cat: 'shop', name: 'Skin Fade', price: 20, duration: '60m' },
+  { id: 3, cat: 'shop', name: 'Beard Sculpture', price: 15, duration: '30m' },
+  { id: 4, cat: 'shop', name: 'Executive Package', price: 35, duration: '75m' },
+  { id: 101, cat: 'home', name: 'Executive Home Visit', price: 40, duration: '60m' },
+  { id: 201, cat: 'group', name: 'Father & Son', price: 35, duration: '90m' }
 ];
 
 const allTimeSlots = [
@@ -297,7 +297,7 @@ const ChatBot: React.FC = () => {
     Service: ${data.service.name}
     Date: ${data.date}
     Time: ${data.time}
-    Price: £${data.service.price}
+    Price: €${data.service.price}
     ${!isLoggedIn ? `Guest: ${data.guestName}` : ''}`;
 
     addBotMessage(summary);

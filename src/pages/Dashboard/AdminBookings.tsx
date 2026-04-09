@@ -203,7 +203,7 @@ const AdminBookings: React.FC = () => {
                     <tr key={`${b.id || (b as any)._id}-${idx}`} style={{ cursor: 'pointer' }} onClick={() => setSelectedBooking(b)}>
                       <td style={{ fontWeight: 800 }}>{b.service}</td>
                       <td>{new Date(b.date).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}</td>
-                      <td style={{ fontWeight: 'bold' }}>£{(b.amount || 0).toFixed(2)}</td>
+                      <td style={{ fontWeight: 'bold' }}>€{(b.amount || 0).toFixed(2)}</td>
                       <td><span className={`status-badge ${b.status}`}>{b.status}</span></td>
                       <td>{b.created_at ? new Date(b.created_at).toLocaleDateString() : 'N/A'}</td>
                       <td>
@@ -279,7 +279,7 @@ const AdminBookings: React.FC = () => {
                    <div className="detail-row"><span>Date:</span> <strong>{new Date(selectedBooking.date).toLocaleDateString()}</strong></div>
                    <div className="detail-row"><span>Time:</span> <strong>{new Date(selectedBooking.date).toLocaleTimeString()}</strong></div>
                    <div className="detail-row"><span>Booked On:</span> <strong>{selectedBooking.created_at ? new Date(selectedBooking.created_at).toLocaleString() : 'N/A'}</strong></div>
-                   <div className="detail-row"><span>Investment:</span> <strong className="text-gold">£{(selectedBooking.amount || 0).toFixed(2)}</strong></div>
+                   <div className="detail-row"><span>Investment:</span> <strong className="text-gold">€{(selectedBooking.amount || 0).toFixed(2)}</strong></div>
                    <div className="detail-row"><span>Session Status:</span> <span className={`status-badge ${selectedBooking.status}`}>{selectedBooking.status}</span></div>
                    <div className="detail-row"><span>Payment Status:</span> <span className={`payment-badge ${selectedBooking.payment_status}`}>{selectedBooking.payment_status}</span></div>
                 </div>
