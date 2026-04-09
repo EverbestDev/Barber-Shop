@@ -16,11 +16,11 @@ interface OutletContextType {
   notifications: Notification[];
   handleMarkAllAsRead: () => void;
   handleMarkAsRead: (id: string) => void;
-  formatTimeRitual: (time?: string, createdAt?: string) => string;
+  formatRelativeTime: (time?: string, createdAt?: string) => string;
 }
 
 const UserNotifications: React.FC = () => {
-  const { notifications, handleMarkAllAsRead, handleMarkAsRead, formatTimeRitual } = useOutletContext<OutletContextType>();
+  const { notifications, handleMarkAllAsRead, handleMarkAsRead, formatRelativeTime } = useOutletContext<OutletContextType>();
 
   return (
     <div className="dashboard-content-main">
@@ -58,10 +58,10 @@ const UserNotifications: React.FC = () => {
                     </div>
                     <div className="notif-list-content">
                       <div className="notif-list-text">{n.text}</div>
-                      <div className="notif-list-time">{formatTimeRitual(n.time, n.created_at)}</div>
+                      <div className="notif-list-time">{formatRelativeTime(n.time, n.created_at)}</div>
                     </div>
                     {n.isNew && (
-                       <div className="new-badge-ritual">
+                       <div className="new-badge-standard">
                         <span>NEW</span>
                       </div>
                     )}
@@ -69,7 +69,7 @@ const UserNotifications: React.FC = () => {
                 ))}
               </div>
             ) : (
-              <div className="empty-state-ritual" style={{ padding: '4rem 2rem' }}>
+              <div className="empty-state-standard" style={{ padding: '4rem 2rem' }}>
                 <div className="empty-icon"><CheckCircle2 size={24} /></div>
                 <h3>All Caught Up</h3>
                 <p>There are no notifications in your log.</p>

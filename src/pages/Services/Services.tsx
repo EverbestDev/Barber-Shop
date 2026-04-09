@@ -35,7 +35,7 @@ const categories = [
     services: [
       { name: "The Executive", desc: "Signature Haircut + Beard Sculpture. The full look.", price: "£55", time: "75 mins" },
       { name: "The Royal Treatment", desc: "Haircut + Beard Sculpture + Face Mask + Nose/Ear Wax.", price: "£80", time: "105 mins" },
-      { name: "The Wedding Ritual", desc: "Signature Haircut + Royal Shave + Detailed Styling + Drink.", price: "£100", time: "120 mins" }
+      { name: "The Wedding Package", desc: "Signature Haircut + Royal Shave + Detailed Styling + Drink.", price: "£100", time: "120 mins" }
     ]
   },
   {

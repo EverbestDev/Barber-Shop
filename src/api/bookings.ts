@@ -25,3 +25,9 @@ export const updateBookingStatus = async (bookingId: string, status: string): Pr
   const response = await apiClient.patch<Booking>(`/bookings/${bookingId}/status`, { status });
   return response.data;
 };
+
+export const refundBooking = async (bookingId: string): Promise<Booking> => {
+  // Mock endpoint to handle refund logic, updating status to "refunded"
+  const response = await apiClient.patch<Booking>(`/bookings/${bookingId}/status`, { status: 'refunded' });
+  return response.data;
+};

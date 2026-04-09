@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { fetchAllUsers, updateUserRole, deleteUser } from '../../api/admin';
 import type { UserInfo } from '../../api/types';
+import { downloadCSV } from '../../utils/export';
 import toast from 'react-hot-toast';
 
 const AdminUsersSkeleton = () => (
@@ -78,7 +79,7 @@ const AdminUsers: React.FC = () => {
   }, [users, searchQuery, sortBy]);
 
   const handleRoleChange = async (userId: string, newRole: string) => {
-    const loadToast = toast.loading("Updating membership ritual...");
+    const loadToast = toast.loading("Updating member status...");
     try {
       await updateUserRole(userId, newRole);
       setUsers(users.map(u => (u.id === userId || (u as any)._id === userId) ? { ...u, role: newRole } : u));
@@ -112,7 +113,7 @@ const AdminUsers: React.FC = () => {
               <p>Managing the studio's elite membership community.</p>
             </div>
             <div className="header-actions">
-               <button className="btn-outlined-studio" onClick={() => window.print()}>
+               <button className="btn-outlined-studio" onClick={() => downloadCSV(sortedAndFilteredUsers, 'patrons_registry.csv')}>
                  <Download size={16} /> Export Data
                </button>
             </div>
@@ -148,7 +149,7 @@ const AdminUsers: React.FC = () => {
             <div className="card-header" style={{ flexWrap: 'wrap', gap: '1rem' }}>
               <h2><Users size={20} /> Membership Registry</h2>
               <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-                <div className="search-bar-ritual">
+                <div className="search-bar-standard">
                   <Search size={16} color="var(--text-secondary)" />
                   <input 
                     type="text" 
@@ -172,10 +173,10 @@ const AdminUsers: React.FC = () => {
               <table className="admin-table">
                 <thead>
                   <tr>
-                    <th>Patron Name</th>
-                    <th>Identifier / Email</th>
+                    <th>Patron</th>
+                    <th>Email</th>
                     <th>Membership Role</th>
-                    <th>Security Action</th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -221,7 +222,7 @@ const AdminUsers: React.FC = () => {
               </table>
 
               {sortedAndFilteredUsers.length === 0 && (
-                <div className="empty-state-ritual" style={{ padding: '4rem 2rem', textAlign: 'center' }}>
+                <div className="empty-state-standard" style={{ padding: '4rem 2rem', textAlign: 'center' }}>
                   <div className="empty-icon-chamber">
                     <Users size={48} style={{ opacity: 0.1, marginBottom: '1.5rem' }} />
                   </div>

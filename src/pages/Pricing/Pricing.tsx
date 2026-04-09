@@ -17,7 +17,7 @@ const pricingList = [
   { name: "Hot Towel Shave", price: "£35", duration: "45 min" },
   { name: "Haircut & Beard", price: "£55", duration: "75 min" },
   { name: "The Royal Treatment", price: "£80", duration: "105 min" },
-  { name: "The Wedding Ritual", price: "£100", duration: "120 min" },
+  { name: "The Wedding Package", price: "£100", duration: "120 min" },
   { name: "Undercut Design", price: "£25", duration: "30 min" },
   { name: "Short Cut & Style", price: "£35", duration: "45 min" },
   { name: "Women's Signature", price: "£45", duration: "60 min" },

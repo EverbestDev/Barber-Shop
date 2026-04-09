@@ -46,7 +46,7 @@ const AboutPage: React.FC = () => {
               transition={{ duration: 0.8, delay: 0.7 }}
               className="about-hero-desc"
             >
-              More than just a haircut. We're curators of style, heritage, and the modern gentleman's ritual.
+              More than just a haircut. We're curators of style, heritage, and the modern gentleman's experience.
             </motion.p>
           </motion.div>
         </div>

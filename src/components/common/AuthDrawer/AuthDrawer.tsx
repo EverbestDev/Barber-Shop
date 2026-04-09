@@ -5,7 +5,7 @@ import { FaGoogle } from 'react-icons/fa';
 import { useAuth } from '../../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { loginUser, registerUser, fetchCurrentUser } from '../../../api/auth';
+import { loginUser, registerUser, fetchCurrentUser, googleAuth } from '../../../api/auth';
 import './AuthDrawer.css';
 
 interface AuthDrawerProps {
@@ -24,6 +24,80 @@ const AuthDrawer: React.FC<AuthDrawerProps> = ({ onClose }) => {
   const [isResettingPassword, setIsResettingPassword] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
+
+  const handleGoogleResponse = async (response: any) => {
+    if (!response.credential) return;
+    setLoading(true);
+    const loadToast = toast.loading("Authenticating with Google...");
+    try {
+      const authResponse = await googleAuth(response.credential);
+      localStorage.setItem('token', authResponse.access_token);
+      const userData = await fetchCurrentUser();
+      login(userData);
+      toast.success(`Welcome to the studio, ${userData.name.split(' ')[0]}!`, { id: loadToast });
+      onClose();
+      navigate('/dashboard');
+    } catch(err: any) {
+      toast.error(err.response?.data?.detail || 'Google Authentication failed.', { id: loadToast });
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  React.useEffect(() => {
+    if (!import.meta.env.VITE_GOOGLE_CLIENT_ID) return;
+    
+    // Check if script already appended to avoid duplicates
+    if (!document.getElementById('google-jssdk')) {
+      const script = document.createElement('script');
+      script.id = 'google-jssdk';
+      script.src = 'https://accounts.google.com/gsi/client';
+      script.async = true;
+      script.defer = true;
+      document.body.appendChild(script);
+      
+      script.onload = () => {
+        // @ts-ignore
+        if (window.google?.accounts?.id) {
+          // @ts-ignore
+          window.google.accounts.id.initialize({
+            client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+            callback: handleGoogleResponse
+          });
+          const btnDiv = document.getElementById('googleAuthDiv');
+          if (btnDiv) {
+            // @ts-ignore
+            window.google.accounts.id.renderButton(btnDiv, {
+              theme: 'outline',
+              size: 'large',
+              width: 320,
+              text: 'continue_with'
+            });
+          }
+        }
+      };
+    } else {
+        // @ts-ignore
+        if (window.google?.accounts?.id) {
+          // @ts-ignore
+          window.google.accounts.id.initialize({
+            client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+            callback: handleGoogleResponse
+          });
+          const btnDiv = document.getElementById('googleAuthDiv');
+          if (btnDiv) {
+            // @ts-ignore
+            window.google.accounts.id.renderButton(btnDiv, {
+              theme: 'outline',
+              size: 'large',
+              width: 320,
+              text: 'continue_with'
+            });
+          }
+        }
+    }
+  }, []);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -202,13 +276,7 @@ const AuthDrawer: React.FC<AuthDrawerProps> = ({ onClose }) => {
           <span>Or continue with</span>
         </div>
 
-        <button 
-          className="social-btn google-btn" 
-          disabled={loading}
-          onClick={() => toast.error("Google synchronization is currently unavailable. Please use the studio's standard email ritual.", { icon: '🔒', duration: 4000 })}
-        >
-          <FaGoogle size={20} /> Google
-        </button>
+        <div id="googleAuthDiv" style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem', width: '100%' }}></div>
 
         <div className="drawer-footer-text">
           <p>

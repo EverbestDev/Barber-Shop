@@ -8,10 +8,12 @@ import {
   CheckCircle2,
   Clock,
   XCircle,
-  SortAsc
+  SortAsc,
+  MoreVertical
 } from 'lucide-react';
 import { fetchAllBookings, updateBookingStatus } from '../../api/bookings';
 import type { Booking } from '../../api/types';
+import { downloadCSV } from '../../utils/export';
 import toast from 'react-hot-toast';
 
 const AdminBookingsSkeleton = () => (
@@ -37,6 +39,14 @@ const AdminBookings: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [sortBy, setSortBy] = useState('recent');
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [openActionId, setOpenActionId] = useState<string | null>(null);
+
+  // Close menus when clicking outside
+  useEffect(() => {
+    const handleOutsideClick = () => setOpenActionId(null);
+    document.addEventListener('click', handleOutsideClick);
+    return () => document.removeEventListener('click', handleOutsideClick);
+  }, []);
 
   useEffect(() => {
     const getData = async () => {
@@ -110,7 +120,7 @@ const AdminBookings: React.FC = () => {
               <p>Comprehensive management of all studio appointments.</p>
             </div>
             <div className="header-actions">
-               <button className="btn-outlined-studio" onClick={() => window.print()}>
+               <button className="btn-outlined-studio" onClick={() => downloadCSV(sortedAndFilteredBookings, 'bookings_report.csv')}>
                  <Download size={16} /> Export Data
                </button>
             </div>
@@ -146,7 +156,7 @@ const AdminBookings: React.FC = () => {
             <div className="card-header" style={{ flexWrap: 'wrap', gap: '1rem' }}>
               <h2><Scissors size={20} /> Studio Sessions</h2>
               <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-                <div className="search-bar-ritual">
+                <div className="search-bar-standard">
                   <Search size={16} color="var(--text-secondary)" />
                   <input 
                     type="text" 
@@ -180,11 +190,12 @@ const AdminBookings: React.FC = () => {
               <table className="admin-table">
                 <thead>
                   <tr>
-                    <th>Service Craft</th>
+                    <th>Service</th>
                     <th>Schedule</th>
                     <th>Amount</th>
-                    <th>Session Status</th>
-                    <th>Ops Action</th>
+                    <th>Status</th>
+                    <th>Booked On</th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -194,18 +205,32 @@ const AdminBookings: React.FC = () => {
                       <td>{new Date(b.date).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}</td>
                       <td style={{ fontWeight: 'bold' }}>£{(b.amount || 0).toFixed(2)}</td>
                       <td><span className={`status-badge ${b.status}`}>{b.status}</span></td>
+                      <td>{b.created_at ? new Date(b.created_at).toLocaleDateString() : 'N/A'}</td>
                       <td>
-                        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                          <select 
-                            value={b.status} 
-                            onClick={(e) => e.stopPropagation()} 
-                            onChange={(e) => handleStatusChange(b.id || (b as any)._id, e.target.value)} 
-                            className="status-selector"
+                        <div style={{ position: 'relative' }}>
+                          <button 
+                            className="d-icon-btn" 
+                            style={{ width: '32px', height: '32px' }}
+                            onClick={(e) => { e.stopPropagation(); setOpenActionId(openActionId === (b.id || (b as any)._id) ? null : (b.id || (b as any)._id)); }}
                           >
-                            <option value="confirmed">Confirm</option>
-                            <option value="completed">Complete</option>
-                            <option value="cancelled">Cancel</option>
-                          </select>
+                            <MoreVertical size={16} />
+                          </button>
+                          {openActionId === (b.id || (b as any)._id) && (
+                            <div className="d-profile-dropdown" style={{ right: '0', top: '100%', minWidth: '150px' }} onClick={(e) => e.stopPropagation()}>
+                                <button onClick={() => { setSelectedBooking(b); setOpenActionId(null); }}>View Details</button>
+                                <div className="divider" style={{ margin: '4px 0' }}></div>
+                                <select 
+                                  value={b.status} 
+                                  onChange={(e) => { handleStatusChange(b.id || (b as any)._id, e.target.value); setOpenActionId(null); }} 
+                                  className="status-selector"
+                                  style={{ padding: '0.75rem 1rem', width: '100%' }}
+                                >
+                                  <option value="confirmed">Confirm</option>
+                                  <option value="completed">Complete</option>
+                                  <option value="cancelled">Cancel</option>
+                                </select>
+                            </div>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -214,7 +239,7 @@ const AdminBookings: React.FC = () => {
               </table>
 
               {sortedAndFilteredBookings.length === 0 && (
-                <div className="empty-state-ritual" style={{ padding: '4rem 2rem', textAlign: 'center' }}>
+                <div className="empty-state-standard" style={{ padding: '4rem 2rem', textAlign: 'center' }}>
                   <div className="empty-icon-chamber">
                     <Scissors size={48} style={{ opacity: 0.1, marginBottom: '1.5rem' }} />
                   </div>
@@ -247,9 +272,13 @@ const AdminBookings: React.FC = () => {
                 </div>
                 <div className="modal-body">
                    <div className="detail-row"><span>Service:</span> <strong>{selectedBooking.service}</strong></div>
-                   <div className="detail-row"><span>Patron ID:</span> <strong>{selectedBooking.user_id || 'Anonymous Guest'}</strong></div>
+                   <div className="detail-row"><span>Patron:</span> <strong>{selectedBooking.guest_name || 'Anonymous Guest'} (ID: {selectedBooking.user_id || 'N/A'})</strong></div>
+                   {selectedBooking.home_address && (
+                     <div className="detail-row"><span>Home Address:</span> <strong style={{ color: 'var(--gold)' }}>{selectedBooking.home_address}</strong></div>
+                   )}
                    <div className="detail-row"><span>Date:</span> <strong>{new Date(selectedBooking.date).toLocaleDateString()}</strong></div>
                    <div className="detail-row"><span>Time:</span> <strong>{new Date(selectedBooking.date).toLocaleTimeString()}</strong></div>
+                   <div className="detail-row"><span>Booked On:</span> <strong>{selectedBooking.created_at ? new Date(selectedBooking.created_at).toLocaleString() : 'N/A'}</strong></div>
                    <div className="detail-row"><span>Investment:</span> <strong className="text-gold">£{(selectedBooking.amount || 0).toFixed(2)}</strong></div>
                    <div className="detail-row"><span>Session Status:</span> <span className={`status-badge ${selectedBooking.status}`}>{selectedBooking.status}</span></div>
                    <div className="detail-row"><span>Payment Status:</span> <span className={`payment-badge ${selectedBooking.payment_status}`}>{selectedBooking.payment_status}</span></div>

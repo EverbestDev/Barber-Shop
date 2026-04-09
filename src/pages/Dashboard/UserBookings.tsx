@@ -70,7 +70,7 @@ const UserBookings: React.FC = () => {
                 ))}
               </div>
             ) : (
-              <div className="empty-state-ritual">
+              <div className="empty-state-standard">
                 <div className="empty-icon"><Calendar size={32} /></div>
                 <h3>No Bookings Yet</h3>
                 <p>You haven't made any bookings yet.</p>

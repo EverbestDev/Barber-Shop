@@ -35,6 +35,7 @@ export interface BookingBase {
   barber: string;
   barber_id?: string;
   amount?: number;
+  home_address?: string;
 }
 
 export interface BookingCreate extends BookingBase {

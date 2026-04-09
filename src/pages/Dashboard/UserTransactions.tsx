@@ -65,7 +65,7 @@ const UserTransactions: React.FC = () => {
                 ))}
               </div>
             ) : (
-              <div className="empty-state-ritual small">
+              <div className="empty-state-standard small">
                 <div className="empty-icon"><CreditCard size={24} /></div>
                 <p>No transaction history yet.</p>
               </div>

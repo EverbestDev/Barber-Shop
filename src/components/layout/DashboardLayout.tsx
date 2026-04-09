@@ -55,13 +55,14 @@ const DashboardLayout: React.FC = () => {
         } catch (e) {}
     };
 
-    const formatTimeRitual = (time?: string, createdAt?: string) => {
+    const formatRelativeTime = (time?: string, createdAt?: string) => {
         if (time && time !== 'Just now') return time;
         if (!createdAt) return 'Just now';
         
         try {
             const now = new Date();
-            const past = new Date(createdAt);
+            const pastStr = createdAt.endsWith('Z') ? createdAt : `${createdAt}Z`;
+            const past = new Date(pastStr);
             const diffInSeconds = Math.floor((now.getTime() - past.getTime()) / 1000);
             
             if (diffInSeconds < 60) return 'Just now';
@@ -94,7 +95,7 @@ const DashboardLayout: React.FC = () => {
         return location.pathname.startsWith(path);
     };
 
-    const handleLogoutRitual = () => {
+    const handleLogoutConfirm = () => {
         logout();
         setIsLogoutModalOpen(false);
         navigate('/');
@@ -199,7 +200,7 @@ const DashboardLayout: React.FC = () => {
                                               onClick={() => { if(n.id) handleMarkAsRead(n.id) }}
                                             >
                                                 <p style={{ fontSize: '0.8125rem', marginBottom: '0.25rem', color: '#fff', fontWeight: n.isNew ? 600 : 400 }}>{n.text}</p>
-                                                <span style={{ fontSize: '0.625rem', color: 'var(--gold)', fontWeight: 700, textTransform: 'uppercase' }}>{formatTimeRitual(n.time, n.created_at)}</span>
+                                                <span style={{ fontSize: '0.625rem', color: 'var(--gold)', fontWeight: 700, textTransform: 'uppercase' }}>{formatRelativeTime(n.time, n.created_at)}</span>
                                             </div>
                                         )) : (
                                             <div style={{ padding: '2rem 1rem', textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.8125rem' }}>
@@ -244,7 +245,7 @@ const DashboardLayout: React.FC = () => {
                 </header>
 
                 <main className="d-content">
-                    <Outlet context={{ notifications, handleMarkAllAsRead, handleMarkAsRead, formatTimeRitual }} />
+                    <Outlet context={{ notifications, handleMarkAllAsRead, handleMarkAsRead, formatRelativeTime }} />
                 </main>
             </div>
 
@@ -259,27 +260,27 @@ const DashboardLayout: React.FC = () => {
             <AnimatePresence>
                 {isLogoutModalOpen && (
                     <motion.div 
-                        className="modal-overlay-ritual"
+                        className="modal-overlay-logic"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={() => setIsLogoutModalOpen(false)}
                     >
                         <motion.div 
-                            className="ritual-modal"
+                            className="confirmation-modal"
                             initial={{ scale: 0.9, opacity: 0, y: 20 }}
                             animate={{ scale: 1, opacity: 1, y: 0 }}
                             exit={{ scale: 0.9, opacity: 0, y: 20 }}
                             onClick={(e) => e.stopPropagation()}
                         >
-                            <div className="ritual-modal-icon">
+                            <div className="confirmation-modal-icon">
                                 <ShieldAlert size={32} />
                             </div>
                             <h3>End Session?</h3>
-                            <p>You are about to disconnect your master profile from the studio ledgers. Are you ready to end this ritual?</p>
-                            <div className="ritual-modal-actions">
-                                <button className="ritual-btn-cancel" onClick={() => setIsLogoutModalOpen(false)}>Stay Connected</button>
-                                <button className="ritual-btn-confirm" onClick={handleLogoutRitual}>End Ritual</button>
+                            <p>You are about to disconnect your profile from the studio. Are you ready to log out?</p>
+                            <div className="confirmation-modal-actions">
+                                <button className="modal-btn-cancel" onClick={() => setIsLogoutModalOpen(false)}>Stay Connected</button>
+                                <button className="modal-btn-confirm" onClick={handleLogoutConfirm}>Log Out</button>
                             </div>
                         </motion.div>
                     </motion.div>

@@ -61,9 +61,9 @@ const BarberDashboard: React.FC = () => {
     
     return {
       todayCount: todayBookings.length,
-      upcomingCount: todayBookings.filter(b => b.status === 'confirmed').length,
-      totalRituals: completed,
-      xpPoint: completed * 50, // Gamification ritual
+      upcomingCount: todayBookings.filter(b => b.status === "confirmed").length,
+      totalSessions: completed,
+      ratingPoints: completed * 50,
       efficiency: schedule.length > 0 ? Math.round((completed / schedule.length) * 100) : 0
     };
   }, [schedule]);
@@ -78,7 +78,7 @@ const BarberDashboard: React.FC = () => {
   }, [schedule, searchQuery]);
 
   const handleStatusChange = async (bookingId: string, status: string) => {
-    const loadToast = toast.loading(`Updating ritual status...`);
+    const loadToast = toast.loading(`Updating status...`);
     try {
       await updateBookingStatus(bookingId, status);
       setSchedule(prev => prev.map(b => (b.id === bookingId || (b as any)._id === bookingId) ? { ...b, status } : b));
@@ -117,15 +117,15 @@ const BarberDashboard: React.FC = () => {
             <div className="mini-stat-card">
               <div className="stat-icon-chamber" style={{ color: '#4caf50' }}><CheckCircle2 size={18} /></div>
               <div className="stat-text">
-                <span className="stat-label">Rituals Completed</span>
-                <div className="stat-value">{stats.totalRituals}</div>
+                <span className="stat-label">Sessions Completed</span>
+                <div className="stat-value">{stats.totalSessions}</div>
               </div>
             </div>
             <div className="mini-stat-card">
               <div className="stat-icon-chamber" style={{ color: '#2196f3' }}><Award size={18} /></div>
               <div className="stat-text">
-                <span className="stat-label">Mastery XP</span>
-                <div className="stat-value">{stats.xpPoint}</div>
+                <span className="stat-label">Barber Points</span>
+                <div className="stat-value">{stats.ratingPoints}</div>
               </div>
             </div>
             <div className="mini-stat-card">
@@ -142,11 +142,11 @@ const BarberDashboard: React.FC = () => {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="dashboard-card premium-card-bg">
             <div className="card-header" style={{ flexWrap: 'wrap', gap: '1rem' }}>
               <h2><Calendar size={20} /> Client Agenda</h2>
-              <div className="search-bar-ritual">
+              <div className="search-bar-standard">
                 <Search size={16} color="var(--text-secondary)" />
                 <input 
                   type="text" 
-                  placeholder="Find client or ritual..." 
+                  placeholder="Find client or service..." 
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
@@ -188,7 +188,7 @@ const BarberDashboard: React.FC = () => {
                             </button>
                           ) : b.status === 'completed' ? (
                              <span style={{ fontSize: '0.75rem', opacity: 0.5, display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                               <Award size={14} /> RITUAL DONE
+                              <Award size={14} /> SESSION DONE
                              </span>
                           ) : (
                              <span style={{ fontSize: '0.75rem', opacity: 0.5 }}>{b.status.toUpperCase()}</span>
@@ -201,12 +201,12 @@ const BarberDashboard: React.FC = () => {
               </table>
 
               {filteredSchedule.length === 0 && (
-                <div className="empty-state-ritual" style={{ padding: '5rem 2rem' }}>
+                <div className="empty-state-standard" style={{ padding: '5rem 2rem' }}>
                    <div className="empty-icon-chamber">
                      <CircleDashed size={48} style={{ opacity: 0.1, marginBottom: '1.5rem' }} />
                    </div>
                    <h3 style={{ color: 'var(--gold)', marginBottom: '0.5rem' }}>No Sessions in Queue</h3>
-                   <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>You have no recorded rituals for the current selection.</p>
+                   <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>You have no recorded sessions for the current selection.</p>
                 </div>
               )}
             </div>

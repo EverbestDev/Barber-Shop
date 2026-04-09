@@ -10,6 +10,7 @@ import {
 import { fetchAllUsers } from '../../api/admin';
 import { fetchAllBookings } from '../../api/bookings';
 import type { UserInfo, Booking } from '../../api/types';
+import { downloadCSV } from '../../utils/export';
 import toast from 'react-hot-toast';
 
 const AdminOverviewSkeleton = () => (
@@ -75,7 +76,7 @@ const AdminDashboard: React.FC = () => {
               <p>Real-time holistic view of your studio's pulse.</p>
             </div>
             <div className="header-actions">
-               <button className="btn-outlined-studio" onClick={() => window.print()}>
+               <button className="btn-outlined-studio" onClick={() => downloadCSV(todayBookings, 'todays_agenda.csv')}>
                  <Download size={16} /> Export Overview
                </button>
             </div>

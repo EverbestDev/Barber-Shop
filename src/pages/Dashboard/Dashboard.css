@@ -298,7 +298,7 @@
   gap: 0.5rem;
 }
 
-/* Button Consistency Ritual */
+/* Button Consistency Logic */
 .btn-filled-gold {
   background-color: var(--gold);
   color: var(--primary);
@@ -565,7 +565,7 @@
   text-transform: uppercase;
 }
 
-.empty-state-ritual {
+.empty-state-standard {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -578,7 +578,7 @@
   gap: 1.25rem;
 }
 
-.empty-state-ritual.small {
+.empty-state-standard.small {
   padding: 2rem 1rem;
   gap: 0.75rem;
 }
@@ -595,13 +595,13 @@
   margin-bottom: 0.5rem;
 }
 
-.empty-state-ritual.small .empty-icon {
+.empty-state-standard.small .empty-icon {
   width: 48px;
   height: 48px;
 }
 
-/* Administrative Search & Filter Rituals */
-.search-bar-ritual {
+/* Administrative Search & Filter Systems */
+.search-bar-standard {
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -615,13 +615,13 @@
   transition: all 0.3s ease;
 }
 
-.search-bar-ritual:focus-within {
+.search-bar-standard:focus-within {
   border-color: rgba(212, 175, 55, 0.4);
   background: rgba(255, 255, 255, 0.05);
   box-shadow: 0 0 15px rgba(212, 175, 55, 0.1);
 }
 
-.search-bar-ritual input {
+.search-bar-standard input {
   background: none;
   border: none;
   color: var(--text-primary);
@@ -630,7 +630,7 @@
   outline: none;
 }
 
-.search-bar-ritual input::placeholder {
+.search-bar-standard input::placeholder {
   color: var(--text-secondary);
   opacity: 0.5;
 }
@@ -669,14 +669,14 @@
   color: white;
 }
 
-.empty-state-ritual h3 {
+.empty-state-standard h3 {
   font-size: 1.25rem;
   font-weight: 800;
   margin-bottom: 0;
   color: var(--white);
 }
 
-.empty-state-ritual p {
+.empty-state-standard p {
   font-size: 0.875rem;
   color: var(--text-secondary);
   max-width: 300px;
@@ -715,8 +715,8 @@
   font-size: 0.75rem;
 }
 
-/* Notification Ritual Items */
-.notification-ritual-item {
+/* Notification List Items */
+.notification-list-item-standard {
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
@@ -727,19 +727,19 @@
   margin-bottom: 1rem;
 }
 
-.notif-ritual-header {
+.notif-standard-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.unread-ritual-indicator {
+.unread-standard-indicator {
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
 
-.ritual-dot {
+.standard-dot {
   width: 8px;
   height: 8px;
   background-color: var(--gold);
@@ -748,13 +748,13 @@
   display: inline-block;
 }
 
-.notif-ritual-body {
+.notif-standard-body {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
 }
 
-.notif-ritual-meta {
+.notif-standard-meta {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -763,7 +763,7 @@
   border-top: 1px solid rgba(255, 255, 255, 0.03);
 }
 
-.unread-text-ritual {
+.unread-text-standard {
   font-size: 0.625rem;
   font-weight: 900;
   color: var(--gold);
@@ -771,7 +771,7 @@
   letter-spacing: 1px;
 }
 
-.new-badge-ritual {
+.new-badge-standard {
   display: flex;
   align-items: center;
   gap: 0.25rem;
@@ -785,7 +785,7 @@
   border: 1px solid rgba(212, 175, 55, 0.2);
 }
 
-.new-badge-ritual span {
+.new-badge-standard span {
   line-height: 1;
 }
 
@@ -847,7 +847,7 @@
   text-transform: uppercase;
 }
 
-/* Tab Scroll Ritual */
+/* Tab Scroll Logic */
 .admin-tabs {
   display: flex;
   gap: 1rem;
@@ -875,12 +875,12 @@
 }
 
 @media (max-width: 640px) {
-  .notification-ritual-item {
+  .notification-list-item-standard {
     align-items: center;
     text-align: center;
   }
   
-  .notif-ritual-meta {
+  .notif-standard-meta {
     flex-direction: column;
     gap: 0.5rem;
   }
@@ -903,7 +903,7 @@
   display: none;
 }
 
-/* Modal Rituals */
+/* Modal Systems */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -960,7 +960,7 @@
   font-size: 0.875rem;
 }
 
-/* Skeleton Rituals */
+/* Skeleton Systems */
 .skeleton {
   background: rgba(255, 255, 255, 0.03);
   background: linear-gradient(
@@ -1067,7 +1067,7 @@
 }
 
 
-/* Admin Dashboard Rituals */
+/* Admin Dashboard Systems */
 .admin-overview-header {
   display: flex;
   justify-content: space-between;

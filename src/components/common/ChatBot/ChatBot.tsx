@@ -83,12 +83,12 @@ const ChatBot: React.FC = () => {
     if (hour >= 17) greeting = 'Good evening';
 
     const welcomeMsg = user 
-      ? `${greeting}, ${user.name.split(' ')[0]}! I'm BazeBot. How can I assist you today?`
-      : `${greeting}! I'm BazeBot. Your digital studio assistant.`;
+      ? `${greeting}, ${user.name.split(' ')[0]}! I'm Baze Assistant. How can I help you today?`
+      : `${greeting}! I'm Baze Assistant. Your studio assistant.`;
 
     addBotMessage(welcomeMsg);
     setTimeout(() => {
-      addBotMessage("Would you like to secure a session or log a complaint/feedback?", ["Book a Session", "Log a Complaint"]);
+      addBotMessage("Would you like to book a session or make a complaint/feedback?", ["Book a Session", "Make a Complaint"]);
     }, 800);
   };
 
@@ -141,7 +141,7 @@ const ChatBot: React.FC = () => {
             addBotMessage("I'm sorry to hear that. Let's make this right. What's your name?");
         }
       } else {
-        addBotMessage("I didn't quite get that. Would you like to Book a Session or Log a Complaint?", ["Book a Session", "Log a Complaint"]);
+        addBotMessage("I didn't quite get that. Would you like to Book a Session or Make a Complaint?", ["Book a Session", "Make a Complaint"]);
       }
       return;
     }
@@ -193,7 +193,7 @@ const ChatBot: React.FC = () => {
               break;
           case 'EMAIL':
               if (!text.includes('@')) {
-                  addBotMessage("Please provide a valid email ritual.");
+                  addBotMessage("Please provide a valid email address.");
                   return;
               }
               setComplaintData(prev => ({ ...prev, email: text }));
@@ -208,7 +208,7 @@ const ChatBot: React.FC = () => {
           case 'MESSAGE':
               setComplaintData(prev => ({ ...prev, message: text }));
               setStep('CONFIRM');
-              addBotMessage(`I have recorded your grievance. Ready to dispatch it to the executive and send a confirmation to your email?`, ["Dispatch Complaint"]);
+              addBotMessage(`I have recorded your message. Ready to send it to the manager and send a confirmation to your email?`, ["Send Complaint"]);
               break;
       }
   };
@@ -254,7 +254,25 @@ const ChatBot: React.FC = () => {
     }
     setBookingData((prev: any) => ({ ...prev, date }));
     setStep('TIME');
-    addBotMessage(`Seeing you on ${date}. What time works?`, allTimeSlots);
+    
+    // Filter out past times for today
+    const isToday = date === new Date().toISOString().split('T')[0];
+    const currentHour = new Date().getHours();
+    
+    const availableTimeSlots = allTimeSlots.filter(t => {
+      if (!isToday) return true;
+      const [timeStr, modifier] = t.split(' ');
+      let hour = parseInt(timeStr.split(':')[0]);
+      if (modifier === 'PM' && hour < 12) hour += 12;
+      if (modifier === 'AM' && hour === 12) hour = 0;
+      return hour > currentHour;
+    });
+
+    if (availableTimeSlots.length === 0) {
+      addBotMessage(`Seeing you on ${date}. Looks like we have no available times left for today. Please try 'Tomorrow'.`, ['Tomorrow']);
+    } else {
+      addBotMessage(`Seeing you on ${date}. What time works?`, availableTimeSlots);
+    }
   };
 
   const handleTimeSelection = (input: string) => {
@@ -324,13 +342,13 @@ const ChatBot: React.FC = () => {
 
   const handleComplaintSubmit = async () => {
       setLoading(true);
-      const loadToast = toast.loading("Dispatching grievance ritual...");
+      const loadToast = toast.loading("Sending your message...");
       try {
           await api.post('/notifications/complaint', complaintData);
-          toast.success("Feedback dispatched. Reviewing now.", { id: loadToast });
-          addBotMessage("I've successfully dispatched your complaint to the studio executive. A confirmation ritual has been sent to your email.");
+          toast.success("Feedback sent. Reviewing now.", { id: loadToast });
+          addBotMessage("I've successfully sent your complaint to the manager. A confirmation has been sent to your email.");
           setTimeout(() => {
-              addBotMessage("Is there anything else I can assist with?", ["Book a Session", "Logout"]);
+              addBotMessage("Is there anything else I can help with?", ["Book a Session", "Logout"]);
               setFlow('INITIAL');
           }, 1500);
       } catch (err: any) {
@@ -345,7 +363,7 @@ const ChatBot: React.FC = () => {
       handlePayment();
       return;
     }
-    if (option === 'Dispatch Complaint') {
+    if (option === 'Send Complaint') {
         handleComplaintSubmit();
         return;
     }
@@ -371,8 +389,8 @@ const ChatBot: React.FC = () => {
               <div className="bot-info">
                 <div className="bot-avatar">B</div>
                 <div>
-                  <h3>BazeBot</h3>
-                  <span>Online | Real-time Assistant</span>
+                  <h3>Baze Assistant</h3>
+                  <span>Online | Support Assistant</span>
                 </div>
               </div>
               <button onClick={() => setIsOpen(false)}><X size={20} /></button>

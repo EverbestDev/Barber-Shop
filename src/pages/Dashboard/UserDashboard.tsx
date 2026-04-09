@@ -152,10 +152,10 @@ const UserDashboard: React.FC = () => {
                 </div>
               ))
             ) : (
-              <div className="empty-state-ritual">
+              <div className="empty-state-standard">
                 <div className="empty-icon"><Calendar size={32} /></div>
-                <h3>Quiet in the Studio</h3>
-                <p>Your calendar is currently clear. It's time to secure your next transformation.</p>
+                <h3>Studio Calendar</h3>
+                <p>Your calendar is currently clear. It's time to book your next appointment.</p>
                 <button className="btn-filled-gold" onClick={() => navigate('/booking')}>Book Now</button>
               </div>
             )}
@@ -186,7 +186,7 @@ const UserDashboard: React.FC = () => {
                 <button className="btn-outlined-studio w-full mt-4" onClick={() => navigate('/dashboard/transactions')}>See History</button>
               </div>
             ) : (
-              <div className="empty-state-ritual small">
+              <div className="empty-state-standard small">
                 <div className="empty-icon"><CreditCard size={24} /></div>
                 <p>No transaction history yet. Complete your first booking to see transactions.</p>
                 <button className="btn-filled-gold mt-2" onClick={() => navigate('/booking')}>Book Now</button>
@@ -225,9 +225,9 @@ const UserDashboard: React.FC = () => {
                 <button className="btn-outlined-studio w-full mt-4" onClick={() => navigate('/dashboard/history')}>View All Past Bookings</button>
               </div>
             ) : (
-              <div className="empty-state-ritual small">
+              <div className="empty-state-standard small">
                 <div className="empty-icon"><TrendingUp size={24} /></div>
-                <p>Your studio legacy is waiting to be written.</p>
+                <p>Start your booking history with us.</p>
                 <button className="btn-filled-gold mt-2" onClick={() => navigate('/booking')}>Start Your History</button>
               </div>
             )}
