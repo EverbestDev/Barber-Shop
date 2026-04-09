@@ -56,7 +56,7 @@ const Navbar: React.FC<NavbarProps> = ({ isScrolled, isMobileMenuOpen, setIsMobi
                 <Bell size={20} />
                 {isLoggedIn && <span className="notif-badge"></span>}
               </button>
-              
+
               {isNotifOpen && (
                 <div className="notif-dropdown">
                   <div className="notif-header">Notifications</div>

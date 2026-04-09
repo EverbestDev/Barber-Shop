@@ -1,10 +1,10 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { 
-  Calendar, 
-  TrendingUp, 
-  UserCheck, 
-  Clock, 
+import {
+  Calendar,
+  TrendingUp,
+  UserCheck,
+  Clock,
   Download
 } from 'lucide-react';
 import { fetchAllUsers } from '../../api/admin';
@@ -19,7 +19,7 @@ const AdminOverviewSkeleton = () => (
       <div className="dashboard-header">
         <div className="skeleton skeleton-title" />
         <div className="header-stats-row">
-          {[1,2,3,4].map(i => <div key={i} className="mini-stat-card skeleton skeleton-card" />)}
+          {[1, 2, 3, 4].map(i => <div key={i} className="mini-stat-card skeleton skeleton-card" />)}
         </div>
       </div>
       <div className="dashboard-card premium-card-bg">
@@ -76,9 +76,9 @@ const AdminDashboard: React.FC = () => {
               <p>Real-time holistic view of your studio's pulse.</p>
             </div>
             <div className="header-actions">
-               <button className="btn-outlined-studio" onClick={() => downloadCSV(todayBookings, 'todays_agenda.csv')}>
-                 <Download size={16} /> Export Overview
-               </button>
+              <button className="btn-outlined-studio" onClick={() => downloadCSV(todayBookings, 'todays_agenda.csv')}>
+                <Download size={16} /> Export Overview
+              </button>
             </div>
           </div>
 
@@ -121,29 +121,29 @@ const AdminDashboard: React.FC = () => {
             </div>
             <div className="table-responsive">
               <table className="admin-table">
-                 <thead>
-                   <tr>
-                     <th>Time</th>
-                     <th>Service</th>
-                     <th>Patron</th>
-                     <th>Payment</th>
-                     <th>Status</th>
-                   </tr>
-                 </thead>
-                 <tbody>
-                   {todayBookings.map(b => (
-                     <tr key={b.id}>
-                       <td>{new Date(b.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
-                       <td style={{ fontWeight: 800 }}>{b.service}</td>
-                       <td className="truncate">{b.user_id || 'Guest'}</td>
-                       <td><span className={`payment-badge ${b.payment_status}`}>{b.payment_status}</span></td>
-                       <td><span className={`status-badge ${b.status}`}>{b.status}</span></td>
-                     </tr>
-                   ))}
-                   {todayBookings.length === 0 && (
-                     <tr><td colSpan={5} style={{ textAlign: 'center', padding: '3rem' }}>No sessions scheduled for today yet.</td></tr>
-                   )}
-                 </tbody>
+                <thead>
+                  <tr>
+                    <th>Time</th>
+                    <th>Service</th>
+                    <th>Patron</th>
+                    <th>Payment</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {todayBookings.map(b => (
+                    <tr key={b.id}>
+                      <td>{new Date(b.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
+                      <td style={{ fontWeight: 800 }}>{b.service}</td>
+                      <td className="truncate">{b.user_id || 'Guest'}</td>
+                      <td><span className={`payment-badge ${b.payment_status}`}>{b.payment_status}</span></td>
+                      <td><span className={`status-badge ${b.status}`}>{b.status}</span></td>
+                    </tr>
+                  ))}
+                  {todayBookings.length === 0 && (
+                    <tr><td colSpan={5} style={{ textAlign: 'center', padding: '3rem' }}>No sessions scheduled for today yet.</td></tr>
+                  )}
+                </tbody>
               </table>
             </div>
           </motion.div>

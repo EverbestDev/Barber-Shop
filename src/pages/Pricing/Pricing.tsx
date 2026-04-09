@@ -6,43 +6,43 @@ import { useOutletContext } from 'react-router-dom';
 import './Pricing.css';
 
 const pricingList = [
-  { name: "Signature Haircut", price: "£35", duration: "45 min" },
-  { name: "Skin Fade Master", price: "£38", duration: "60 min" },
-  { name: "Buzz Cut", price: "£25", duration: "30 min" },
-  { name: "Shape Up (Lineup)", price: "£15", duration: "20 min" },
-  { name: "Kids Haircut", price: "£22", duration: "30 min" },
-  { name: "Seniors (65+)", price: "£20", duration: "30 min" },
-  { name: "Beard Sculpture", price: "£25", duration: "30 min" },
-  { name: "Beard Line-up (Razored)", price: "£15", duration: "15 min" },
-  { name: "Hot Towel Shave", price: "£35", duration: "45 min" },
-  { name: "Haircut & Beard", price: "£55", duration: "75 min" },
-  { name: "The Royal Treatment", price: "£80", duration: "105 min" },
-  { name: "The Wedding Package", price: "£100", duration: "120 min" },
-  { name: "Undercut Design", price: "£25", duration: "30 min" },
-  { name: "Short Cut & Style", price: "£35", duration: "45 min" },
-  { name: "Women's Signature", price: "£45", duration: "60 min" },
-  { name: "Women's Taper Fade", price: "£40", duration: "60 min" },
-  { name: "The Father & Son", price: "£55", duration: "90 min" },
-  { name: "The Duo Pack", price: "£65", duration: "90 min" },
-  { name: "The Triple Threat (3 Friends)", price: "£90", duration: "120 min" },
-  { name: "Executive Home Visit (Doorstep)", price: "£85", duration: "60 min" },
-  { name: "Full Grooming Home Visit (Doorstep)", price: "£110", duration: "90 min" },
-  { name: "V.I.P Doorstep Session", price: "£140", duration: "120 min" },
-  { name: "The Beard & Mask", price: "£40", duration: "45 min" },
-  { name: "Nose & Ear Waxing", price: "£10", duration: "10 min" },
-  { name: "The Grooming Party (3-5 users)", price: "From £150", duration: "3 hours+" }
+  { name: "Signature Haircut", price: "€20", duration: "45 min" },
+  { name: "Skin Fade Master", price: "€20", duration: "60 min" },
+  { name: "Buzz Cut", price: "€15", duration: "30 min" },
+  { name: "Shape Up (Lineup)", price: "€10", duration: "20 min" },
+  { name: "Kids Haircut", price: "€15", duration: "30 min" },
+  { name: "Seniors (65+)", price: "€15", duration: "30 min" },
+  { name: "Beard Sculpture", price: "€15", duration: "30 min" },
+  { name: "Beard Line-up (Razored)", price: "€10", duration: "15 min" },
+  { name: "Hot Towel Shave", price: "€25", duration: "45 min" },
+  { name: "Haircut & Beard", price: "€35", duration: "75 min" },
+  { name: "The Royal Treatment", price: "€50", duration: "105 min" },
+  { name: "The Wedding Package", price: "€70", duration: "120 min" },
+  { name: "Undercut Design", price: "€20", duration: "30 min" },
+  { name: "Short Cut & Style", price: "€20", duration: "45 min" },
+  { name: "Women's Signature", price: "€25", duration: "60 min" },
+  { name: "Women's Taper Fade", price: "€25", duration: "60 min" },
+  { name: "The Father & Son", price: "€35", duration: "90 min" },
+  { name: "The Duo Pack", price: "€40", duration: "90 min" },
+  { name: "The Triple Threat (3 Friends)", price: "€60", duration: "120 min" },
+  { name: "Executive Home Visit (Doorstep)", price: "€40", duration: "60 min" },
+  { name: "Full Grooming Home Visit (Doorstep)", price: "€55", duration: "90 min" },
+  { name: "V.I.P Doorstep Session", price: "€75", duration: "120 min" },
+  { name: "The Beard & Mask", price: "€25", duration: "45 min" },
+  { name: "Nose & Ear Waxing", price: "€5", duration: "10 min" },
+  { name: "The Grooming Party (3-5 users)", price: "From €100", duration: "3 hours+" }
 ];
 
 const packages = [
   { 
     title: "Monthly Unlimited", 
-    price: "£65", 
+    price: "€45", 
     per: "month",
     features: ["Unlimited Skin Fades", "Unlimited Beard Trims", "Priority Booking", "10% off Products"]
   },
   { 
     title: "The VIP Groom", 
-    price: "£150", 
+    price: "€100", 
     per: "3 sessions",
     features: ["3 Full Services", "Face Mask Included", "Free Product", "Valid for 60 Days"]
   }

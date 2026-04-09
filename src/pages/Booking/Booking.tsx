@@ -32,16 +32,18 @@ const serviceCategories: Category[] = [
 ];
 
 const allServices: Service[] = [
-  { id: 1, cat: 'shop', name: 'Signature Haircut', price: 35, duration: '45m', popular: true },
-  { id: 2, cat: 'shop', name: 'Skin Fade', price: 38, duration: '60m', popular: true },
-  { id: 3, cat: 'shop', name: 'Beard Sculpture', price: 25, duration: '30m' },
-  { id: 4, cat: 'shop', name: 'Executive Package', price: 55, duration: '75m' },
-  { id: 5, cat: 'shop', name: 'Buzz Cut', price: 20, duration: '20m' },
-  { id: 6, cat: 'shop', name: "Women's Taper Fade", price: 40, duration: '60m' },
-  { id: 7, cat: 'shop', name: "Women's Signature", price: 45, duration: '60m' },
-  { id: 101, cat: 'home', name: 'Executive Home Visit', price: 85, duration: '60m', popular: true },
-  { id: 102, cat: 'home', name: 'Duo Home Session', price: 150, duration: '120m' },
-  { id: 201, cat: 'group', name: 'Father & Son', price: 50, duration: '90m', popular: true }
+  { id: 1, cat: 'shop', name: 'Signature Haircut (Male)', price: 20, duration: '45m', popular: true },
+  { id: 2, cat: 'shop', name: 'Skin Fade', price: 20, duration: '60m', popular: true },
+  { id: 3, cat: 'shop', name: 'Beard Sculpture', price: 15, duration: '30m' },
+  { id: 4, cat: 'shop', name: 'Executive Package', price: 35, duration: '75m' },
+  { id: 5, cat: 'shop', name: 'Buzz Cut', price: 15, duration: '20m' },
+  { id: 6, cat: 'shop', name: "Women's Taper Fade", price: 25, duration: '60m' },
+  { id: 7, cat: 'shop', name: "Women's Signature", price: 25, duration: '60m' },
+  { id: 8, cat: 'shop', name: "Kids Haircut (Boy/Girl)", price: 15, duration: '30m' },
+  { id: 101, cat: 'home', name: 'Executive Home Visit', price: 40, duration: '60m', popular: true },
+  { id: 102, cat: 'home', name: 'Full Grooming Home Visit', price: 55, duration: '90m' },
+  { id: 103, cat: 'home', name: 'V.I.P Doorstep Session', price: 75, duration: '120m' },
+  { id: 201, cat: 'group', name: 'Father & Son', price: 35, duration: '90m', popular: true }
 ];
 
 const BookingPage: React.FC = () => {
