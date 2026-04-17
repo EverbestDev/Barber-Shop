@@ -49,13 +49,13 @@ const Profile: React.FC = () => {
 
   const handleRequestDelete = async () => {
     setActionLoading(true);
-    const toastId = toast.loading("Authorizing deletion request...");
+    const toastId = toast.loading("Sending verification code...");
     try {
       await requestDeleteOTP();
-      toast.success("Authorization code dispatched. Check your email.", { id: toastId });
+      toast.success("Code sent! Check your email.", { id: toastId });
       setShowDeleteModal(true);
     } catch (e: any) {
-      toast.error(e.response?.data?.detail || "Action failed.", { id: toastId });
+      toast.error(e.response?.data?.detail || "Could not send code.", { id: toastId });
     } finally {
       setActionLoading(false);
     }
@@ -64,14 +64,14 @@ const Profile: React.FC = () => {
   const handleConfirmDelete = async (e: React.FormEvent) => {
     e.preventDefault();
     setActionLoading(true);
-    const toastId = toast.loading("Executing final protocol...");
+    const toastId = toast.loading("Deleting your account...");
     try {
       await confirmDeleteAccount(deleteOTP);
-      toast.success("Legacy deleted. Journey well.", { id: toastId });
+      toast.success("Account deleted. Hope to see you again!", { id: toastId });
       logout();
       navigate('/');
     } catch (e: any) {
-      toast.error(e.response?.data?.detail || "Invalid code.", { id: toastId });
+      toast.error(e.response?.data?.detail || "Invalid or expired code.", { id: toastId });
     } finally {
       setActionLoading(false);
     }
@@ -86,8 +86,8 @@ const Profile: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
         >
           <div className="header-greeting">
-            <h1>Security <span className="text-gold">& Profile</span></h1>
-            <p>Manage your studio identities and secure your presence.</p>
+            <h1>Account <span className="text-gold">& Profile</span></h1>
+            <p>Manage your account details and security settings.</p>
           </div>
         </motion.header>
 
@@ -159,7 +159,7 @@ const Profile: React.FC = () => {
 
                 <div className="form-actions mt-6">
                   <button type="submit" className="btn-filled-gold" disabled={isSaving}>
-                    {isSaving ? 'Synchronizing...' : 'Update Identity'}
+                    {isSaving ? 'Saving...' : 'Save Changes'}
                   </button>
                 </div>
              </form>
@@ -199,12 +199,12 @@ const Profile: React.FC = () => {
           <div className="auth-content-side center-full" style={{ padding: '2rem' }}>
             <motion.div className="auth-box otp-box" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
               <div className="auth-header text-center pb-4">
-                <h2>Confirm Departure</h2>
-                <p>Are you sure you want to securely sign out of your terminal?</p>
+                <h2>Confirm Logout</h2>
+                <p>Are you sure you want to log out of your account?</p>
               </div>
               <div style={{ display: 'flex', gap: '1rem' }}>
                 <button className="btn-outlined-studio" onClick={() => setShowLogoutModal(false)} style={{ flex: 1 }}>Cancel</button>
-                <button className="btn-filled-gold" onClick={handleLogout} style={{ flex: 1 }}>Confirm Sign Out</button>
+                <button className="btn-filled-gold" onClick={handleLogout} style={{ flex: 1 }}>Log Out</button>
               </div>
             </motion.div>
           </div>
@@ -218,8 +218,8 @@ const Profile: React.FC = () => {
             <motion.div className="auth-box otp-box" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
               <div className="auth-header text-center">
                  <button onClick={() => setShowDeleteModal(false)} style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', background: 'none', border: 'none', color: '#fff', cursor: 'pointer' }}><X size={20} /></button>
-                 <h2 style={{ color: '#eb5757' }}>Authorization Terminal</h2>
-                 <p style={{ marginTop: '0.5rem' }}>A 6-digit confirmation protocol has been dispatched to <strong>{user?.email}</strong>. Enter it to permanently delete your data.</p>
+                 <h2 style={{ color: '#eb5757' }}>Delete Account</h2>
+                 <p style={{ marginTop: '0.5rem' }}>We've sent a 6-digit code to <strong>{user?.email}</strong>. Enter it below to confirm you want to permanently delete your account.</p>
               </div>
               <form className="auth-form" onSubmit={handleConfirmDelete}>
                 <div className="input-group otp-input-wrapper">
@@ -232,10 +232,11 @@ const Profile: React.FC = () => {
                     value={deleteOTP}
                     onChange={(e) => setDeleteOTP(e.target.value.replace(/\D/g,''))}
                     style={{ textAlign: 'center', letterSpacing: '4px', fontSize: '1.25rem', fontWeight: 800 }}
+                    autoComplete="one-time-code"
                   />
                 </div>
                 <button type="submit" className="btn-filled auth-submit-btn" disabled={actionLoading || deleteOTP.length < 6} style={{ backgroundColor: '#eb5757', color: '#fff' }}>
-                  {actionLoading ? <><Loader2 className="spinning-icon-btn" size={18} /> Executing Protocol...</> : <>Delete Everything <Trash2 size={18} style={{ marginLeft: '0.5rem' }} /></>}
+                  {actionLoading ? <><Loader2 className="spinning-icon-btn" size={18} /> Deleting...</> : <>Delete My Account <Trash2 size={18} style={{ marginLeft: '0.5rem' }} /></>}
                 </button>
               </form>
             </motion.div>
