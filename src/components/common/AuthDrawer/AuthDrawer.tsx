@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { X, Mail, Lock, User, ArrowRight, Loader2 } from 'lucide-react';
+import { X, Mail, Lock, User, ArrowRight, Loader2, Eye, EyeOff } from 'lucide-react';
 
 import { useAuth } from '../../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -22,6 +22,7 @@ const AuthDrawer: React.FC<AuthDrawerProps> = ({ onClose }) => {
   const [otpCode, setOtpCode] = useState('');
   const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [isResettingPassword, setIsResettingPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -230,7 +231,7 @@ const AuthDrawer: React.FC<AuthDrawerProps> = ({ onClose }) => {
               <div className="input-group" style={{ marginTop: '1rem' }}>
                 <Lock size={18} className="input-icon" />
                 <input 
-                  type="password" 
+                  type={showPassword ? "text" : "password"} 
                   placeholder="New Password" 
                   required 
                   readOnly={loading} 
@@ -238,6 +239,14 @@ const AuthDrawer: React.FC<AuthDrawerProps> = ({ onClose }) => {
                   onChange={(e) => setPassword(e.target.value)} 
                   autoComplete="new-password"
                 />
+                <button 
+                  type="button" 
+                  className="password-toggle" 
+                  onClick={() => setShowPassword(!showPassword)}
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
               </div>
             )}
             <button type="submit" className="btn-filled auth-submit-btn" disabled={loading || otpCode.length < 6 || (isResettingPassword && password.length < 6)}>
@@ -294,7 +303,23 @@ const AuthDrawer: React.FC<AuthDrawerProps> = ({ onClose }) => {
           {!isForgotPassword && (
             <div className="input-group">
               <Lock size={18} className="input-icon" />
-              <input type="password" placeholder="Password" required readOnly={loading} value={password} onChange={(e) => setPassword(e.target.value)} autoComplete={isLogin ? "current-password" : "new-password"} />
+              <input 
+                type={showPassword ? "text" : "password"} 
+                placeholder="Password" 
+                required 
+                readOnly={loading} 
+                value={password} 
+                onChange={(e) => setPassword(e.target.value)} 
+                autoComplete={isLogin ? "current-password" : "new-password"} 
+              />
+              <button 
+                type="button" 
+                className="password-toggle" 
+                onClick={() => setShowPassword(!showPassword)}
+                tabIndex={-1}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
             </div>
           )}
           
