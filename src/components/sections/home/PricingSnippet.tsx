@@ -5,25 +5,25 @@ import './PricingSnippet.css';
 
 const mainServices = [
   { group: 'Haircuts', items: [
-    { name: "Signature Haircut (Male)", price: "€20" },
-    { name: "Skin Fade", price: "€20" },
-    { name: "Kids Haircut", price: "€15" }
+    { name: "Signature Haircut (Male)", price: "£20" },
+    { name: "Skin Fade", price: "£20" },
+    { name: "Kids Haircut", price: "£15" }
   ]},
   { group: 'Beard & Face', items: [
-    { name: "Beard Sculpture", price: "€15" },
-    { name: "Hot Towel Shave", price: "€25" },
-    { name: "The Beard & Mask", price: "€25" }
+    { name: "Beard Sculpture", price: "£15" },
+    { name: "Hot Towel Shave", price: "£25" },
+    { name: "The Beard & Mask", price: "£25" }
   ]},
   { group: 'Ladies Styling', items: [
-    { name: "Women's Taper Fade", price: "€25" },
-    { name: "Women's Signature", price: "€25" }
+    { name: "Women's Taper Fade", price: "£25" },
+    { name: "Women's Signature", price: "£25" }
   ]}
 ];
 
 const homeAndGroup = [
-  { name: "Executive Home Visit", price: "€40" },
-  { name: "Father & Son Pack", price: "€35" },
-  { name: "Grooming Party (3+)", price: "€100+" }
+  { name: "Executive Home Visit", price: "£40" },
+  { name: "Father & Son Pack", price: "£35" },
+  { name: "Grooming Party (3+)", price: "£100+" }
 ];
 
 const PricingSnippet: React.FC = () => {

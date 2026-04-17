@@ -128,7 +128,7 @@ const BookingPage: React.FC = () => {
       const bookingId = newBooking.id || (newBooking as any)._id;
 
       if (!bookingId) {
-        throw new Error('Studio ID ritual error—please contact support.');
+        throw new Error('Studio ID ritual error⣔please contact support.');
       }
       
       const { url } = await createCheckoutSession(bookingId);
@@ -208,7 +208,7 @@ const BookingPage: React.FC = () => {
                     >
                       <div className="option-info">
                         <h3>{s.name}</h3>
-                        <span>{s.duration} - €{s.price}</span>
+                        <span>{s.duration} - £{s.price}</span>
                       </div>
                     </div>
                   ))}
@@ -262,7 +262,7 @@ const BookingPage: React.FC = () => {
                     <h3>Booking Summary</h3>
                     <p><b>Service:</b> {selectedService?.name}</p>
                     <p><b>Time:</b> {selectedDate} at {selectedTime}</p>
-                    <p><b>Price:</b> €{selectedService?.price}</p>
+                    <p><b>Price:</b> £{selectedService?.price}</p>
                   </div>
 
                   {!user && (

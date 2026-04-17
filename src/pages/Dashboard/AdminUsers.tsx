@@ -63,7 +63,7 @@ const AdminUsers: React.FC = () => {
   }, [users]);
 
   const sortedAndFilteredUsers = useMemo(() => {
-    let result = [...users].filter(u => 
+    const result = [...users].filter(u => 
       u.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
       u.email.toLowerCase().includes(searchQuery.toLowerCase())
     );

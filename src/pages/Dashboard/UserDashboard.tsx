@@ -217,7 +217,7 @@ const UserDashboard: React.FC = () => {
                   <div key={booking.id} className="history-item">
                     <div className="history-info">
                       <span className="history-service">{booking.service}</span>
-                      <span className="history-meta">{new Date(booking.date).toLocaleDateString()} • {booking.barber}</span>
+                      <span className="history-meta">{new Date(booking.date).toLocaleDateString()} ⣢ {booking.barber}</span>
                     </div>
                     <ChevronRight size={18} className="history-arrow" />
                   </div>

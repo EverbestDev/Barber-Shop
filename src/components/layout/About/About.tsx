@@ -83,7 +83,7 @@ const About: React.FC = () => {
           </motion.h2>
           
           <motion.p variants={itemVariants} className="about-description">
-            At Baze 2 Barbers, we believe grooming is more than just a routine—it's a ritual. We blend modern styling sensibilities with classic barbering techniques to deliver an unparalleled experience tailored specifically to you.
+            At Baze 2 Barbers, we believe grooming is more than just a routine⣔it's a ritual. We blend modern styling sensibilities with classic barbering techniques to deliver an unparalleled experience tailored specifically to you.
           </motion.p>
           
           <motion.p variants={itemVariants} className="about-description" style={{ marginBottom: '2rem' }}>

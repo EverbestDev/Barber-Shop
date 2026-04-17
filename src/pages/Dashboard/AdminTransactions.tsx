@@ -75,7 +75,7 @@ const AdminTransactions: React.FC = () => {
   }, [transactions]);
 
   const sortedAndFilteredTransactions = useMemo(() => {
-    let result = transactions.filter(t => 
+    const result = transactions.filter(t => 
       (t.guest_name && t.guest_name.toLowerCase().includes(searchQuery.toLowerCase())) ||
       (t.user_id && t.user_id.toLowerCase().includes(searchQuery.toLowerCase())) || 
       t.service.toLowerCase().includes(searchQuery.toLowerCase())
