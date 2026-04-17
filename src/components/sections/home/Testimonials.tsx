@@ -9,7 +9,7 @@ const testimonials = [
     name: "James Anderson",
     role: "Regular Client",
     content: "The attention to detail at Baze 2 Barbers is unmatched. I've been to many luxury shops in London, but none capture the vibe and precision like these guys. Every cut is a masterpiece.",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&h=200&auto=format&fit=crop",
+    avatar: "/images/men/beardandfademen.jpg",
     rating: 5
   },
   {
@@ -17,7 +17,7 @@ const testimonials = [
     name: "Marcus Thompson",
     role: "V.I.P Client",
     content: "The home service is a game changer for my schedule. I get the same high-end experience in my office without the commute. Professional, punctual, and consistently sharp.",
-    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=200&h=200&auto=format&fit=crop",
+    avatar: "/images/men/menfadesignature3.jpg",
     rating: 5
   },
   {
@@ -25,7 +25,7 @@ const testimonials = [
     name: "David Chen",
     role: "Local Legend",
     content: "Best skin fade in Catford, no question. The atmosphere is top-tier and the hospitality is even better. It's not just a haircut, it's a ritual I look forward toทุก second week.",
-    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=200&h=200&auto=format&fit=crop",
+    avatar: "/images/men/baldmen1.jpg",
     rating: 5
   }
 ];
