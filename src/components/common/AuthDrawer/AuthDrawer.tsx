@@ -172,10 +172,16 @@ const AuthDrawer: React.FC<AuthDrawerProps> = ({ onClose }) => {
     try {
       await import('../../../api/auth').then(m => m.resetPassword(email, otpCode, password));
       toast.success("Password updated! Signing you in...", { id: rsToast });
-      const loginResp = await loginUser({ email, password });
+      const loginResp = await loginUser({ email: email.trim(), password });
       localStorage.setItem('token', loginResp.access_token);
       const userData = await fetchCurrentUser();
       login(userData);
+      
+      // Clear sensitive info before closing
+      setEmail('');
+      setPassword('');
+      setOtpCode('');
+      
       onClose();
       navigate('/dashboard');
     } catch (err: any) {
@@ -183,6 +189,18 @@ const AuthDrawer: React.FC<AuthDrawerProps> = ({ onClose }) => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const toggleMode = (login: boolean) => {
+    setIsLogin(login);
+    // Clear fields when switching to prevent Carry-over or Pre-fills
+    setEmail('');
+    setPassword('');
+    setName('');
+    setShowOTP(false);
+    setOtpCode('');
+    setIsForgotPassword(false);
+    setIsResettingPassword(false);
   };
 
   if (showOTP || isResettingPassword) {
@@ -195,14 +213,31 @@ const AuthDrawer: React.FC<AuthDrawerProps> = ({ onClose }) => {
             <h3>{isResettingPassword ? "Create New Password" : "Verify Your Email"}</h3>
             <p style={{ fontSize: '0.85rem' }}>We sent a 6-digit code to <strong>{email}</strong>. Enter it below to {isEmailVerify ? 'activate your account' : 'reset your password'}.</p>
           </div>
-          <form className="auth-form drawer-form" onSubmit={isResettingPassword ? handleResetPasswordSubmit : handleVerifyOTP}>
+          <form className="auth-form drawer-form" onSubmit={isResettingPassword ? handleResetPasswordSubmit : handleVerifyOTP} autoComplete="off">
             <div className="input-group">
-              <input type="text" placeholder="000000" maxLength={6} required value={otpCode} onChange={(e) => setOtpCode(e.target.value.replace(/\D/g,''))} style={{ textAlign: 'center', letterSpacing: '4px', fontSize: '1.25rem', fontWeight: 800 }} />
+              <input 
+                type="text" 
+                placeholder="000000" 
+                maxLength={6} 
+                required 
+                value={otpCode} 
+                onChange={(e) => setOtpCode(e.target.value.replace(/\D/g,''))} 
+                style={{ textAlign: 'center', letterSpacing: '4px', fontSize: '1.25rem', fontWeight: 800 }} 
+                autoComplete="one-time-code"
+              />
             </div>
             {isResettingPassword && (
               <div className="input-group" style={{ marginTop: '1rem' }}>
                 <Lock size={18} className="input-icon" />
-                <input type="password" placeholder="New Password" required readOnly={loading} value={password} onChange={(e) => setPassword(e.target.value)} />
+                <input 
+                  type="password" 
+                  placeholder="New Password" 
+                  required 
+                  readOnly={loading} 
+                  value={password} 
+                  onChange={(e) => setPassword(e.target.value)} 
+                  autoComplete="new-password"
+                />
               </div>
             )}
             <button type="submit" className="btn-filled auth-submit-btn" disabled={loading || otpCode.length < 6 || (isResettingPassword && password.length < 6)}>
@@ -240,26 +275,26 @@ const AuthDrawer: React.FC<AuthDrawerProps> = ({ onClose }) => {
 
         {!isForgotPassword && (
           <div className="auth-tabs mini-tabs">
-            <button className={isLogin ? 'active' : ''} onClick={() => setIsLogin(true)} disabled={loading}>Login</button>
-            <button className={!isLogin ? 'active' : ''} onClick={() => setIsLogin(false)} disabled={loading}>Register</button>
+            <button className={isLogin ? 'active' : ''} onClick={() => toggleMode(true)} disabled={loading}>Login</button>
+            <button className={!isLogin ? 'active' : ''} onClick={() => toggleMode(false)} disabled={loading}>Register</button>
           </div>
         )}
 
-        <form className="auth-form drawer-form" onSubmit={isForgotPassword ? handleForgotPasswordSubmit : handleAuth}>
+        <form className="auth-form drawer-form" onSubmit={isForgotPassword ? handleForgotPasswordSubmit : handleAuth} autoComplete="off">
           {!isLogin && !isForgotPassword && (
             <div className="input-group">
               <User size={18} className="input-icon" />
-              <input type="text" placeholder="Full Name" required readOnly={loading} value={name} onChange={(e) => setName(e.target.value)} />
+              <input type="text" placeholder="Full Name" required readOnly={loading} value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" />
             </div>
           )}
           <div className="input-group">
             <Mail size={18} className="input-icon" />
-            <input type="email" placeholder="Email Address" required readOnly={loading} value={email} onChange={(e) => setEmail(e.target.value)} />
+            <input type="email" placeholder="Email Address" required readOnly={loading} value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
           </div>
           {!isForgotPassword && (
             <div className="input-group">
               <Lock size={18} className="input-icon" />
-              <input type="password" placeholder="Password" required readOnly={loading} value={password} onChange={(e) => setPassword(e.target.value)} />
+              <input type="password" placeholder="Password" required readOnly={loading} value={password} onChange={(e) => setPassword(e.target.value)} autoComplete={isLogin ? "current-password" : "new-password"} />
             </div>
           )}
           
