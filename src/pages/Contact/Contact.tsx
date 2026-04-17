@@ -1,13 +1,40 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { MapPin, Phone, Mail, Clock, Send, MessageCircle } from 'lucide-react';
+import { MapPin, Phone, Mail, Clock, Send, MessageCircle, Loader2 } from 'lucide-react';
 import FAQ from '../../components/sections/home/FAQ';
 import CTA from '../../components/sections/home/CTA';
 import { useOutletContext } from 'react-router-dom';
+import { submitContactForm } from '../../api/contact';
+import toast from 'react-hot-toast';
 import './Contact.css';
 
 const Contact: React.FC = () => {
   const { onAuthOpen } = useOutletContext<{ onAuthOpen: () => void }>();
+  
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    const loadToast = toast.loading("Sending your message...");
+    
+    try {
+      await submitContactForm({ name, email, phone, message });
+      toast.success("Message sent! We'll get back to you soon.", { id: loadToast });
+      setName('');
+      setEmail('');
+      setPhone('');
+      setMessage('');
+    } catch (err: any) {
+      toast.error(err.response?.data?.detail || "Something went wrong. Please try again later.", { id: loadToast });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="contact-page-wrapper">
@@ -63,31 +90,58 @@ const Contact: React.FC = () => {
             </div>
 
             <div className="whatsapp-cta">
-              <button className="whatsapp-btn">
+              <a href="https://wa.me/442086901234" target="_blank" rel="noopener noreferrer" className="whatsapp-btn">
                 <MessageCircle size={20} />
                 Chat on WhatsApp
-              </button>
+              </a>
             </div>
           </div>
 
           {/* Right: Form */}
           <div className="contact-form-panel">
             <h2 className="contact-section-title">Send a Message</h2>
-            <form className="luxury-form">
+            <form className="luxury-form" onSubmit={handleSubmit}>
               <div className="form-row">
-                <input type="text" placeholder="Full Name" required />
+                <input 
+                  type="text" 
+                  placeholder="Full Name" 
+                  required 
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  disabled={loading}
+                />
               </div>
               <div className="form-row">
-                <input type="email" placeholder="Email Address" required />
+                <input 
+                  type="email" 
+                  placeholder="Email Address" 
+                  required 
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled={loading}
+                />
               </div>
               <div className="form-row">
-                <input type="tel" placeholder="Phone Number" />
+                <input 
+                  type="tel" 
+                  placeholder="Phone Number" 
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  disabled={loading}
+                />
               </div>
               <div className="form-row">
-                <textarea placeholder="How can we help you?" rows={5} required></textarea>
+                <textarea 
+                  placeholder="How can we help you?" 
+                  rows={5} 
+                  required 
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  disabled={loading}
+                ></textarea>
               </div>
-              <button type="submit" className="btn-filled form-submit">
-                Send Message <Send size={16} />
+              <button type="submit" className="btn-filled form-submit" disabled={loading}>
+                {loading ? <><Loader2 size={16} className="spinning-icon-btn" /> Sending...</> : <>Send Message <Send size={16} /></>}
               </button>
             </form>
           </div>
