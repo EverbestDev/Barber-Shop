@@ -297,7 +297,7 @@ const ChatBot: React.FC = () => {
     Service: ${data.service.name}
     Date: ${data.date}
     Time: ${data.time}
-    Price: €${data.service.price}
+    Price: £${data.service.price}
     ${!isLoggedIn ? `Guest: ${data.guestName}` : ''}`;
 
     addBotMessage(summary);

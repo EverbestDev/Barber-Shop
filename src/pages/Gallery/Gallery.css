@@ -232,6 +232,7 @@
 
 @media (max-width: 480px) {
   .gallery-masonry {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
   }
 }

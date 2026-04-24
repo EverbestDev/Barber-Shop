@@ -130,7 +130,7 @@ const AdminTransactions: React.FC = () => {
               <div className="stat-icon-chamber" style={{ color: '#4caf50' }}><CheckCircle2 size={18} /></div>
               <div className="stat-text">
                 <span className="stat-label">Successful Flow</span>
-                <div className="stat-value">€{transactionStats.total.toFixed(2)}</div>
+                <div className="stat-value">£{transactionStats.total.toFixed(2)}</div>
                 <span style={{ fontSize: '0.7rem', opacity: 0.6 }}>{transactionStats.successCount} payments</span>
               </div>
             </div>
@@ -138,7 +138,7 @@ const AdminTransactions: React.FC = () => {
               <div className="stat-icon-chamber" style={{ color: 'var(--gold)' }}><Clock size={18} /></div>
               <div className="stat-text">
                 <span className="stat-label">Pending Intake</span>
-                <div className="stat-value">€{transactionStats.pending.toFixed(2)}</div>
+                <div className="stat-value">£{transactionStats.pending.toFixed(2)}</div>
                 <span style={{ fontSize: '0.7rem', opacity: 0.6 }}>{transactionStats.pendingCount} in queue</span>
               </div>
             </div>
@@ -146,7 +146,7 @@ const AdminTransactions: React.FC = () => {
               <div className="stat-icon-chamber" style={{ color: '#2196f3' }}><RefreshCcw size={18} /></div>
               <div className="stat-text">
                 <span className="stat-label">Total Volume</span>
-                <div className="stat-value">€{(transactionStats.total + transactionStats.pending).toFixed(2)}</div>
+                <div className="stat-value">£{(transactionStats.total + transactionStats.pending).toFixed(2)}</div>
               </div>
             </div>
           </div>
@@ -195,7 +195,7 @@ const AdminTransactions: React.FC = () => {
                     <tr key={`${t.id || (t as any)._id}-${idx}`}>
                       <td className="truncate" title={t.guest_name || t.user_id || 'Guest'}>{t.guest_name || t.user_id || 'Guest'}</td>
                       <td style={{ fontWeight: 700 }}>{t.service}</td>
-                      <td style={{ fontWeight: 800, color: 'var(--gold)' }}>€{(t.amount || 0).toFixed(2)}</td>
+                      <td style={{ fontWeight: 800, color: 'var(--gold)' }}>£{(t.amount || 0).toFixed(2)}</td>
                       <td><span className={`payment-badge ${t.payment_status}`}>{t.payment_status}</span></td>
                       <td>{t.created_at ? new Date(t.created_at).toLocaleDateString() : new Date(t.date).toLocaleDateString()}</td>
                       <td>
@@ -276,7 +276,7 @@ const AdminTransactions: React.FC = () => {
                    <div className="detail-row"><span>Transaction Code:</span> <strong className="text-muted">{selectedTransaction.stripe_session_id || 'N/A'}</strong></div>
                    <div className="detail-row"><span>Service Date:</span> <strong>{new Date(selectedTransaction.date).toLocaleDateString()}</strong></div>
                    <div className="detail-row"><span>Payment Logged On:</span> <strong>{selectedTransaction.created_at ? new Date(selectedTransaction.created_at).toLocaleString() : 'N/A'}</strong></div>
-                   <div className="detail-row"><span>Log Amount:</span> <strong className="text-gold">€{(selectedTransaction.amount || 0).toFixed(2)}</strong></div>
+                   <div className="detail-row"><span>Log Amount:</span> <strong className="text-gold">£{(selectedTransaction.amount || 0).toFixed(2)}</strong></div>
                    <div className="detail-row"><span>Payment Status:</span> <span className={`payment-badge ${selectedTransaction.payment_status}`}>{selectedTransaction.payment_status}</span></div>
                 </div>
               </motion.div>

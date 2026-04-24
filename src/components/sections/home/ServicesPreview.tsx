@@ -9,7 +9,7 @@ const services = [
     title: "Signature Haircut",
     category: "In-Studio",
     desc: "A personalized cut based on your face shape and hair type, finished with a precise line and styling.",
-    price: "€20",
+    price: "£20",
     time: "45 mins",
     image: "/images/mensignature.jpg"
   },
@@ -17,7 +17,7 @@ const services = [
     title: "Beard Sculpture",
     category: "In-Studio",
     desc: "Luxury beard trim, shaping, and precise razor lining combined with a soothing hot towel treatment.",
-    price: "€15",
+    price: "£15",
     time: "30 mins",
     image: "/images/herobeard.jpg"
   },
@@ -25,7 +25,7 @@ const services = [
     title: "Baby Cut",
     category: "Family Group",
     desc: "Gentle and stylish haircuts for the little ones. We make sure they feel comfortable and look sharp.",
-    price: "€15",
+    price: "£15",
     time: "30 mins",
     image: "/images/kids/kidcutsignature.jpg"
   },
@@ -33,7 +33,7 @@ const services = [
     title: "Women's Taper Fade",
     category: "Specialized",
     desc: "Edgy and precise taper fades for women. A bold look executed with artistic precision and flair.",
-    price: "€25",
+    price: "£25",
     time: "60 mins",
     image: "/images/womentapperfade.jpg"
   },
@@ -41,7 +41,7 @@ const services = [
     title: "Women's Signature",
     category: "Specialized",
     desc: "Customized women's styling and cutting. From classic bobs to modern pixie cuts, tailored to you.",
-    price: "€25",
+    price: "£25",
     time: "60 mins",
     image: "/images/womensignature.jpg"
   },
@@ -49,7 +49,7 @@ const services = [
     title: "Skin Fade Master",
     category: "In-Studio",
     desc: "Seamless, high-precision fades executed with extreme detail. Our barbers are masters of the blend.",
-    price: "€20",
+    price: "£20",
     time: "60 mins",
     image: "/images/taperfade.jpg"
   },
@@ -57,7 +57,7 @@ const services = [
     title: "The VIP Home Visit",
     category: "Home Service",
     desc: "Experience our premium grooming from the comfort of your home. We bring the full studio to your doorstep.",
-    price: "€40",
+    price: "£40",
     time: "60 mins",
     image: "/images/men/viphomevisit.jpg"
   },
@@ -65,7 +65,7 @@ const services = [
     title: "Father & Son Pack",
     category: "Family Group",
     desc: "A bonding experience for the duo. Includes two signature cuts and styling for dad and the little champ.",
-    price: "€35",
+    price: "£35",
     time: "90 mins",
     image: "/images/kidcut2.jpg"
   },
@@ -73,7 +73,7 @@ const services = [
     title: "Grooming Party",
     category: "Group Booking",
     desc: "Booking for 3+ people. Perfect for weddings, events, or a group day out. Includes refreshments and VIP tools.",
-    price: "From €100",
+    price: "From £100",
     time: "3 hours+",
     image: "/images/epertbarbers.jpg"
   }

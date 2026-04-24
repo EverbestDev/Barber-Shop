@@ -105,7 +105,7 @@ const UserDashboard: React.FC = () => {
               <div className="stat-icon-chamber"><Wallet size={18} /></div>
               <div className="stat-text">
                 <span className="stat-label">Payments</span>
-                <div className="stat-value">€{totalInvested.toFixed(2)}</div>
+                <div className="stat-value">£{totalInvested.toFixed(2)}</div>
               </div>
             </div>
             <div className="mini-stat-card">
@@ -178,7 +178,7 @@ const UserDashboard: React.FC = () => {
                       <div className="tx-date">{new Date(booking.date).toLocaleDateString()}</div>
                     </div>
                     <div className="tx-amount-status text-right">
-                      <div className="tx-amount">€{booking.amount?.toFixed(2) || '30.00'}</div>
+                      <div className="tx-amount">£{booking.amount?.toFixed(2) || '30.00'}</div>
                       <div className={`tx-status ${booking.payment_status}`}>{booking.payment_status.toUpperCase()}</div>
                     </div>
                   </div>

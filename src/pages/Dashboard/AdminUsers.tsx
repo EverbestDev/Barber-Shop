@@ -10,9 +10,13 @@ import {
   Shield,
   UserCheck,
   UserX,
-  SortAsc
+  SortAsc,
+  Mail,
+  Send,
+  Image as ImageIcon,
+  Loader2
 } from 'lucide-react';
-import { fetchAllUsers, updateUserRole, deleteUser } from '../../api/admin';
+import { fetchAllUsers, updateUserRole, deleteUser, fetchSubscriberStats, fetchAllSubscribers, sendNewsletter } from '../../api/admin';
 import type { UserInfo } from '../../api/types';
 import { downloadCSV } from '../../utils/export';
 import toast from 'react-hot-toast';
@@ -23,7 +27,7 @@ const AdminUsersSkeleton = () => (
         <div className="dashboard-header">
           <div className="skeleton skeleton-title" />
           <div className="header-stats-row">
-            {[1,2,3].map(i => <div key={i} className="mini-stat-card skeleton skeleton-card" />)}
+            {[1,2,3,4].map(i => <div key={i} className="mini-stat-card skeleton skeleton-card" />)}
           </div>
         </div>
         <div className="dashboard-card premium-card-bg">
@@ -35,16 +39,34 @@ const AdminUsersSkeleton = () => (
 
 const AdminUsers: React.FC = () => {
   const [users, setUsers] = useState<UserInfo[]>([]);
+  const [subscribers, setSubscribers] = useState<any[]>([]);
+  const [subCount, setSubCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('name');
+  
+  // Newsletter State
+  const [newsData, setNewsData] = useState({
+    subject: '',
+    content: '',
+    target: 'subscribers',
+    image_url: '',
+    personalize: true
+  });
+  const [sending, setSending] = useState(false);
 
   useEffect(() => {
     const getData = async () => {
       try {
-        const u = await fetchAllUsers();
+        const [u, sStats, sList] = await Promise.all([
+          fetchAllUsers(),
+          fetchSubscriberStats(),
+          fetchAllSubscribers()
+        ]);
         setUsers(u);
-      } catch (err) {
+        setSubCount(sStats.count);
+        setSubscribers(sList);
+      } catch (_err) {
         toast.error("Failed to sync studio registry.");
       } finally {
         setLoading(false);
@@ -84,7 +106,7 @@ const AdminUsers: React.FC = () => {
       await updateUserRole(userId, newRole);
       setUsers(users.map(u => (u.id === userId || (u as any)._id === userId) ? { ...u, role: newRole } : u));
       toast.success("Role updated successfully.", { id: loadToast });
-    } catch (err) {
+    } catch (_err) {
       toast.error("Role update failed.", { id: loadToast });
     }
   };
@@ -96,8 +118,25 @@ const AdminUsers: React.FC = () => {
       await deleteUser(userId);
       setUsers(users.filter(u => (u.id !== userId && (u as any)._id !== userId)));
       toast.success("User record deleted.", { id: loadToast });
-    } catch (err) {
+    } catch (_err) {
       toast.error("Delete failed.", { id: loadToast });
+    }
+  };
+
+  const handleSendNewsletter = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newsData.subject || !newsData.content) return;
+    
+    setSending(true);
+    const loadToast = toast.loading("Broadcasting newsletter...");
+    try {
+      const res = await sendNewsletter(newsData);
+      toast.success(res.message, { id: loadToast });
+      setNewsData({ ...newsData, subject: '', content: '', image_url: '' });
+    } catch (err: any) {
+      toast.error(err.response?.data?.detail || "Broadcast failed.", { id: loadToast });
+    } finally {
+      setSending(false);
     }
   };
 
@@ -125,6 +164,13 @@ const AdminUsers: React.FC = () => {
               <div className="stat-text">
                 <span className="stat-label">Active Members</span>
                 <div className="stat-value">{userStats.active}</div>
+              </div>
+            </div>
+            <div className="mini-stat-card">
+              <div className="stat-icon-chamber" style={{ color: 'var(--gold)' }}><Mail size={18} /></div>
+              <div className="stat-text">
+                <span className="stat-label">Subscribers</span>
+                <div className="stat-value">{subCount}</div>
               </div>
             </div>
             <div className="mini-stat-card">
@@ -232,6 +278,101 @@ const AdminUsers: React.FC = () => {
               )}
             </div>
           </motion.div>
+
+          <div className="admin-two-column-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginTop: '2rem' }}>
+             {/* Newsletter Section */}
+             <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="dashboard-card premium-card-bg">
+                <div className="card-header">
+                  <h2><Send size={20} /> Broadcast Newsletter</h2>
+                </div>
+                <form className="admin-form" onSubmit={handleSendNewsletter}>
+                   <div className="form-group">
+                      <label>Subject Line</label>
+                      <input 
+                        type="text" 
+                        placeholder="e.g. New Seasonal Styles Available!" 
+                        value={newsData.subject}
+                        onChange={e => setNewsData({...newsData, subject: e.target.value})}
+                        required
+                      />
+                   </div>
+                   <div className="form-group">
+                      <label>Target Audience</label>
+                      <select 
+                        value={newsData.target} 
+                        onChange={e => setNewsData({...newsData, target: e.target.value})}
+                      >
+                        <option value="subscribers">Subscribers Only</option>
+                        <option value="users">Registered Users Only</option>
+                        <option value="all">Everyone (Subs + Users)</option>
+                      </select>
+                   </div>
+                   <div className="form-group">
+                      <label>Header Image URL (Optional)</label>
+                      <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        <ImageIcon size={20} color="var(--text-secondary)" style={{ marginTop: '12px' }} />
+                        <input 
+                          type="url" 
+                          placeholder="https://images.unsplash.com/..." 
+                          value={newsData.image_url}
+                          onChange={e => setNewsData({...newsData, image_url: e.target.value})}
+                        />
+                      </div>
+                   </div>
+                   <div className="form-group">
+                      <label>Message Content (HTML Supported)</label>
+                      <textarea 
+                        rows={6} 
+                        placeholder="Write your newsletter content here..."
+                        value={newsData.content}
+                        onChange={e => setNewsData({...newsData, content: e.target.value})}
+                        required
+                      ></textarea>
+                   </div>
+                   <div className="form-group" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <input 
+                        type="checkbox" 
+                        id="personalize" 
+                        checked={newsData.personalize}
+                        onChange={e => setNewsData({...newsData, personalize: e.target.checked})}
+                      />
+                      <label htmlFor="personalize" style={{ marginBottom: 0 }}>Personalize (Hi [Name], ...)</label>
+                   </div>
+                   <button type="submit" className="btn-filled-gold w-full" disabled={sending}>
+                      {sending ? <Loader2 className="spinning-icon" /> : <><Send size={16} /> Broadcast Now</>}
+                   </button>
+                </form>
+             </motion.div>
+
+             {/* Subscribers List Section */}
+             <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="dashboard-card premium-card-bg">
+                <div className="card-header">
+                  <h2><Mail size={20} /> Newsletter Subscribers</h2>
+                  <button className="d-icon-btn" onClick={() => downloadCSV(subscribers, 'subscribers.csv')}><Download size={16} /></button>
+                </div>
+                <div className="table-responsive" style={{ maxHeight: '500px', overflowY: 'auto' }}>
+                   <table className="admin-table">
+                      <thead>
+                        <tr>
+                          <th>Email Address</th>
+                          <th>Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {subscribers.map((s, idx) => (
+                          <tr key={idx}>
+                            <td className="truncate">{s.email}</td>
+                            <td><span className={`status-badge ${s.is_active ? 'confirmed' : 'cancelled'}`}>{s.is_active ? 'ACTIVE' : 'INACTIVE'}</span></td>
+                          </tr>
+                        ))}
+                        {subscribers.length === 0 && (
+                          <tr><td colSpan={2} style={{ textAlign: 'center', padding: '2rem' }}>No subscribers yet.</td></tr>
+                        )}
+                      </tbody>
+                   </table>
+                </div>
+             </motion.div>
+          </div>
         </section>
       </main>
     </div>
@@ -239,3 +380,4 @@ const AdminUsers: React.FC = () => {
 };
 
 export default AdminUsers;
+

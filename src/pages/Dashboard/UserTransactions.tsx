@@ -58,7 +58,7 @@ const UserTransactions: React.FC = () => {
                       <div className="tx-date">{new Date(booking.date).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}</div>
                     </div>
                     <div className="tx-amount-status text-right">
-                      <div className="tx-amount">€{booking.amount?.toFixed(2) || '30.00'}</div>
+                      <div className="tx-amount">£{booking.amount?.toFixed(2) || '30.00'}</div>
                       <div className={`tx-status ${booking.payment_status}`}>{booking.payment_status.toUpperCase()}</div>
                     </div>
                   </div>
