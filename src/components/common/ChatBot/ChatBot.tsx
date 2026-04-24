@@ -84,7 +84,10 @@ const ChatBot: React.FC = () => {
   };
 
   const handleBack = () => {
-    if (history.length === 0) return;
+    if (history.length === 0) {
+      addBotMessage("I can't go back further. We are at the very beginning of our session.");
+      return;
+    }
     const last = history[history.length - 1];
     
     // Save current to future
@@ -101,7 +104,10 @@ const ChatBot: React.FC = () => {
   };
 
   const handleNext = () => {
-    if (future.length === 0) return;
+    if (future.length === 0) {
+      addBotMessage("There are no steps to move forward to. You can only use 'next' if you've previously moved back.");
+      return;
+    }
     const nextItem = future[0];
     
     pushToHistory(step, flow === 'BOOKING' ? bookingData : complaintData, flow);
@@ -215,6 +221,8 @@ const ChatBot: React.FC = () => {
         }
       } else if (lowerText === 'back') {
         handleBack();
+      } else if (lowerText === 'next') {
+        handleNext();
       } else if (lowerText === 'cancel') {
         handleCancel();
       } else {
@@ -234,7 +242,7 @@ const ChatBot: React.FC = () => {
     const lowerText = text.toLowerCase();
     if (lowerText === 'back') { handleBack(); return; }
     if (lowerText === 'cancel') { handleCancel(); return; }
-    if (lowerText === 'next' && future.length > 0) { handleNext(); return; }
+    if (lowerText === 'next') { handleNext(); return; }
 
     switch (step) {
         case 'CATEGORY':
@@ -268,7 +276,7 @@ const ChatBot: React.FC = () => {
       const lowerText = text.toLowerCase();
       if (lowerText === 'back') { handleBack(); return; }
       if (lowerText === 'cancel') { handleCancel(); return; }
-      if (lowerText === 'next' && future.length > 0) { handleNext(); return; }
+      if (lowerText === 'next') { handleNext(); return; }
 
       switch (step) {
           case 'NAME':
