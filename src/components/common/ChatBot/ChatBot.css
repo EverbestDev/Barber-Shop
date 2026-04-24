@@ -323,3 +323,51 @@
     padding-bottom: max(1.25rem, env(safe-area-inset-bottom));
   }
 }
+
+.bot-tagline {
+  padding: 0.5rem 1rem;
+  background-color: rgba(255, 255, 255, 0.02);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 0.65rem;
+  color: var(--text-secondary);
+  text-align: center;
+  font-style: italic;
+}
+
+.chatbot-nav-controls {
+  display: flex;
+  gap: 0.5rem;
+  margin-right: 0.5rem;
+}
+
+.chatbot-nav-controls button {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-secondary);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.chatbot-nav-controls button:hover:not(:disabled) {
+  background-color: rgba(197, 160, 89, 0.1);
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+.chatbot-nav-controls button:disabled {
+  opacity: 0.2;
+  cursor: not-allowed;
+}
+
+.chatbot-nav-controls .cancel-btn:hover:not(:disabled) {
+  background-color: rgba(255, 68, 68, 0.1);
+  border-color: #ff4444;
+  color: #ff4444;
+}

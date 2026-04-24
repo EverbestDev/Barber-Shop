@@ -44,21 +44,85 @@ const ChatBot: React.FC = () => {
   const [inputValue, setInputValue] = useState('');
   const [flow, setFlow] = useState<Flow>('INITIAL');
   const [step, setStep] = useState<any>('INITIAL');
-  const [bookingData, setBookingData] = useState<any>({
+  const [loading, setLoading] = useState(false);
+  const [history, setHistory] = useState<any[]>([]);
+  const [future, setFuture] = useState<any[]>([]);
+
+  const initialBookingData = {
     category: null,
     service: null,
     date: new Date().toISOString().split('T')[0],
     time: null,
     guestName: '',
     guestEmail: ''
-  });
-  const [complaintData, setComplaintData] = useState({
+  };
+
+  const initialComplaintData = {
     name: '',
     email: '',
     whatsapp: '',
     message: ''
-  });
-  const [loading, setLoading] = useState(false);
+  };
+
+  const [bookingData, setBookingData] = useState<any>({ ...initialBookingData });
+  const [complaintData, setComplaintData] = useState({ ...initialComplaintData });
+
+  const pushToHistory = (s: any, d: any, f: any) => {
+    setHistory(prev => [...prev, { step: s, data: JSON.parse(JSON.stringify(d)), flow: f }]);
+  };
+
+  const changeStep = (newStep: any, newData?: any) => {
+    pushToHistory(step, flow === 'BOOKING' ? bookingData : complaintData, flow);
+    setStep(newStep);
+    if (newData) {
+      if (flow === 'BOOKING') setBookingData(newData);
+      else setComplaintData(newData);
+    }
+    // Clear future when user takes a new path
+    setFuture([]);
+  };
+
+  const handleBack = () => {
+    if (history.length === 0) return;
+    const last = history[history.length - 1];
+    
+    // Save current to future
+    const currentData = flow === 'BOOKING' ? bookingData : complaintData;
+    setFuture(prev => [{ step, data: JSON.parse(JSON.stringify(currentData)), flow }, ...prev]);
+    
+    setHistory(prev => prev.slice(0, -1));
+    setStep(last.step);
+    setFlow(last.flow);
+    if (last.flow === 'BOOKING') setBookingData(last.data);
+    else setComplaintData(last.data);
+    
+    addBotMessage(`Moving back to ${last.step.toLowerCase()} step.`);
+  };
+
+  const handleNext = () => {
+    if (future.length === 0) return;
+    const nextItem = future[0];
+    
+    pushToHistory(step, flow === 'BOOKING' ? bookingData : complaintData, flow);
+    
+    setFuture(prev => prev.slice(1));
+    setStep(nextItem.step);
+    setFlow(nextItem.flow);
+    if (nextItem.flow === 'BOOKING') setBookingData(nextItem.data);
+    else setComplaintData(nextItem.data);
+    
+    addBotMessage(`Restoring progress to ${nextItem.step.toLowerCase()} step.`);
+  };
+
+  const handleCancel = () => {
+    setFlow('INITIAL');
+    setStep('INITIAL');
+    setHistory([]);
+    setFuture([]);
+    setBookingData({ ...initialBookingData });
+    setComplaintData({ ...initialComplaintData });
+    addBotMessage("Session cancelled. What can I do for you now?", ["Book a Session", "Make a Complaint"]);
+  };
   
   const { user, isLoggedIn } = useAuth();
   const navigate = useNavigate();
@@ -140,6 +204,10 @@ const ChatBot: React.FC = () => {
             setStep('NAME');
             addBotMessage("I'm sorry to hear that. Let's make this right. What's your name?");
         }
+      } else if (lowerText === 'back') {
+        handleBack();
+      } else if (lowerText === 'cancel') {
+        handleCancel();
       } else {
         addBotMessage("I didn't quite get that. Would you like to Book a Session or Make a Complaint?", ["Book a Session", "Make a Complaint"]);
       }
@@ -154,6 +222,11 @@ const ChatBot: React.FC = () => {
   };
 
   const handleBookingFlow = (text: string) => {
+    const lowerText = text.toLowerCase();
+    if (lowerText === 'back') { handleBack(); return; }
+    if (lowerText === 'cancel') { handleCancel(); return; }
+    if (lowerText === 'next' && future.length > 0) { handleNext(); return; }
+
     switch (step) {
         case 'CATEGORY':
           handleCategorySelection(text);
@@ -168,8 +241,7 @@ const ChatBot: React.FC = () => {
           handleTimeSelection(text);
           break;
         case 'GUEST_NAME':
-          setBookingData((prev: any) => ({ ...prev, guestName: text }));
-          setStep('GUEST_EMAIL');
+          changeStep('GUEST_EMAIL', { ...bookingData, guestName: text });
           addBotMessage(`Thanks, ${text}. And your email? (For your confirmation)`);
           break;
         case 'GUEST_EMAIL':
@@ -177,18 +249,21 @@ const ChatBot: React.FC = () => {
             addBotMessage("That doesn't look like a valid email. Please try again.");
             return;
           }
-          setBookingData((prev: any) => ({ ...prev, guestEmail: text }));
-          setStep('CONFIRM');
+          changeStep('CONFIRM', { ...bookingData, guestEmail: text });
           showBookingSummary({ ...bookingData, guestEmail: text });
           break;
       }
   };
 
   const handleComplaintFlow = (text: string) => {
+      const lowerText = text.toLowerCase();
+      if (lowerText === 'back') { handleBack(); return; }
+      if (lowerText === 'cancel') { handleCancel(); return; }
+      if (lowerText === 'next' && future.length > 0) { handleNext(); return; }
+
       switch (step) {
           case 'NAME':
-              setComplaintData(prev => ({ ...prev, name: text }));
-              setStep('EMAIL');
+              changeStep('EMAIL', { ...complaintData, name: text });
               addBotMessage(`Thank you, ${text}. What's your email address?`);
               break;
           case 'EMAIL':
@@ -196,18 +271,15 @@ const ChatBot: React.FC = () => {
                   addBotMessage("Please provide a valid email address.");
                   return;
               }
-              setComplaintData(prev => ({ ...prev, email: text }));
-              setStep('WHATSAPP');
+              changeStep('WHATSAPP', { ...complaintData, email: text });
               addBotMessage("Got it. And your WhatsApp number for feedback?");
               break;
           case 'WHATSAPP':
-              setComplaintData(prev => ({ ...prev, whatsapp: text }));
-              setStep('MESSAGE');
+              changeStep('MESSAGE', { ...complaintData, whatsapp: text });
               addBotMessage("Understood. Please write exactly how you want the message to be sent to the studio executive.");
               break;
           case 'MESSAGE':
-              setComplaintData(prev => ({ ...prev, message: text }));
-              setStep('CONFIRM');
+              changeStep('CONFIRM', { ...complaintData, message: text });
               addBotMessage(`I have recorded your message. Ready to send it to the manager and send a confirmation to your email?`, ["Send Complaint"]);
               break;
       }
@@ -220,8 +292,7 @@ const ChatBot: React.FC = () => {
     );
 
     if (category) {
-      setBookingData((prev: any) => ({ ...prev, category }));
-      setStep('SERVICE');
+      changeStep('SERVICE', { ...bookingData, category });
       const services = allServices.filter(s => s.cat === category.id);
       addBotMessage(`${category.name} chosen. Which treatment do you need?`, services.map(s => s.name));
     } else {
@@ -237,8 +308,7 @@ const ChatBot: React.FC = () => {
     );
 
     if (service) {
-      setBookingData((prev: any) => ({ ...prev, service }));
-      setStep('DATE');
+      changeStep('DATE', { ...bookingData, service });
       addBotMessage(`${service.name} added. When are we seeing you?`, ['Today', 'Tomorrow', 'Select Another Date']);
     } else {
       addBotMessage("That service isn't in my list. Try typing the name or picking an option.");
@@ -292,8 +362,7 @@ const ChatBot: React.FC = () => {
       addBotMessage(`Looks like we have no available times left for ${date}. Please select another day.`, ['Tomorrow', 'Select Another Date']);
       // Note: step remains 'DATE' so user can pick another date
     } else {
-      setBookingData((prev: any) => ({ ...prev, date }));
-      setStep('TIME');
+      changeStep('TIME', { ...bookingData, date });
       addBotMessage(`Seeing you on ${date}. What time works?`, availableTimeSlots);
     }
   };
@@ -302,12 +371,11 @@ const ChatBot: React.FC = () => {
     const time = allTimeSlots.find(t => t.toLowerCase() === input.toLowerCase() || input === (allTimeSlots.indexOf(t) + 1).toString());
     
     if (time) {
-      setBookingData((prev: any) => ({ ...prev, time }));
       if (isLoggedIn) {
-        setStep('CONFIRM');
+        changeStep('CONFIRM', { ...bookingData, time });
         showBookingSummary({ ...bookingData, time });
       } else {
-        setStep('GUEST_NAME');
+        changeStep('GUEST_NAME', { ...bookingData, time });
         addBotMessage("Almost there! What's your name?");
       }
     } else {
@@ -444,8 +512,25 @@ const ChatBot: React.FC = () => {
               <div ref={messagesEndRef} />
             </div>
 
+            <div className="bot-tagline">
+              Tip: Type <b>'back'</b> to go back, <b>'next'</b> to restore, or <b>'cancel'</b> to reset.
+            </div>
+
             <form className="chatbot-footer" onSubmit={handleInputSubmit}>
               {loading && <div className="bot-loading-overlay"><Loader2 className="spinning-icon" /></div>}
+              
+              <div className="chatbot-nav-controls">
+                <button type="button" onClick={handleBack} disabled={history.length === 0} title="Back">
+                  <Clock size={16} style={{ transform: 'scaleX(-1)' }} />
+                </button>
+                <button type="button" onClick={handleNext} disabled={future.length === 0} title="Next">
+                  <Clock size={16} />
+                </button>
+                <button type="button" onClick={handleCancel} disabled={flow === 'INITIAL'} className="cancel-btn" title="Cancel">
+                  <X size={16} />
+                </button>
+              </div>
+
               <input 
                 type="text" 
                 placeholder="Type your response..." 
