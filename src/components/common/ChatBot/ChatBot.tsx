@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageSquare, X, Send, Clock, CreditCard, Loader2, MessageCircle } from 'lucide-react';
+import { X, Send, Clock, CreditCard, Loader2, MessageCircle } from 'lucide-react';
 import { useAuth } from '../../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { createBooking } from '../../../api/bookings';
@@ -396,7 +396,7 @@ const ChatBot: React.FC = () => {
   return (
     <>
       <button className={`chatbot-trigger ${isOpen ? 'active' : ''}`} onClick={() => setIsOpen(!isOpen)} title="Chat with BazeBot">
-        {isOpen ? <X size={24} /> : <MessageSquare size={24} />}
+        {isOpen ? <X size={24} /> : <img src="/images/logo.jpeg" alt="Logo" className="chat-trigger-logo" />}
       </button>
 
       <AnimatePresence>
@@ -410,7 +410,9 @@ const ChatBot: React.FC = () => {
           >
             <div className="chatbot-header">
               <div className="bot-info">
-                <div className="bot-avatar">B</div>
+                <div className="bot-avatar">
+                  <img src="/images/logo.jpeg" alt="Bot Avatar" />
+                </div>
                 <div>
                   <h3>Baze Assistant</h3>
                   <span>Online | Support Assistant</span>
@@ -422,7 +424,11 @@ const ChatBot: React.FC = () => {
             <div className="chatbot-body">
               {messages.map((m) => (
                 <div key={m.id} className={`message-row ${m.sender}`}>
-                  {m.sender === 'bot' && <div className="mini-bot-avatar">B</div>}
+                  {m.sender === 'bot' && (
+                    <div className="mini-bot-avatar">
+                      <img src="/images/logo.jpeg" alt="Logo" />
+                    </div>
+                  )}
                   <div className="message-bubble">
                     <p>{m.text}</p>
                     {m.options && (
