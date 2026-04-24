@@ -135,6 +135,14 @@
   width: 100%;
 }
 
+.nav-link.active {
+  color: var(--gold);
+}
+
+.nav-link.active::after {
+  width: 100%;
+}
+
 /* Right end actions */
 .nav-actions {
   display: flex;

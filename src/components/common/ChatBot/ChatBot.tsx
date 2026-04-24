@@ -239,21 +239,41 @@ const ChatBot: React.FC = () => {
     if (service) {
       setBookingData((prev: any) => ({ ...prev, service }));
       setStep('DATE');
-      addBotMessage(`${service.name} added. When are we seeing you?`, ['Today', 'Tomorrow']);
+      addBotMessage(`${service.name} added. When are we seeing you?`, ['Today', 'Tomorrow', 'Select Another Date']);
     } else {
       addBotMessage("That service isn't in my list. Try typing the name or picking an option.");
     }
   };
 
   const handleDateSelection = (input: string) => {
-    let date = new Date().toISOString().split('T')[0];
-    if (input.toLowerCase() === 'tomorrow') {
+    if (input.toLowerCase() === 'select another date') {
+      addBotMessage("Please enter your preferred date (e.g., May 15 or 2024-05-15).");
+      return;
+    }
+
+    let date = "";
+    if (input.toLowerCase() === 'today') {
+      date = new Date().toISOString().split('T')[0];
+    } else if (input.toLowerCase() === 'tomorrow') {
       const tomorrow = new Date();
       tomorrow.setDate(tomorrow.getDate() + 1);
       date = tomorrow.toISOString().split('T')[0];
+    } else {
+      // Try to parse custom date
+      const parsedDate = new Date(input);
+      if (isNaN(parsedDate.getTime())) {
+          addBotMessage("I didn't recognize that date format. Please use YYYY-MM-DD or try 'Today'/'Tomorrow'.", ['Today', 'Tomorrow', 'Select Another Date']);
+          return;
+      }
+      
+      const today = new Date();
+      today.setHours(0,0,0,0);
+      if (parsedDate < today) {
+          addBotMessage("We can't travel back in time! Please select a future date.", ['Today', 'Tomorrow', 'Select Another Date']);
+          return;
+      }
+      date = parsedDate.toISOString().split('T')[0];
     }
-    setBookingData((prev: any) => ({ ...prev, date }));
-    setStep('TIME');
     
     // Filter out past times for today
     const isToday = date === new Date().toISOString().split('T')[0];
@@ -269,8 +289,11 @@ const ChatBot: React.FC = () => {
     });
 
     if (availableTimeSlots.length === 0) {
-      addBotMessage(`Seeing you on ${date}. Looks like we have no available times left for today. Please try 'Tomorrow'.`, ['Tomorrow']);
+      addBotMessage(`Looks like we have no available times left for ${date}. Please select another day.`, ['Tomorrow', 'Select Another Date']);
+      // Note: step remains 'DATE' so user can pick another date
     } else {
+      setBookingData((prev: any) => ({ ...prev, date }));
+      setStep('TIME');
       addBotMessage(`Seeing you on ${date}. What time works?`, availableTimeSlots);
     }
   };
