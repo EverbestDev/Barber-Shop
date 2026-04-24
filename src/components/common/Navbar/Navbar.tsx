@@ -38,8 +38,8 @@ const Navbar: React.FC<NavbarProps> = ({ isScrolled, isMobileMenuOpen, setIsMobi
       <div className="container nav-content">
         <div className="nav-logo-wrapper">
           <Link to="/" className="nav-logo">
-            <img src="/images/logo.jpeg" alt="Baze 2 Barbers" className="logo-img" />
-            <span>BAZE 2 BARBERS</span>
+            <img src="/images/logo.jpeg" alt="Bazetwo Barbers" className="logo-img" />
+            <span>BAZETWO BARBERS</span>
           </Link>
         </div>
 

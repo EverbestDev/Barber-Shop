@@ -11,7 +11,7 @@ const Footer: React.FC = () => {
         
         {/* Brand & Socials */}
         <div className="footer-block brand-info">
-          <h3 className="footer-logo">BAZE 2 BARBERS</h3>
+          <h3 className="footer-logo">BAZETWO BARBERS</h3>
           <p className="footer-about">
             Premium grooming for the modern individual. Experience the art of master barbering in the heart of Catford.
           </p>
@@ -51,7 +51,7 @@ const Footer: React.FC = () => {
           </div>
           <div className="footer-contact-item">
             <Mail size={18} className="footer-icon" />
-            <span>info@baze2.com</span>
+            <span>info@bazetwo.com</span>
           </div>
         </div>
 
@@ -77,7 +77,7 @@ const Footer: React.FC = () => {
       </div>
 
       <div className="footer-bottom">
-        <p>© {new Date().getFullYear()} Baze 2 Barbers. All rights reserved.</p>
+        <p>© {new Date().getFullYear()} Bazetwo Barbers. All rights reserved.</p>
         <div className="footer-legal">
           <Link to="/privacy">Privacy Policy</Link>
           <Link to="/terms">Terms of Service</Link>

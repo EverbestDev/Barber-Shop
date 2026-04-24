@@ -8,7 +8,7 @@ const CookiePolicy: React.FC = () => {
       <section className="legal-hero cookie-bg">
         <div className="legal-container">
           <h1 className="legal-title">COOKIE <br /> <span className="text-gold">POLICY</span></h1>
-          <p className="legal-desc">Last updated: April 2026. This policy explains how Baze 2 Barbers uses cookies and similar technologies.</p>
+          <p className="legal-desc">Last updated: April 2026. This policy explains how Bazetwo Barbers uses cookies and similar technologies.</p>
         </div>
       </section>
 
@@ -16,7 +16,7 @@ const CookiePolicy: React.FC = () => {
         <div className="legal-container">
           <div className="legal-content-intro">
             <h3>Our approach to transparency</h3>
-            <p>At Baze 2 Barbers, we believe in being clear and open about how we collect and use data related to you. In the spirit of transparency, this policy provides detailed information about how and when we use cookies.</p>
+            <p>At Bazetwo Barbers, we believe in being clear and open about how we collect and use data related to you. In the spirit of transparency, this policy provides detailed information about how and when we use cookies.</p>
           </div>
 
           <div className="cookie-types-grid">

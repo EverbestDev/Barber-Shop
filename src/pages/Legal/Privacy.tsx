@@ -22,7 +22,7 @@ const Privacy: React.FC = () => {
         <div className="legal-container">
           <div className="legal-content-intro">
             <h3>Our approach to your data</h3>
-            <p>At Baze 2 Barbers, we respect your privacy and are committed to protecting your personal data. This policy will inform you as to how we look after your personal data when you visit our website (regardless of where you visit it from) and tell you about your privacy rights and how the law protects you.</p>
+            <p>At Bazetwo Barbers, we respect your privacy and are committed to protecting your personal data. This policy will inform you as to how we look after your personal data when you visit our website (regardless of where you visit it from) and tell you about your privacy rights and how the law protects you.</p>
           </div>
 
           <div className="legal-text-block">
