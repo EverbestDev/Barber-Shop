@@ -2,22 +2,41 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShieldAlert, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../../context/AuthContext';
+import { updateCurrentUser } from '../../../api/auth';
 import './CookieConsent.css';
 
 const CookieConsent: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
+  const { isLoggedIn, user, login } = useAuth();
 
   useEffect(() => {
-    const consent = localStorage.getItem('cookie-consent');
-    if (!consent) {
-      const timer = setTimeout(() => setIsVisible(true), 1500); // Slight delay for entry
+    const localConsent = localStorage.getItem('cookie-consent');
+    
+    // If logged in and already consented on server, don't show
+    if (isLoggedIn && user?.cookie_consent) {
+      setIsVisible(false);
+      return;
+    }
+
+    if (!localConsent) {
+      const timer = setTimeout(() => setIsVisible(true), 1500);
       return () => clearTimeout(timer);
     }
-  }, []);
+  }, [isLoggedIn, user]);
 
-  const handleAccept = () => {
+  const handleAccept = async () => {
     localStorage.setItem('cookie-consent', 'accepted');
     setIsVisible(false);
+
+    if (isLoggedIn && user) {
+      try {
+        const updated = await updateCurrentUser({ cookie_consent: true });
+        login(updated); // Refresh context user data
+      } catch (err) {
+        console.error("Failed to sync cookie consent:", err);
+      }
+    }
   };
 
   const handleReject = () => {

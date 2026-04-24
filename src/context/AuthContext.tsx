@@ -9,6 +9,7 @@ interface User {
   email: string;
   phone?: string;
   role: string;
+  cookie_consent: boolean;
   created_at: string;
 }
 

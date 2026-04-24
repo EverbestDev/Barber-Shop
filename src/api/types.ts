@@ -20,6 +20,7 @@ export interface UserInfo {
   email: string;
   phone?: string;
   role: string;
+  cookie_consent: boolean;
   created_at: string;
 }
 
@@ -27,6 +28,7 @@ export interface UserUpdate {
   name?: string;
   email?: string;
   phone?: string;
+  cookie_consent?: boolean;
 }
 
 export interface BookingBase {

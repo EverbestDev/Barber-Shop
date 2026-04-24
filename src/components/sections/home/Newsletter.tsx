@@ -54,8 +54,12 @@ const Newsletter: React.FC = () => {
                   required
                   disabled={loading}
                 />
-                <button type="submit" className="newsletter-btn" disabled={loading}>
-                  {loading ? <Loader2 size={20} className="spinning-icon" /> : <><Send size={18} /> Subscribe</>}
+                <button type="submit" className="newsletter-btn" disabled={loading} style={{ minWidth: '140px', justifyContent: 'center' }}>
+                  {loading ? (
+                    <Loader2 size={20} className="spinning-icon" />
+                  ) : (
+                    <><Send size={18} /> Subscribe</>
+                  )}
                 </button>
               </div>
             </form>
