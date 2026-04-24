@@ -78,7 +78,7 @@ const Contact: React.FC = () => {
               <div className="info-item">
                 <Mail className="gold-icon" />
                 <div className="info-text">
-                  <span>booking@baze2barbers.com</span>
+                  <span>info@baze2.com</span>
                 </div>
               </div>
               <div className="info-item">

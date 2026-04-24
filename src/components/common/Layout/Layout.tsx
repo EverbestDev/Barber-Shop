@@ -6,6 +6,7 @@ import Footer from '../Footer/Footer';
 import AuthDrawer from '../AuthDrawer/AuthDrawer';
 import CookieConsent from '../CookieConsent/CookieConsent';
 import ChatBot from '../ChatBot/ChatBot';
+import Newsletter from '../../sections/home/Newsletter';
 
 const Layout: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -83,6 +84,7 @@ const Layout: React.FC = () => {
         )}
       </AnimatePresence>
 
+      <Newsletter />
       <Footer />
       <CookieConsent />
       <ChatBot />

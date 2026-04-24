@@ -4,6 +4,7 @@ import { X, Loader2, User, Shield, Mail, Phone, Lock, LogOut, Trash2 } from 'luc
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { updateCurrentUser, requestDeleteOTP, confirmDeleteAccount } from '../../api/auth';
+import api from '../../api/client';
 import toast from 'react-hot-toast';
 import './Profile.css';
 
@@ -16,8 +17,12 @@ const Profile: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showUnsubModal, setShowUnsubModal] = useState(false);
+  const [showUnsubOTPModal, setShowUnsubOTPModal] = useState(false);
   const [deleteOTP, setDeleteOTP] = useState('');
+  const [unsubOTP, setUnsubOTP] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
+  const [isSubscribed, setIsSubscribed] = useState(true); // Assume subscribed initially
 
   useEffect(() => {
     if (user) {
@@ -77,6 +82,37 @@ const Profile: React.FC = () => {
     }
   };
 
+  const handleRequestUnsub = async () => {
+    setActionLoading(true);
+    const toastId = toast.loading("Processing unsubscription request...");
+    try {
+      await api.post('/subscribers/unsubscribe/request', { email: user?.email });
+      toast.success("Security code sent! Check your inbox.", { id: toastId });
+      setShowUnsubModal(false);
+      setShowUnsubOTPModal(true);
+    } catch (e: any) {
+      toast.error(e.response?.data?.detail || "Request failed. Are you sure you are subscribed?", { id: toastId });
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleConfirmUnsub = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setActionLoading(true);
+    const toastId = toast.loading("Removing your access to the Inner Circle...");
+    try {
+      await api.post('/subscribers/unsubscribe/confirm', { email: user?.email, otp_code: unsubOTP });
+      toast.success("Unsubscribed successfully. You'll be missed!", { id: toastId });
+      setIsSubscribed(false);
+      setShowUnsubOTPModal(false);
+    } catch (e: any) {
+      toast.error(e.response?.data?.detail || "Invalid or expired code.", { id: toastId });
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   return (
     <div className="dashboard-content-main">
       <main className="dashboard-main-view">
@@ -92,10 +128,11 @@ const Profile: React.FC = () => {
         </motion.header>
 
         <motion.section 
-          className="dashboard-grid profile-compact-grid"
+          className="profile-stacked-layout"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
         >
+          {/* Access Control Section */}
           <div className="dashboard-card premium-card-bg">
              <div className="card-header">
                 <h2><Shield size={20} /> Access Control</h2>
@@ -165,7 +202,32 @@ const Profile: React.FC = () => {
              </form>
           </div>
 
-          <div className="dashboard-card premium-card-bg mt-6" style={{ border: '1px solid rgba(235, 87, 87, 0.2)' }}>
+          {/* Newsletter Section */}
+          <div className="dashboard-card premium-card-bg mt-8">
+            <div className="card-header">
+               <h2><Mail size={20} /> Inner Circle Subscription</h2>
+            </div>
+            <div className="newsletter-profile-status">
+              <div className="status-info">
+                <p>Stay updated with our latest grooming tips, style trends, and priority booking alerts.</p>
+                <div className={`status-pill ${isSubscribed ? 'active' : 'inactive'}`}>
+                  {isSubscribed ? 'Subscribed' : 'Not Subscribed'}
+                </div>
+              </div>
+              {isSubscribed ? (
+                <button onClick={() => setShowUnsubModal(true)} className="btn-unsub-link">
+                  Unsubscribe from newsletter
+                </button>
+              ) : (
+                <button onClick={() => navigate('/')} className="btn-filled-gold">
+                  Subscribe Now
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Account Actions Section */}
+          <div className="dashboard-card premium-card-bg mt-8" style={{ border: '1px solid rgba(235, 87, 87, 0.2)' }}>
             <div className="card-header mb-4">
               <h2 style={{ color: '#eb5757', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                 <Shield size={20} /> Account Actions
@@ -237,6 +299,64 @@ const Profile: React.FC = () => {
                 </div>
                 <button type="submit" className="btn-filled auth-submit-btn" disabled={actionLoading || deleteOTP.length < 6} style={{ backgroundColor: '#eb5757', color: '#fff' }}>
                   {actionLoading ? <><Loader2 className="spinning-icon-btn" size={18} /> Deleting...</> : <>Delete My Account <Trash2 size={18} style={{ marginLeft: '0.5rem' }} /></>}
+                </button>
+              </form>
+            </motion.div>
+          </div>
+        </div>
+      )}
+
+      {/* Unsubscribe Persuasion Modal */}
+      {showUnsubModal && (
+        <div className="auth-page-wrapper" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: 1000, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(5px)' }}>
+          <div className="auth-content-side center-full" style={{ padding: '2rem' }}>
+            <motion.div className="auth-box otp-box" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
+              <div className="auth-header text-center pb-4">
+                <h2>Wait, Stay Sharp!</h2>
+                <p style={{ marginTop: '1rem', lineHeight: '1.6' }}>
+                  By unsubscribing, you'll lose out on:<br/>
+                  • <b>Priority access</b> to booked slots<br/>
+                  • <b>Exclusive</b> grooming style guides<br/>
+                  • <b>Special discounts</b> and studio events
+                </p>
+                <p style={{ marginTop: '1rem', fontSize: '0.85rem', opacity: 0.8 }}>Are you sure you want to leave the inner circle?</p>
+              </div>
+              <div style={{ display: 'flex', gap: '1rem', flexDirection: 'column' }}>
+                <button className="btn-filled-gold" onClick={() => setShowUnsubModal(false)}>No, I'll Stay Subscribed</button>
+                <button className="btn-unsub-link" onClick={handleRequestUnsub} disabled={actionLoading} style={{ fontSize: '0.85rem', opacity: 0.6 }}>
+                  {actionLoading ? 'Processing...' : 'Yes, proceed to unsubscribe'}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      )}
+
+      {/* Unsubscribe OTP Modal */}
+      {showUnsubOTPModal && (
+        <div className="auth-page-wrapper" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: 1000, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(5px)' }}>
+          <div className="auth-content-side center-full" style={{ padding: '2rem' }}>
+            <motion.div className="auth-box otp-box" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
+              <div className="auth-header text-center">
+                 <button onClick={() => setShowUnsubOTPModal(false)} style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', background: 'none', border: 'none', color: '#fff', cursor: 'pointer' }}><X size={20} /></button>
+                 <h2>Verify Unsubscription</h2>
+                 <p style={{ marginTop: '0.5rem' }}>Enter the 6-digit code sent to <strong>{user?.email}</strong> to confirm.</p>
+              </div>
+              <form className="auth-form" onSubmit={handleConfirmUnsub}>
+                <div className="input-group otp-input-wrapper">
+                  <input 
+                    type="text" 
+                    placeholder="000000" 
+                    maxLength={6} 
+                    required 
+                    className="otp-input"
+                    value={unsubOTP}
+                    onChange={(e) => setUnsubOTP(e.target.value.replace(/\D/g,''))}
+                    style={{ textAlign: 'center', letterSpacing: '4px', fontSize: '1.25rem', fontWeight: 800 }}
+                  />
+                </div>
+                <button type="submit" className="btn-filled auth-submit-btn" disabled={actionLoading || unsubOTP.length < 6}>
+                  {actionLoading ? <><Loader2 className="spinning-icon-btn" size={18} /> Verifying...</> : <>Confirm Unsubscription</>}
                 </button>
               </form>
             </motion.div>

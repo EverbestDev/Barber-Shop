@@ -47,6 +47,7 @@ const ChatBot: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [history, setHistory] = useState<any[]>([]);
   const [future, setFuture] = useState<any[]>([]);
+  const [isTyping, setIsTyping] = useState(false);
 
   const initialBookingData = {
     category: null,
@@ -157,13 +158,21 @@ const ChatBot: React.FC = () => {
   };
 
   const addBotMessage = (text: string, options?: string[]) => {
-    const newMessage: Message = {
-      id: Math.random().toString(36).substr(2, 9),
-      sender: 'bot',
-      text,
-      options
-    };
-    setMessages(prev => [...prev, newMessage]);
+    setIsTyping(true);
+    
+    // Simulate thinking/typing time based on text length
+    const delay = Math.min(Math.max(text.length * 20, 800), 2000);
+    
+    setTimeout(() => {
+      const newMessage: Message = {
+        id: Math.random().toString(36).substr(2, 9),
+        sender: 'bot',
+        text,
+        options
+      };
+      setMessages(prev => [...prev, newMessage]);
+      setIsTyping(false);
+    }, delay);
   };
 
   const addUserMessage = (text: string) => {
@@ -509,6 +518,20 @@ const ChatBot: React.FC = () => {
                   </div>
                 </div>
               ))}
+              
+              {isTyping && (
+                <div className="message-row bot">
+                  <div className="mini-bot-avatar">
+                    <img src="/images/logo.jpeg" alt="Logo" />
+                  </div>
+                  <div className="message-bubble typing-indicator">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </div>
+                </div>
+              )}
+
               <div ref={messagesEndRef} />
             </div>
 
@@ -519,18 +542,6 @@ const ChatBot: React.FC = () => {
             <form className="chatbot-footer" onSubmit={handleInputSubmit}>
               {loading && <div className="bot-loading-overlay"><Loader2 className="spinning-icon" /></div>}
               
-              <div className="chatbot-nav-controls">
-                <button type="button" onClick={handleBack} disabled={history.length === 0} title="Back">
-                  <Clock size={16} style={{ transform: 'scaleX(-1)' }} />
-                </button>
-                <button type="button" onClick={handleNext} disabled={future.length === 0} title="Next">
-                  <Clock size={16} />
-                </button>
-                <button type="button" onClick={handleCancel} disabled={flow === 'INITIAL'} className="cancel-btn" title="Cancel">
-                  <X size={16} />
-                </button>
-              </div>
-
               <input 
                 type="text" 
                 placeholder="Type your response..." 

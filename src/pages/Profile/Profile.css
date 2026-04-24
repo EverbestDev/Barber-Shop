@@ -1,7 +1,10 @@
-/* Compact Profile View */
-.profile-compact-grid {
-  grid-template-columns: 1fr;
-  max-width: 800px; /* Keep it compact and centered-ish if placed in grid but Grid is 1fr here anyway */
+/* Stacked Profile View */
+.profile-stacked-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
 .profile-identity-banner {
@@ -78,6 +81,62 @@
   margin-bottom: 0.65rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+}
+
+.newsletter-profile-status {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.status-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+}
+
+.status-info p {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  max-width: 400px;
+}
+
+.status-pill {
+  padding: 0.4rem 1rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.status-pill.active {
+  background-color: rgba(46, 204, 113, 0.1);
+  color: #2ecc71;
+  border: 1px solid rgba(46, 204, 113, 0.2);
+}
+
+.status-pill.inactive {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: var(--text-secondary);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn-unsub-link {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  text-decoration: underline;
+  cursor: pointer;
+  transition: color 0.2s;
+  width: fit-content;
+  padding: 0;
+}
+
+.btn-unsub-link:hover {
+  color: #eb5757;
 }
 
 .premium-input {
