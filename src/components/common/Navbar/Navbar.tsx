@@ -78,7 +78,11 @@ const Navbar: React.FC<NavbarProps> = ({ isScrolled, isMobileMenuOpen, setIsMobi
 
             <div className="nav-profile-wrapper">
               <button className={`nav-icon-btn ${isProfileOpen ? 'active' : ''}`} onClick={handleProfileClick}>
-                <User size={20} />
+                {isLoggedIn && user?.avatar_url ? (
+                  <img src={user.avatar_url} alt="Profile" className="nav-avatar-img" />
+                ) : (
+                  <User size={20} />
+                )}
               </button>
 
               {isLoggedIn && isProfileOpen && (

@@ -273,7 +273,7 @@ const AuthDrawer: React.FC<AuthDrawerProps> = ({ onClose }) => {
         <button className="close-drawer-btn" onClick={onClose}>
           <X size={24} />
         </button>
-        <h2 className="drawer-logo">BAZE 2 BARBERS</h2>
+        <h2 className="drawer-logo">BAZETWO BARBERS</h2>
       </div>
 
       <div className="drawer-content">

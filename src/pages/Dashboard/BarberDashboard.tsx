@@ -8,7 +8,8 @@ import {
   Award,
   CircleDashed,
   Download,
-  Search
+  Search,
+  ChevronRight
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { fetchBarberBookings, updateBookingStatus } from '../../api/bookings';
@@ -153,8 +154,9 @@ const BarberDashboard: React.FC = () => {
               </div>
             </div>
 
-            <div className="table-responsive">
-              <table className="admin-table">
+            <div className="table-responsive-wrapper">
+              <div className="table-responsive">
+                <table className="admin-table">
                 <thead>
                   <tr>
                     <th>Schedule Time</th>
@@ -209,6 +211,8 @@ const BarberDashboard: React.FC = () => {
                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>You have no recorded sessions for the current selection.</p>
                 </div>
               )}
+              </div>
+              <div className="scroll-hint-icon mobile-only"><ChevronRight size={10} /> Scroll</div>
             </div>
           </motion.div>
         </section>

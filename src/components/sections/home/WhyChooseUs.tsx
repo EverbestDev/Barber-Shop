@@ -48,7 +48,7 @@ const WhyChooseUs: React.FC = () => {
       <div className="container">
         <div className="section-header">
           <span className="section-tag">Superior Standards</span>
-          <h2 className="section-title">Why Baze 2 Barbers?</h2>
+          <h2 className="section-title">Why Bazetwo Barbers?</h2>
         </div>
 
         <div className="why-grid">

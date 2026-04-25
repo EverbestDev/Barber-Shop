@@ -9,7 +9,8 @@ import {
   Clock,
   XCircle,
   SortAsc,
-  MoreVertical
+  MoreVertical,
+  ChevronRight
 } from 'lucide-react';
 import { fetchAllBookings, updateBookingStatus } from '../../api/bookings';
 import type { Booking } from '../../api/types';
@@ -186,8 +187,9 @@ const AdminBookings: React.FC = () => {
               </div>
             </div>
             
-            <div className="table-responsive">
-              <table className="admin-table">
+            <div className="table-responsive-wrapper">
+              <div className="table-responsive">
+                <table className="admin-table">
                 <thead>
                   <tr>
                     <th>Service</th>
@@ -247,6 +249,8 @@ const AdminBookings: React.FC = () => {
                   <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>The session ledger is currently empty for the selected criteria.</p>
                 </div>
               )}
+              </div>
+              <div className="scroll-hint-icon mobile-only"><ChevronRight size={10} /> Scroll</div>
             </div>
           </motion.div>
         </section>

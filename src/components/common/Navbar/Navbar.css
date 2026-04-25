@@ -169,6 +169,14 @@
   color: var(--gold);
 }
 
+.nav-avatar-img {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid var(--gold);
+}
+
 .notif-badge {
   position: absolute;
   top: 6px;

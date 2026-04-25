@@ -14,10 +14,11 @@ import {
   Mail,
   Send,
   Image as ImageIcon,
-  Loader2
+  Loader2,
+  ChevronRight
 } from 'lucide-react';
-import { fetchAllUsers, updateUserRole, deleteUser, fetchSubscriberStats, fetchAllSubscribers, sendNewsletter } from '../../api/admin';
-import type { UserInfo } from '../../api/types';
+import { fetchAllUsers, updateUserRole, deleteUser, fetchSubscriberStats, fetchAllSubscribers, sendNewsletter, uploadImage } from '../../api/admin';
+import type { UserInfo, Subscriber } from '../../api/types';
 import { downloadCSV } from '../../utils/export';
 import toast from 'react-hot-toast';
 
@@ -39,7 +40,7 @@ const AdminUsersSkeleton = () => (
 
 const AdminUsers: React.FC = () => {
   const [users, setUsers] = useState<UserInfo[]>([]);
-  const [subscribers, setSubscribers] = useState<any[]>([]);
+  const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
   const [subCount, setSubCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -133,10 +134,25 @@ const AdminUsers: React.FC = () => {
       const res = await sendNewsletter(newsData);
       toast.success(res.message, { id: loadToast });
       setNewsData({ ...newsData, subject: '', content: '', image_url: '' });
-    } catch (err: any) {
-      toast.error(err.response?.data?.detail || "Broadcast failed.", { id: loadToast });
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { detail?: string } } };
+      toast.error(error.response?.data?.detail || "Broadcast failed.", { id: loadToast });
     } finally {
       setSending(false);
+    }
+  };
+  
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    const loadToast = toast.loading("Uploading image...");
+    try {
+      const { url } = await uploadImage(file);
+      setNewsData({ ...newsData, image_url: url });
+      toast.success("Image uploaded successfully.", { id: loadToast });
+    } catch (err) {
+      toast.error("Image upload failed.", { id: loadToast });
     }
   };
 
@@ -215,71 +231,74 @@ const AdminUsers: React.FC = () => {
               </div>
             </div>
             
-            <div className="table-responsive">
-              <table className="admin-table">
-                <thead>
-                  <tr>
-                    <th>Patron</th>
-                    <th>Email</th>
-                    <th>Membership Role</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {sortedAndFilteredUsers.map((u, idx) => (
-                    <tr key={`${u.id || (u as any)._id}-${idx}`}>
-                      <td style={{ fontWeight: 800, color: 'var(--gold)' }}>{u.name}</td>
-                      <td className="truncate" title={u.email}>{u.email}</td>
-                      <td>
-                        <div className="role-chip" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                          <ShieldCheck size={14} className={u.role === 'admin' ? 'text-gold' : 'text-muted'} />
-                          <select 
-                            value={u.role} 
-                            onChange={(e) => handleRoleChange(u.id || (u as any)._id, e.target.value)} 
-                            className="role-selector"
-                          >
-                            <option value="user">USER</option>
-                            <option value="barber">BARBER</option>
-                            <option value="admin">ADMIN</option>
-                          </select>
-                        </div>
-                      </td>
-                      <td>
-                        <div style={{ display: 'flex', gap: '0.5rem' }}>
-                          <button 
-                            className="delete-btn" 
-                            onClick={() => handleRoleChange(u.id || (u as any)._id, 'suspended')} 
-                            title="Suspend Access"
-                          >
-                            <Ban size={16} />
-                          </button>
-                          <button 
-                            className="delete-btn" 
-                            onClick={() => handleDeleteUser(u.id || (u as any)._id)} 
-                            title="Delete Forever"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
-                      </td>
+            <div className="table-responsive-wrapper">
+              <div className="table-responsive">
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Patron</th>
+                      <th>Email</th>
+                      <th>Membership Role</th>
+                      <th>Actions</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {sortedAndFilteredUsers.map((u, idx) => (
+                      <tr key={`${u.id || (u as any)._id}-${idx}`}>
+                        <td style={{ fontWeight: 800, color: 'var(--gold)' }}>{u.name}</td>
+                        <td className="truncate" title={u.email}>{u.email}</td>
+                        <td>
+                          <div className="role-chip" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <ShieldCheck size={14} className={u.role === 'admin' ? 'text-gold' : 'text-muted'} />
+                            <select 
+                              value={u.role} 
+                              onChange={(e) => handleRoleChange(u.id || (u as any)._id, e.target.value)} 
+                              className="role-selector"
+                            >
+                              <option value="user">USER</option>
+                              <option value="barber">BARBER</option>
+                              <option value="admin">ADMIN</option>
+                            </select>
+                          </div>
+                        </td>
+                        <td>
+                          <div style={{ display: 'flex', gap: '0.5rem' }}>
+                            <button 
+                              className="delete-btn" 
+                              onClick={() => handleRoleChange(u.id || (u as any)._id, 'suspended')} 
+                              title="Suspend Access"
+                            >
+                              <Ban size={16} />
+                            </button>
+                            <button 
+                              className="delete-btn" 
+                              onClick={() => handleDeleteUser(u.id || (u as any)._id)} 
+                              title="Delete Forever"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
 
-              {sortedAndFilteredUsers.length === 0 && (
-                <div className="empty-state-standard" style={{ padding: '4rem 2rem', textAlign: 'center' }}>
-                  <div className="empty-icon-chamber">
-                    <Users size={48} style={{ opacity: 0.1, marginBottom: '1.5rem' }} />
+                {sortedAndFilteredUsers.length === 0 && (
+                  <div className="empty-state-standard" style={{ padding: '4rem 2rem', textAlign: 'center' }}>
+                    <div className="empty-icon-chamber">
+                      <Users size={48} style={{ opacity: 0.1, marginBottom: '1.5rem' }} />
+                    </div>
+                    <h3 style={{ color: 'var(--gold)', marginBottom: '0.5rem' }}>Registry Empty</h3>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>No patrons match your current registry search.</p>
                   </div>
-                  <h3 style={{ color: 'var(--gold)', marginBottom: '0.5rem' }}>Registry Empty</h3>
-                  <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>No patrons match your current registry search.</p>
-                </div>
-              )}
+                )}
+              </div>
+              <div className="scroll-hint-icon mobile-only"><ChevronRight size={10} /> Scroll</div>
             </div>
           </motion.div>
 
-          <div className="admin-two-column-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginTop: '2rem' }}>
+          <div className="admin-two-column-grid">
              {/* Newsletter Section */}
              <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="dashboard-card premium-card-bg">
                 <div className="card-header">
@@ -308,15 +327,25 @@ const AdminUsers: React.FC = () => {
                       </select>
                    </div>
                    <div className="form-group">
-                      <label>Header Image URL (Optional)</label>
-                      <div style={{ display: 'flex', gap: '0.5rem' }}>
-                        <ImageIcon size={20} color="var(--text-secondary)" style={{ marginTop: '12px' }} />
-                        <input 
-                          type="url" 
-                          placeholder="https://images.unsplash.com/..." 
-                          value={newsData.image_url}
-                          onChange={e => setNewsData({...newsData, image_url: e.target.value})}
-                        />
+                      <label>Broadcast Image</label>
+                      <div className="image-upload-zone">
+                        {newsData.image_url ? (
+                          <div className="preview-image-container">
+                            <img src={newsData.image_url} alt="Preview" />
+                            <button type="button" className="remove-img-btn" onClick={() => setNewsData({ ...newsData, image_url: '' })}>&times;</button>
+                          </div>
+                        ) : (
+                          <label className="upload-placeholder">
+                            <ImageIcon size={24} />
+                            <span>Select Image to Upload</span>
+                            <input 
+                              type="file" 
+                              accept="image/*" 
+                              onChange={handleImageUpload}
+                              className="hidden"
+                            />
+                          </label>
+                        )}
                       </div>
                    </div>
                    <div className="form-group">
@@ -350,8 +379,9 @@ const AdminUsers: React.FC = () => {
                   <h2><Mail size={20} /> Newsletter Subscribers</h2>
                   <button className="d-icon-btn" onClick={() => downloadCSV(subscribers, 'subscribers.csv')}><Download size={16} /></button>
                 </div>
-                <div className="table-responsive" style={{ maxHeight: '500px', overflowY: 'auto' }}>
-                   <table className="admin-table">
+                <div className="table-responsive-wrapper">
+                  <div className="table-responsive" style={{ maxHeight: '500px', overflowY: 'auto' }}>
+                     <table className="admin-table">
                       <thead>
                         <tr>
                           <th>Email Address</th>
@@ -369,7 +399,9 @@ const AdminUsers: React.FC = () => {
                           <tr><td colSpan={2} style={{ textAlign: 'center', padding: '2rem' }}>No subscribers yet.</td></tr>
                         )}
                       </tbody>
-                   </table>
+                     </table>
+                  </div>
+                  <div className="scroll-hint-icon mobile-only"><ChevronRight size={10} /> Scroll</div>
                 </div>
              </motion.div>
           </div>
@@ -380,4 +412,3 @@ const AdminUsers: React.FC = () => {
 };
 
 export default AdminUsers;
-

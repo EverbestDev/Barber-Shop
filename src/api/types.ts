@@ -21,6 +21,7 @@ export interface UserInfo {
   phone?: string;
   role: string;
   cookie_consent: boolean;
+  avatar_url?: string;
   created_at: string;
 }
 
@@ -29,6 +30,7 @@ export interface UserUpdate {
   email?: string;
   phone?: string;
   cookie_consent?: boolean;
+  avatar_url?: string;
 }
 
 export interface BookingBase {
@@ -53,5 +55,11 @@ export interface Booking extends BookingBase {
   status: string;
   payment_status: string;
   stripe_session_id?: string;
+  created_at: string;
+}
+
+export interface Subscriber {
+  email: string;
+  is_active: boolean;
   created_at: string;
 }

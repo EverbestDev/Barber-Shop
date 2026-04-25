@@ -107,7 +107,7 @@ const DashboardLayout: React.FC = () => {
                 <div className="d-sidebar-header">
                     <Link to="/" className="d-logo">
                         <img src="/images/logo.jpeg" alt="Logo" />
-                        {!isCollapsed && <span>BAZE 2 BARBERS</span>}
+                        {!isCollapsed && <span>BAZETWO BARBERS</span>}
                     </Link>
                     <button className="d-collapse-btn" onClick={() => setIsCollapsed(!isCollapsed)}>
                         {isCollapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}

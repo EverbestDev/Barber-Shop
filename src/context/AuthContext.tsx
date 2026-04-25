@@ -10,6 +10,7 @@ interface User {
   phone?: string;
   role: string;
   cookie_consent: boolean;
+  avatar_url?: string;
   created_at: string;
 }
 

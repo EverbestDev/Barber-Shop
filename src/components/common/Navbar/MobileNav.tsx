@@ -81,9 +81,10 @@ const MobileNav: React.FC<MobileNavProps> = ({ isOpen, onClose, onLogoutRequest 
           >
             <div className="mobile-sidebar-header">
               <div className="sidebar-header-content">
-                <span className="sidebar-logo">BAZE 2 BARBERS</span>
+                <span className="sidebar-logo">BAZETWO BARBERS</span>
                 {isLoggedIn && user && (
-                  <div className="sidebar-user-minimal">
+                  <div className="sidebar-user-minimal" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    {user.avatar_url && <img src={user.avatar_url} alt="Profile" className="nav-avatar-img" style={{ width: '20px', height: '20px' }} />}
                     <span className="user-name">{user.name}</span>
                   </div>
                 )}

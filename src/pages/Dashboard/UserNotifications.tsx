@@ -32,8 +32,9 @@ const UserNotifications: React.FC = () => {
               <p>Keep track of your bookings and studio updates.</p>
             </div>
             {notifications.some(n => n.isNew) && (
-              <button className="btn-outlined-studio slim" onClick={handleMarkAllAsRead}>
-                Mark All as Read
+              <button className="btn-outlined-studio slim mark-read-btn" onClick={handleMarkAllAsRead} title="Mark All as Read">
+                <CheckCircle2 size={18} className="mobile-only" />
+                <span className="desktop-only">Mark All as Read</span>
               </button>
             )}
           </div>

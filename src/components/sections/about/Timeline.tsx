@@ -6,7 +6,7 @@ const timelineEvents = [
   {
     year: '2018',
     title: 'THE BEGINNING',
-    description: 'Baze 2 Barbers opened its doors in Catford with a simple mission: to provide the sharpest fades and high-end grooming in an atmosphere that feels like home.'
+    description: 'Bazetwo Barbers opened its doors in Catford with a simple mission: to provide the sharpest fades and high-end grooming in an atmosphere that feels like home.'
   },
   {
     year: '2020',
@@ -31,7 +31,7 @@ const Timeline: React.FC = () => {
       <div className="container">
         <div className="section-header center-align">
           <span className="section-tag">Our Journey</span>
-          <h2 className="section-title">THE LEGACY OF <br /> <span className="brand-italic">BAZE 2 BARBERS</span></h2>
+          <h2 className="section-title">THE LEGACY OF <br /> <span className="brand-italic">BAZETWO BARBERS</span></h2>
         </div>
 
         <div className="timeline-container">

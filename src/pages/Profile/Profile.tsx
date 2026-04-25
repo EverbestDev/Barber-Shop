@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { X, Loader2, User, Shield, Mail, Phone, Lock, LogOut, Trash2 } from 'lucide-react';
+import { X, Loader2, User, Shield, Mail, Phone, Lock, LogOut, Trash2, Camera } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { updateCurrentUser, requestDeleteOTP, confirmDeleteAccount } from '../../api/auth';
 import api from '../../api/client';
 import toast from 'react-hot-toast';
+import { uploadImage } from '../../api/admin';
 import './Profile.css';
+
 
 const Profile: React.FC = () => {
   const { user, login: updateUserContext, logout } = useAuth();
@@ -59,8 +61,9 @@ const Profile: React.FC = () => {
       await requestDeleteOTP();
       toast.success("Code sent! Check your email.", { id: toastId });
       setShowDeleteModal(true);
-    } catch (e: any) {
-      toast.error(e.response?.data?.detail || "Could not send code.", { id: toastId });
+    } catch (e: unknown) {
+      const err = e as { response?: { data?: { detail?: string } } };
+      toast.error(err.response?.data?.detail || "Could not send code.", { id: toastId });
     } finally {
       setActionLoading(false);
     }
@@ -75,10 +78,26 @@ const Profile: React.FC = () => {
       toast.success("Account deleted. Hope to see you again!", { id: toastId });
       logout();
       navigate('/');
-    } catch (e: any) {
-      toast.error(e.response?.data?.detail || "Invalid or expired code.", { id: toastId });
+    } catch (e: unknown) {
+      const err = e as { response?: { data?: { detail?: string } } };
+      toast.error(err.response?.data?.detail || "Invalid or expired code.", { id: toastId });
     } finally {
       setActionLoading(false);
+    }
+  };
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const loadToast = toast.loading("Updating profile image...");
+    try {
+      const { url } = await uploadImage(file);
+      const updatedUser = await updateCurrentUser({ avatar_url: url });
+      updateUserContext(updatedUser);
+      toast.success("Profile image synchronized.", { id: loadToast });
+    } catch {
+      toast.error("Failed to update profile image.", { id: loadToast });
     }
   };
 
@@ -90,8 +109,9 @@ const Profile: React.FC = () => {
       toast.success("Security code sent! Check your inbox.", { id: toastId });
       setShowUnsubModal(false);
       setShowUnsubOTPModal(true);
-    } catch (e: any) {
-      toast.error(e.response?.data?.detail || "Request failed. Are you sure you are subscribed?", { id: toastId });
+    } catch (e: unknown) {
+      const err = e as { response?: { data?: { detail?: string } } };
+      toast.error(err.response?.data?.detail || "Request failed. Are you sure you are subscribed?", { id: toastId });
     } finally {
       setActionLoading(false);
     }
@@ -106,8 +126,9 @@ const Profile: React.FC = () => {
       toast.success("Unsubscribed successfully. You'll be missed!", { id: toastId });
       setIsSubscribed(false);
       setShowUnsubOTPModal(false);
-    } catch (e: any) {
-      toast.error(e.response?.data?.detail || "Invalid or expired code.", { id: toastId });
+    } catch (e: unknown) {
+      const err = e as { response?: { data?: { detail?: string } } };
+      toast.error(err.response?.data?.detail || "Invalid or expired code.", { id: toastId });
     } finally {
       setActionLoading(false);
     }
@@ -138,15 +159,23 @@ const Profile: React.FC = () => {
                 <h2><Shield size={20} /> Access Control</h2>
              </div>
              
-             <div className="profile-identity-banner mb-8">
-               <div className="avatar-chamber">
-                 {user?.name?.charAt(0) || 'U'}
-               </div>
-               <div className="identity-details">
-                 <h3>{user?.name}</h3>
-                 <span className="clearance-badge">{user?.role === 'admin' ? 'Master Clearance' : 'Premium Patron'}</span>
-               </div>
-             </div>
+              <div className="profile-identity-banner mb-8">
+                <div className="avatar-chamber">
+                  {user?.avatar_url ? (
+                    <img src={user.avatar_url} alt={user.name} className="avatar-img-full" />
+                  ) : (
+                    user?.name?.charAt(0) || 'U'
+                  )}
+                  <label className="avatar-edit-badge" title="Change Profile Image">
+                    <Camera size={14} />
+                    <input type="file" accept="image/*" hidden onChange={handleAvatarUpload} />
+                  </label>
+                </div>
+                <div className="identity-details">
+                  <h3>{user?.name}</h3>
+                  <span className="clearance-badge">{user?.role === 'admin' ? 'Master Clearance' : user?.role === 'barber' ? 'Master Barber' : 'Premium Patron'}</span>
+                </div>
+              </div>
 
              <form className="compact-settings-form" onSubmit={handleSaveSettings}>
                 <div className="form-group-row">

@@ -1,5 +1,5 @@
 import apiClient from './client';
-import type { UserInfo } from './types';
+import type { UserInfo, Subscriber } from './types';
 
 export const fetchAllUsers = async (): Promise<UserInfo[]> => {
   const response = await apiClient.get<UserInfo[]>('/users/');
@@ -25,8 +25,8 @@ export const fetchSubscriberStats = async (): Promise<{ count: number }> => {
   return response.data;
 };
 
-export const fetchAllSubscribers = async (): Promise<any[]> => {
-  const response = await apiClient.get<any[]>('/subscribers/');
+export const fetchAllSubscribers = async (): Promise<Subscriber[]> => {
+  const response = await apiClient.get<Subscriber[]>('/subscribers/');
   return response.data;
 };
 
@@ -34,4 +34,14 @@ export const sendNewsletter = async (data: { subject: string, content: string, t
   const response = await apiClient.post<{ message: string }>('/subscribers/newsletter', data);
   return response.data;
 };
+
+export const uploadImage = async (file: File): Promise<{ url: string }> => {
+  const formData = new FormData();
+  formData.append('file', file);
+  const response = await apiClient.post<{ url: string }>('/uploads/image', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  });
+  return response.data;
+};
+
 

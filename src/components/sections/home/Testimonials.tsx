@@ -8,7 +8,7 @@ const testimonials = [
     id: 1,
     name: "James Anderson",
     role: "Regular Client",
-    content: "The attention to detail at Baze 2 Barbers is unmatched. I've been to many luxury shops in London, but none capture the vibe and precision like these guys. Every cut is a masterpiece.",
+    content: "The attention to detail at Bazetwo Barbers is unmatched. I've been to many luxury shops in London, but none capture the vibe and precision like these guys. Every cut is a masterpiece.",
     avatar: "/images/men/beardandfademen.jpg",
     rating: 5
   },
