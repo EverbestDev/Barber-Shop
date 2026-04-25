@@ -15,12 +15,15 @@ import {
   Send,
   Image as ImageIcon,
   Loader2,
-  ChevronRight
+  ChevronRight,
+  Eye,
+  X
 } from 'lucide-react';
 import { fetchAllUsers, updateUserRole, deleteUser, fetchSubscriberStats, fetchAllSubscribers, sendNewsletter, uploadImage } from '../../api/admin';
 import type { UserInfo, Subscriber } from '../../api/types';
 import { downloadCSV } from '../../utils/export';
 import toast from 'react-hot-toast';
+import './AdminForm.css';
 
 const AdminUsersSkeleton = () => (
     <div className="dashboard-content-main">
@@ -55,6 +58,7 @@ const AdminUsers: React.FC = () => {
     personalize: true
   });
   const [sending, setSending] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
 
   useEffect(() => {
     const getData = async () => {
@@ -353,7 +357,7 @@ const AdminUsers: React.FC = () => {
                    </div>
 
                    <div className="form-group">
-                      <label>Message Content (HTML Supported)</label>
+                      <label>Message Content</label>
                       <textarea 
                         rows={6} 
                         placeholder="Write your newsletter content here..."
@@ -377,9 +381,14 @@ const AdminUsers: React.FC = () => {
                       </label>
                    </div>
 
-                   <button type="submit" className="btn-filled-gold w-full" disabled={sending}>
-                      {sending ? <Loader2 className="spinning-icon" /> : <><Send size={16} /> Broadcast Now</>}
-                   </button>
+                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                     <button type="button" className="btn-outlined-studio w-full" onClick={() => setShowPreview(true)}>
+                        <Eye size={16} /> Preview
+                     </button>
+                     <button type="submit" className="btn-filled-gold w-full" disabled={sending}>
+                        {sending ? <Loader2 className="spinning-icon" /> : <><Send size={16} /> Broadcast Now</>}
+                     </button>
+                   </div>
                 </form>
              </motion.div>
 
@@ -417,6 +426,34 @@ const AdminUsers: React.FC = () => {
           </div>
         </section>
       </main>
+
+      {/* Newsletter Preview Modal */}
+      {showPreview && (
+        <div className="newsletter-preview-modal" onClick={() => setShowPreview(false)}>
+          <motion.div 
+            className="newsletter-preview-content" 
+            onClick={e => e.stopPropagation()}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+          >
+            <div className="preview-header">
+              <h3>Preview: {newsData.subject || 'No Subject'}</h3>
+              <button className="d-icon-btn" onClick={() => setShowPreview(false)}>
+                <X size={20} />
+              </button>
+            </div>
+            <div className="preview-body">
+              {newsData.image_url && (
+                <img src={newsData.image_url} alt="Newsletter Banner" />
+              )}
+              {newsData.personalize && (
+                <p><strong>Hi [Patron Name],</strong></p>
+              )}
+              <div dangerouslySetInnerHTML={{ __html: newsData.content || '<p style="color: #999;">No content written yet.</p>' }} />
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 };
