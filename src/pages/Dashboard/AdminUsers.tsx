@@ -305,29 +305,32 @@ const AdminUsers: React.FC = () => {
                   <h2><Send size={20} /> Broadcast Newsletter</h2>
                 </div>
                 <form className="admin-form" onSubmit={handleSendNewsletter}>
-                   <div className="form-group">
-                      <label>Subject Line</label>
-                      <input 
-                        type="text" 
-                        placeholder="e.g. New Seasonal Styles Available!" 
-                        value={newsData.subject}
-                        onChange={e => setNewsData({...newsData, subject: e.target.value})}
-                        required
-                      />
+                   <div className="form-row">
+                     <div className="form-group">
+                        <label>Subject Line</label>
+                        <input 
+                          type="text" 
+                          placeholder="e.g. New Seasonal Styles Available!" 
+                          value={newsData.subject}
+                          onChange={e => setNewsData({...newsData, subject: e.target.value})}
+                          required
+                        />
+                     </div>
+                     <div className="form-group">
+                        <label>Target Audience</label>
+                        <select 
+                          value={newsData.target} 
+                          onChange={e => setNewsData({...newsData, target: e.target.value})}
+                        >
+                          <option value="subscribers">Subscribers Only</option>
+                          <option value="users">Registered Users Only</option>
+                          <option value="all">Everyone</option>
+                        </select>
+                     </div>
                    </div>
+                   
                    <div className="form-group">
-                      <label>Target Audience</label>
-                      <select 
-                        value={newsData.target} 
-                        onChange={e => setNewsData({...newsData, target: e.target.value})}
-                      >
-                        <option value="subscribers">Subscribers Only</option>
-                        <option value="users">Registered Users Only</option>
-                        <option value="all">Everyone (Subs + Users)</option>
-                      </select>
-                   </div>
-                   <div className="form-group">
-                      <label>Broadcast Image</label>
+                      <label>Broadcast Image Banner</label>
                       <div className="image-upload-zone">
                         {newsData.image_url ? (
                           <div className="preview-image-container">
@@ -336,8 +339,8 @@ const AdminUsers: React.FC = () => {
                           </div>
                         ) : (
                           <label className="upload-placeholder">
-                            <ImageIcon size={24} />
-                            <span>Select Image to Upload</span>
+                            <ImageIcon size={32} />
+                            <span>Select or drop a high-quality image (16:9 recommended)</span>
                             <input 
                               type="file" 
                               accept="image/*" 
@@ -348,6 +351,7 @@ const AdminUsers: React.FC = () => {
                         )}
                       </div>
                    </div>
+
                    <div className="form-group">
                       <label>Message Content (HTML Supported)</label>
                       <textarea 
@@ -356,17 +360,23 @@ const AdminUsers: React.FC = () => {
                         value={newsData.content}
                         onChange={e => setNewsData({...newsData, content: e.target.value})}
                         required
+                        style={{ resize: 'vertical' }}
                       ></textarea>
                    </div>
-                   <div className="form-group" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                   
+                   <div className="form-group" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '-0.5rem', marginBottom: '1.5rem' }}>
                       <input 
                         type="checkbox" 
                         id="personalize" 
                         checked={newsData.personalize}
                         onChange={e => setNewsData({...newsData, personalize: e.target.checked})}
+                        style={{ cursor: 'pointer' }}
                       />
-                      <label htmlFor="personalize" style={{ marginBottom: 0 }}>Personalize (Hi [Name], ...)</label>
+                      <label htmlFor="personalize" style={{ marginBottom: 0, cursor: 'pointer', color: 'var(--text-secondary)' }}>
+                        Personalize greeting (e.g. "Hi [Name], ...")
+                      </label>
                    </div>
+
                    <button type="submit" className="btn-filled-gold w-full" disabled={sending}>
                       {sending ? <Loader2 className="spinning-icon" /> : <><Send size={16} /> Broadcast Now</>}
                    </button>
