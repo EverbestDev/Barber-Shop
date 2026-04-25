@@ -109,3 +109,16 @@
   margin-bottom: 1rem;
   border-radius: 8px;
 }
+
+.admin-form .checkbox-group {
+  flex-direction: row !important;
+  align-items: center;
+}
+
+.admin-form .checkbox-label {
+  text-transform: none !important;
+  font-weight: 500 !important;
+  font-size: 0.85rem !important;
+  letter-spacing: normal !important;
+  color: var(--text-secondary) !important;
+}

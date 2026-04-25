@@ -368,7 +368,7 @@ const AdminUsers: React.FC = () => {
                       ></textarea>
                    </div>
                    
-                   <div className="form-group" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '-0.5rem', marginBottom: '1.5rem' }}>
+                   <div className="form-group checkbox-group" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '0.75rem', marginTop: '-0.5rem', marginBottom: '1.5rem' }}>
                       <input 
                         type="checkbox" 
                         id="personalize" 
@@ -376,7 +376,7 @@ const AdminUsers: React.FC = () => {
                         onChange={e => setNewsData({...newsData, personalize: e.target.checked})}
                         style={{ cursor: 'pointer' }}
                       />
-                      <label htmlFor="personalize" style={{ marginBottom: 0, cursor: 'pointer', color: 'var(--text-secondary)' }}>
+                      <label htmlFor="personalize" className="checkbox-label" style={{ marginBottom: 0, cursor: 'pointer', color: 'var(--text-secondary)' }}>
                         Personalize greeting (e.g. "Hi [Name], ...")
                       </label>
                    </div>
