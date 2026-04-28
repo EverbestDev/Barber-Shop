@@ -6,6 +6,7 @@ import './ServicesPreview.css';
 
 const services = [
   {
+    id: 1,
     title: "Signature Haircut",
     category: "In-Studio",
     desc: "A personalized cut based on your face shape and hair type, finished with a precise line and styling.",
@@ -14,6 +15,7 @@ const services = [
     image: "/images/mensignature.jpg"
   },
   {
+    id: 3,
     title: "Beard Sculpture",
     category: "In-Studio",
     desc: "Luxury beard trim, shaping, and precise razor lining combined with a soothing hot towel treatment.",
@@ -22,6 +24,7 @@ const services = [
     image: "/images/herobeard.jpg"
   },
   {
+    id: 8,
     title: "Baby Cut",
     category: "Family Group",
     desc: "Gentle and stylish haircuts for the little ones. We make sure they feel comfortable and look sharp.",
@@ -30,6 +33,7 @@ const services = [
     image: "/images/kids/kidcutsignature.jpg"
   },
   {
+    id: 6,
     title: "Women's Taper Fade",
     category: "Specialized",
     desc: "Edgy and precise taper fades for women. A bold look executed with artistic precision and flair.",
@@ -38,6 +42,7 @@ const services = [
     image: "/images/womentapperfade.jpg"
   },
   {
+    id: 7,
     title: "Women's Signature",
     category: "Specialized",
     desc: "Customized women's styling and cutting. From classic bobs to modern pixie cuts, tailored to you.",
@@ -46,6 +51,7 @@ const services = [
     image: "/images/womensignature.jpg"
   },
   {
+    id: 2,
     title: "Skin Fade Master",
     category: "In-Studio",
     desc: "Seamless, high-precision fades executed with extreme detail. Our barbers are masters of the blend.",
@@ -54,6 +60,7 @@ const services = [
     image: "/images/taperfade.jpg"
   },
   {
+    id: 103,
     title: "The VIP Home Visit",
     category: "Home Service",
     desc: "Experience our premium grooming from the comfort of your home. We bring the full studio to your doorstep.",
@@ -62,6 +69,7 @@ const services = [
     image: "/images/men/viphomevisit.jpg"
   },
   {
+    id: 201,
     title: "Father & Son Pack",
     category: "Family Group",
     desc: "A bonding experience for the duo. Includes two signature cuts and styling for dad and the little champ.",
@@ -70,6 +78,7 @@ const services = [
     image: "/images/kidcut2.jpg"
   },
   {
+    id: 203,
     title: "Grooming Party",
     category: "Group Booking",
     desc: "Booking for 3+ people. Perfect for weddings, events, or a group day out. Includes refreshments and VIP tools.",
@@ -115,7 +124,7 @@ const ServicesPreview: React.FC = () => {
                     <span className="service-meta"><Watch size={14} /> {service.time}</span>
                     <span className="service-meta"><CheckCircle2 size={14} /> Available</span>
                   </div>
-                  <Link to="/booking" className="book-btn-direct">Book Now</Link>
+                  <Link to={`/booking?serviceId=${service.id}`} className="book-btn-direct">Book Now</Link>
                 </div>
               </div>
             </motion.div>

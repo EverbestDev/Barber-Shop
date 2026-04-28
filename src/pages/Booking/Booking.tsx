@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, ChevronLeft, Check, Loader2 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { useOutletContext } from 'react-router-dom';
+import { useSearchParams, useOutletContext } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { createBooking } from '../../api/bookings';
 import { createCheckoutSession } from '../../api/payments';
@@ -32,18 +32,36 @@ const serviceCategories: Category[] = [
 ];
 
 const allServices: Service[] = [
-  { id: 1, cat: 'shop', name: 'Signature Haircut (Male)', price: 20, duration: '45m', popular: true },
+  // Shop Services
+  { id: 1, cat: 'shop', name: 'Signature Haircut', price: 20, duration: '45m', popular: true },
   { id: 2, cat: 'shop', name: 'Skin Fade', price: 20, duration: '60m', popular: true },
   { id: 3, cat: 'shop', name: 'Beard Sculpture', price: 15, duration: '30m' },
   { id: 4, cat: 'shop', name: 'Executive Package', price: 35, duration: '75m' },
   { id: 5, cat: 'shop', name: 'Buzz Cut', price: 15, duration: '20m' },
   { id: 6, cat: 'shop', name: "Women's Taper Fade", price: 25, duration: '60m' },
   { id: 7, cat: 'shop', name: "Women's Signature", price: 25, duration: '60m' },
-  { id: 8, cat: 'shop', name: "Kids Haircut (Boy/Girl)", price: 15, duration: '30m' },
+  { id: 8, cat: 'shop', name: "Kids Haircut", price: 15, duration: '30m' },
+  { id: 9, cat: 'shop', name: "Shape Up (Lineup)", price: 10, duration: '20m' },
+  { id: 10, cat: 'shop', name: "Seniors (65+)", price: 15, duration: '30m' },
+  { id: 11, cat: 'shop', name: "Beard Line-up", price: 10, duration: '15m' },
+  { id: 12, cat: 'shop', name: "Hot Towel Shave", price: 25, duration: '45m' },
+  { id: 13, cat: 'shop', name: "The Beard & Mask", price: 25, duration: '45m' },
+  { id: 14, cat: 'shop', name: "Nose & Ear Waxing", price: 5, duration: '10m' },
+  { id: 15, cat: 'shop', name: "The Royal Treatment", price: 50, duration: '105m' },
+  { id: 16, cat: 'shop', name: "The Wedding Package", price: 70, duration: '120m' },
+  { id: 17, cat: 'shop', name: "Undercut Design", price: 20, duration: '30m' },
+  { id: 18, cat: 'shop', name: "Short Cut & Style", price: 20, duration: '45m' },
+
+  // Home Services
   { id: 101, cat: 'home', name: 'Executive Home Visit', price: 40, duration: '60m', popular: true },
   { id: 102, cat: 'home', name: 'Full Grooming Home Visit', price: 55, duration: '90m' },
   { id: 103, cat: 'home', name: 'V.I.P Doorstep Session', price: 75, duration: '120m' },
-  { id: 201, cat: 'group', name: 'Father & Son', price: 35, duration: '90m', popular: true }
+
+  // Group Services
+  { id: 201, cat: 'group', name: 'Father & Son', price: 35, duration: '90m', popular: true },
+  { id: 202, cat: 'group', name: 'The Duo Pack', price: 40, duration: '90m' },
+  { id: 203, cat: 'group', name: 'The Grooming Party', price: 100, duration: '180m' },
+  { id: 204, cat: 'group', name: 'The Triple Threat', price: 60, duration: '120m' },
 ];
 
 const BookingPage: React.FC = () => {
@@ -65,9 +83,21 @@ const BookingPage: React.FC = () => {
     '03:00 PM', '04:00 PM', '05:00 PM', '06:00 PM'
   ];
 
+  const [searchParams] = useSearchParams();
+
   useEffect(() => {
-    // No longer need to fetch barbers for selection
-  }, []);
+    const serviceId = searchParams.get('serviceId');
+    if (serviceId) {
+      const service = allServices.find(s => s.id === parseInt(serviceId));
+      if (service) {
+        const category = serviceCategories.find(c => c.id === service.cat);
+        setSelectedService(service);
+        setSelectedCategory(category || null);
+        setStep(3); // Jump to Time Selection
+        toast.success(`Booking: ${service.name}`);
+      }
+    }
+  }, [searchParams]);
 
   const nextStep = () => setStep(s => s + 1);
   const prevStep = () => setStep(s => s - 1);
