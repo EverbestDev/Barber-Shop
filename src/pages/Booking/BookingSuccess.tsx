@@ -10,17 +10,9 @@ import {
   MapPin
 } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../../api/client';
+import { Booking as BookingDetails } from '../../api/types';
 import './BookingSuccess.css';
-
-interface BookingDetails {
-  id: string;
-  service: string;
-  date: string;
-  barber: string;
-  amount: number;
-  status: string;
-}
 
 const BookingSuccess: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -34,7 +26,7 @@ const BookingSuccess: React.FC = () => {
     const fetchBooking = async () => {
       if (sessionId) {
         try {
-          const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/bookings/session/${sessionId}`);
+          const response = await apiClient.get(`/bookings/session/${sessionId}`);
           setBooking(response.data);
         } catch (error) {
           console.error("Error fetching booking details:", error);
@@ -79,6 +71,26 @@ const BookingSuccess: React.FC = () => {
     );
   }
 
+  if (!booking && !loading) {
+    return (
+      <div className="success-page-wrapper">
+        <div className="container success-container">
+          <div className="error-state-card">
+            <h1 className="error-title">Verification Delayed.</h1>
+            <p className="error-desc">
+              We couldn't retrieve your ritual details instantly. Your appointment is likely secured, 
+              but the studio ledger is still updating. Please check your email for confirmation.
+            </p>
+            <div className="success-actions">
+              <Link to="/" className="btn-filled">Return to Studio</Link>
+              <Link to="/contact" className="btn-text-gold">Contact Support</Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="success-page-wrapper">
       <div className="container success-container">
@@ -101,11 +113,11 @@ const BookingSuccess: React.FC = () => {
               <div className="receipt-content">
                 <div className="receipt-row">
                   <span className="label">Order ID</span>
-                  <span className="value">#{booking?.id.slice(-8).toUpperCase() || 'B2-XXXXXX'}</span>
+                  <span className="value">#{booking?.id?.slice(-8).toUpperCase() || (booking as any)?._id?.slice(-8).toUpperCase() || 'B2-XXXXXX'}</span>
                 </div>
                 <div className="receipt-row">
                   <span className="label">Date</span>
-                  <span className="value">{booking ? new Date().toLocaleDateString() : '--/--/--'}</span>
+                  <span className="value">{booking ? new Date(booking.created_at || new Date()).toLocaleDateString() : '--/--/--'}</span>
                 </div>
                 
                 <div className="receipt-divider"></div>
@@ -116,7 +128,7 @@ const BookingSuccess: React.FC = () => {
                       <p className="item-name">{booking?.service || 'Premium Grooming'}</p>
                       <p className="item-desc">with {booking?.barber || 'Master Barber'}</p>
                     </div>
-                    <span className="item-price">${booking?.amount.toFixed(2) || '0.00'}</span>
+                    <span className="item-price">${booking?.amount?.toFixed(2) || '0.00'}</span>
                   </div>
                 </div>
 
@@ -124,7 +136,7 @@ const BookingSuccess: React.FC = () => {
 
                 <div className="receipt-total">
                   <span>Grand Total</span>
-                  <span className="total-value">${booking?.amount.toFixed(2) || '0.00'}</span>
+                  <span className="total-value">${booking?.amount?.toFixed(2) || '0.00'}</span>
                 </div>
 
                 <div className="receipt-footer">
