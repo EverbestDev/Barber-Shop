@@ -7,12 +7,15 @@ import {
   Clock, 
   ArrowRight, 
   ShieldCheck,
-  MapPin
+  MapPin,
+  Download
 } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import apiClient from '../../api/client';
 import type { Booking as BookingDetails } from '../../api/types';
 import { getSafeId } from '../../utils/ids';
+import { downloadReceiptPDF } from '../../utils/receipt';
 import './BookingSuccess.css';
 
 const BookingSuccess: React.FC = () => {
@@ -97,6 +100,17 @@ const BookingSuccess: React.FC = () => {
     return id.toString().slice(-8).toUpperCase();
   };
 
+  const downloadReceipt = async () => {
+    if (!booking) return;
+    try {
+      await downloadReceiptPDF(booking);
+      toast.success("Receipt downloaded successfully!");
+    } catch (err) {
+      console.error("Receipt generation failed:", err);
+      toast.error("Failed to generate PDF.");
+    }
+  };
+
   return (
     <div className="success-page-wrapper">
       <div className="container success-container">
@@ -133,7 +147,7 @@ const BookingSuccess: React.FC = () => {
                       <p className="item-name">{booking?.service || 'Premium Grooming'}</p>
                       <p className="item-desc">with {booking?.barber || 'Master Barber'}</p>
                     </div>
-                    <span className="item-price">${booking?.amount?.toFixed(2) || '0.00'}</span>
+                    <span className="item-price">£{booking?.amount?.toFixed(2) || '0.00'}</span>
                   </div>
                 </div>
 
@@ -141,7 +155,7 @@ const BookingSuccess: React.FC = () => {
 
                 <div className="receipt-total">
                   <span>Grand Total</span>
-                  <span className="total-value">${booking?.amount?.toFixed(2) || '0.00'}</span>
+                  <span className="total-value">£{booking?.amount?.toFixed(2) || '0.00'}</span>
                 </div>
 
                 <div className="receipt-footer">
@@ -151,6 +165,9 @@ const BookingSuccess: React.FC = () => {
               </div>
               <div className="receipt-zigzag"></div>
             </div>
+            <button className="btn-outlined-studio download-btn-receipt" onClick={downloadReceipt}>
+              <Download size={16} /> Download Receipt
+            </button>
           </div>
 
           <div className="content-column">
@@ -236,6 +253,7 @@ const BookingSuccess: React.FC = () => {
         </motion.div>
       </div>
     </div>
+
   );
 };
 

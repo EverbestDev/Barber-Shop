@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { CreditCard, CheckCircle2 } from 'lucide-react';
+import { CreditCard, CheckCircle2, Download } from 'lucide-react';
 import { fetchMyBookings } from '../../api/bookings';
 import { getSafeId } from '../../utils/ids';
+import { downloadReceiptPDF } from '../../utils/receipt';
 import type { Booking } from '../../api/types';
+import toast from 'react-hot-toast';
 import './Dashboard.css';
 
 const UserTransactions: React.FC = () => {
@@ -26,6 +28,15 @@ const UserTransactions: React.FC = () => {
     const intervalId = setInterval(getBookings, 5000);
     return () => clearInterval(intervalId);
   }, []);
+
+  const handleDownload = async (booking: Booking) => {
+    try {
+      await downloadReceiptPDF(booking);
+      toast.success("Receipt downloaded.");
+    } catch (err) {
+      toast.error("Failed to generate receipt.");
+    }
+  };
 
   const transactions = bookings.filter(b => b.amount !== undefined);
 
@@ -59,7 +70,26 @@ const UserTransactions: React.FC = () => {
                     </div>
                     <div className="tx-amount-status text-right">
                       <div className="tx-amount">£{booking.amount?.toFixed(2) || '30.00'}</div>
-                      <div className={`tx-status ${booking.payment_status}`}>{booking.payment_status.toUpperCase()}</div>
+                      <div className="tx-actions" style={{ display: 'flex', alignItems: 'center', gap: '10px', justifyContent: 'flex-end' }}>
+                        <div className={`tx-status ${booking.payment_status}`}>{booking.payment_status.toUpperCase()}</div>
+                        {booking.payment_status === 'paid' && (
+                          <button 
+                            className="btn-icon-mini" 
+                            onClick={() => handleDownload(booking)}
+                            title="Download Receipt"
+                            style={{ 
+                              background: 'rgba(255,255,255,0.05)', 
+                              border: '1px solid rgba(255,255,255,0.1)',
+                              borderRadius: '4px',
+                              padding: '4px',
+                              cursor: 'pointer',
+                              color: 'var(--gold)'
+                            }}
+                          >
+                            <Download size={14} />
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 ))}

@@ -65,10 +65,11 @@ const UserDashboard: React.FC = () => {
     }
   };
 
-  const upcomingBookings = bookings.filter(b => b.status === 'confirmed' && b.payment_status !== 'paid');
-  const pendingBookings = bookings.filter(b => b.payment_status === 'pending');
+  const now = new Date();
+  const upcomingBookings = bookings.filter(b => new Date(b.date) >= now && b.status === 'confirmed');
+  const pendingBookings = bookings.filter(b => b.payment_status === 'pending' && b.status !== 'cancelled');
   const totalInvested = bookings.filter(b => b.payment_status === 'paid').reduce((sum, b) => sum + (b.amount || 0), 0);
-  const pastBookings = bookings.filter(b => b.status === 'completed' || b.payment_status === 'paid');
+  const pastBookings = bookings.filter(b => new Date(b.date) < now || b.status === 'completed');
 
   const memberSince = user?.created_at 
     ? new Date(user.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })

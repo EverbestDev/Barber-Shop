@@ -255,9 +255,16 @@ const BookingPage: React.FC = () => {
                       min={today}
                       value={selectedDate}
                       onChange={(e) => {
-                        setSelectedDate(e.target.value);
+                        const val = e.target.value;
+                        if (val < today) {
+                          toast.error("You cannot book in the past.");
+                          setSelectedDate(today);
+                        } else {
+                          setSelectedDate(val);
+                        }
                         setSelectedTime(''); 
                       }} 
+                      onClick={(e) => e.currentTarget.showPicker()}
                     />
                   </div>
                   
@@ -316,7 +323,7 @@ const BookingPage: React.FC = () => {
                           placeholder="For your confirmation" 
                           className="luxury-input"
                           value={guestEmail}
-                          onChange={(e) => setGuestEmail(e.target.value)}
+                          onChange={(e) => setGuestEmail(e.target.value.toLowerCase())}
                         />
                       </div>
                     </div>
