@@ -91,6 +91,11 @@ const BookingSuccess: React.FC = () => {
     );
   }
 
+  const getDisplayId = () => {
+    const id = booking?.id || (booking as any)?._id || 'B2-XXXXXX';
+    return id.toString().slice(-8).toUpperCase();
+  };
+
   return (
     <div className="success-page-wrapper">
       <div className="container success-container">
@@ -100,7 +105,6 @@ const BookingSuccess: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
         >
-          {/* Receipt Sidebar */}
           <div className="receipt-column">
             <div className="receipt-paper">
               <div className="receipt-header">
@@ -113,7 +117,7 @@ const BookingSuccess: React.FC = () => {
               <div className="receipt-content">
                 <div className="receipt-row">
                   <span className="label">Order ID</span>
-                  <span className="value">#{booking?.id?.slice(-8).toUpperCase() || (booking as any)?._id?.slice(-8).toUpperCase() || 'B2-XXXXXX'}</span>
+                  <span className="value">#{getDisplayId()}</span>
                 </div>
                 <div className="receipt-row">
                   <span className="label">Date</span>
@@ -148,7 +152,6 @@ const BookingSuccess: React.FC = () => {
             </div>
           </div>
 
-          {/* Main Success Content */}
           <div className="content-column">
             <div className="success-header-section">
               <motion.div 
