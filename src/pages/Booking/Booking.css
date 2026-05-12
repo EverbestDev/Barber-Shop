@@ -84,6 +84,9 @@
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.05);
   box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .step-title {
@@ -179,11 +182,20 @@
 
 .luxury-input {
   width: 100%;
+  max-width: 100%;
   padding: 1.25rem;
   background-color: var(--primary);
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: var(--white);
   border-radius: 8px;
+  appearance: none;
+  -webkit-appearance: none;
+  font-family: inherit;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  cursor: pointer;
 }
 
 .time-grid {
@@ -366,6 +378,11 @@
 
   .time-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .luxury-input {
+    padding: 1rem;
+    font-size: 0.9375rem;
   }
 }
 

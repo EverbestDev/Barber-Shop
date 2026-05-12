@@ -26,7 +26,7 @@
   align-items: center;
   gap: 0.75rem;
   padding: 0 2rem;
-  margin-bottom: 3.5rem;
+  margin-bottom: 2rem;
   font-weight: 900;
   letter-spacing: 1px;
 }
@@ -50,7 +50,7 @@
   display: flex;
   align-items: center;
   gap: 1rem;
-  padding: 1.125rem 1.25rem;
+  padding: 0.875rem 1.25rem;
   border-radius: 12px;
   font-size: 0.8125rem;
   font-weight: 600;
@@ -102,7 +102,7 @@
 
 /* Main Content Area */
 .dashboard-main {
-  padding: 3rem 4rem;
+  padding: 1.5rem 2rem;
   max-width: 1400px;
   margin: 0 auto;
   width: 100%;
@@ -111,14 +111,14 @@
 .dashboard-header {
   display: flex;
   flex-direction: column;
-  gap: 2.5rem;
-  margin-bottom: 4rem;
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
 }
 
 .header-greeting h1 {
-  font-size: 2.5rem;
+  font-size: 2rem;
   font-weight: 900;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
 }
 
 .header-greeting p {
@@ -130,13 +130,13 @@
 .header-stats-row {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 1.5rem;
+  gap: 1.25rem;
   width: 100%;
 }
 
 .mini-stat-card {
   background-color: var(--secondary);
-  padding: 1.5rem;
+  padding: 1.25rem;
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.05);
   display: flex;
@@ -215,13 +215,13 @@
 .dashboard-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 2rem;
+  gap: 1.5rem;
 }
 
 .dashboard-card {
   background-color: var(--secondary);
   border-radius: 20px;
-  padding: 2.25rem;
+  padding: 1.75rem;
   border: 1px solid rgba(255, 255, 255, 0.05);
   transition: all 0.3s ease;
 }
@@ -239,7 +239,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.75rem;
+  margin-bottom: 1.25rem;
 }
 
 .card-header h2 { margin-bottom: 0; }
@@ -265,7 +265,7 @@
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 16px;
-  padding: 1.75rem;
+  padding: 1.25rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -356,7 +356,7 @@
   display: flex;
   align-items: center;
   gap: 1.5rem;
-  padding: 1.25rem;
+  padding: 1rem;
   background-color: rgba(255, 255, 255, 0.015);
   border: 1px solid rgba(255, 255, 255, 0.03);
   border-radius: 14px;
@@ -467,7 +467,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.25rem;
+  padding: 1rem;
   background-color: rgba(255, 255, 255, 0.02);
   border-radius: 14px;
   border: 1px solid transparent;

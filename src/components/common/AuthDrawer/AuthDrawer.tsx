@@ -49,54 +49,43 @@ const AuthDrawer: React.FC<AuthDrawerProps> = ({ onClose }) => {
   React.useEffect(() => {
     if (!import.meta.env.VITE_GOOGLE_CLIENT_ID) return;
     
-    // Check if script already appended to avoid duplicates
+    const initializeGoogle = () => {
+      // @ts-ignore
+      if (window.google?.accounts?.id) {
+        // @ts-ignore
+        window.google.accounts.id.initialize({
+          client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+          callback: handleGoogleResponse,
+          auto_select: false, // Prevents unexpected auto-logins which can trigger multiple calls
+          use_fedcm_for_prompt: true // Modern standard
+        });
+        
+        const btnDiv = document.getElementById('googleAuthDiv');
+        if (btnDiv) {
+          // @ts-ignore
+          window.google.accounts.id.renderButton(btnDiv, {
+            theme: 'outline',
+            size: 'large',
+            width: 320,
+            text: 'continue_with'
+          });
+        }
+      }
+    };
+
     if (!document.getElementById('google-jssdk')) {
       const script = document.createElement('script');
       script.id = 'google-jssdk';
       script.src = 'https://accounts.google.com/gsi/client';
       script.async = true;
       script.defer = true;
+      script.onload = initializeGoogle;
       document.body.appendChild(script);
-      
-      script.onload = () => {
-        // @ts-ignore
-        if (window.google?.accounts?.id) {
-          // @ts-ignore
-          window.google.accounts.id.initialize({
-            client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
-            callback: handleGoogleResponse
-          });
-          const btnDiv = document.getElementById('googleAuthDiv');
-          if (btnDiv) {
-            // @ts-ignore
-            window.google.accounts.id.renderButton(btnDiv, {
-              theme: 'outline',
-              size: 'large',
-              width: 320,
-              text: 'continue_with'
-            });
-          }
-        }
-      };
     } else {
-        // @ts-ignore
-        if (window.google?.accounts?.id) {
-          // @ts-ignore
-          window.google.accounts.id.initialize({
-            client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
-            callback: handleGoogleResponse
-          });
-          const btnDiv = document.getElementById('googleAuthDiv');
-          if (btnDiv) {
-            // @ts-ignore
-            window.google.accounts.id.renderButton(btnDiv, {
-              theme: 'outline',
-              size: 'large',
-              width: 320,
-              text: 'continue_with'
-            });
-          }
-        }
+      // Script is already there, just initialize
+      // Small delay ensures the 'googleAuthDiv' is actually in the DOM before rendering
+      const timer = setTimeout(initializeGoogle, 100);
+      return () => clearTimeout(timer);
     }
   }, []);
 
