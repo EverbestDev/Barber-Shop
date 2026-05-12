@@ -20,6 +20,7 @@ import {
   X
 } from 'lucide-react';
 import { fetchAllUsers, updateUserRole, deleteUser, fetchSubscriberStats, fetchAllSubscribers, sendNewsletter, uploadImage } from '../../api/admin';
+import { getSafeId } from '../../utils/ids';
 import type { UserInfo, Subscriber } from '../../api/types';
 import { downloadCSV } from '../../utils/export';
 import toast from 'react-hot-toast';
@@ -49,7 +50,6 @@ const AdminUsers: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('name');
   
-  // Newsletter State
   const [newsData, setNewsData] = useState({
     subject: '',
     content: '',
@@ -71,7 +71,7 @@ const AdminUsers: React.FC = () => {
         setUsers(u);
         setSubCount(sStats.count);
         setSubscribers(sList);
-      } catch (_err) {
+      } catch {
         toast.error("Failed to sync studio registry.");
       } finally {
         setLoading(false);
@@ -109,9 +109,9 @@ const AdminUsers: React.FC = () => {
     const loadToast = toast.loading("Updating member status...");
     try {
       await updateUserRole(userId, newRole);
-      setUsers(users.map(u => (u.id === userId || (u as any)._id === userId) ? { ...u, role: newRole } : u));
+      setUsers(users.map(u => (getSafeId(u) === userId) ? { ...u, role: newRole } : u));
       toast.success("Role updated successfully.", { id: loadToast });
-    } catch (_err) {
+    } catch {
       toast.error("Role update failed.", { id: loadToast });
     }
   };
@@ -121,9 +121,9 @@ const AdminUsers: React.FC = () => {
     const loadToast = toast.loading("Removing record...");
     try {
       await deleteUser(userId);
-      setUsers(users.filter(u => (u.id !== userId && (u as any)._id !== userId)));
+      setUsers(users.filter(u => (getSafeId(u) !== userId)));
       toast.success("User record deleted.", { id: loadToast });
-    } catch (_err) {
+    } catch {
       toast.error("Delete failed.", { id: loadToast });
     }
   };
@@ -155,7 +155,7 @@ const AdminUsers: React.FC = () => {
       const { url } = await uploadImage(file);
       setNewsData({ ...newsData, image_url: url });
       toast.success("Image uploaded successfully.", { id: loadToast });
-    } catch (err) {
+    } catch {
       toast.error("Image upload failed.", { id: loadToast });
     }
   };
@@ -247,44 +247,47 @@ const AdminUsers: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {sortedAndFilteredUsers.map((u, idx) => (
-                      <tr key={`${u.id || (u as any)._id}-${idx}`}>
-                        <td style={{ fontWeight: 800, color: 'var(--gold)' }}>{u.name}</td>
-                        <td className="truncate" title={u.email}>{u.email}</td>
-                        <td>
-                          <div className="role-chip" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                            <ShieldCheck size={14} className={u.role === 'admin' ? 'text-gold' : 'text-muted'} />
-                            <select 
-                              value={u.role} 
-                              onChange={(e) => handleRoleChange(u.id || (u as any)._id, e.target.value)} 
-                              className="role-selector"
-                            >
-                              <option value="user">USER</option>
-                              <option value="barber">BARBER</option>
-                              <option value="admin">ADMIN</option>
-                            </select>
-                          </div>
-                        </td>
-                        <td>
-                          <div style={{ display: 'flex', gap: '0.5rem' }}>
-                            <button 
-                              className="delete-btn" 
-                              onClick={() => handleRoleChange(u.id || (u as any)._id, 'suspended')} 
-                              title="Suspend Access"
-                            >
-                              <Ban size={16} />
-                            </button>
-                            <button 
-                              className="delete-btn" 
-                              onClick={() => handleDeleteUser(u.id || (u as any)._id)} 
-                              title="Delete Forever"
-                            >
-                              <Trash2 size={16} />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
+                    {sortedAndFilteredUsers.map((u, idx) => {
+                      const uId = getSafeId(u);
+                      return (
+                        <tr key={`${uId}-${idx}`}>
+                          <td style={{ fontWeight: 800, color: 'var(--gold)' }}>{u.name}</td>
+                          <td className="truncate" title={u.email}>{u.email}</td>
+                          <td>
+                            <div className="role-chip" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                              <ShieldCheck size={14} className={u.role === 'admin' ? 'text-gold' : 'text-muted'} />
+                              <select 
+                                value={u.role} 
+                                onChange={(e) => uId && handleRoleChange(uId, e.target.value)} 
+                                className="role-selector"
+                              >
+                                <option value="user">USER</option>
+                                <option value="barber">BARBER</option>
+                                <option value="admin">ADMIN</option>
+                              </select>
+                            </div>
+                          </td>
+                          <td>
+                            <div style={{ display: 'flex', gap: '0.5rem' }}>
+                              <button 
+                                className="delete-btn" 
+                                onClick={() => uId && handleRoleChange(uId, 'suspended')} 
+                                title="Suspend Access"
+                              >
+                                <Ban size={16} />
+                              </button>
+                              <button 
+                                className="delete-btn" 
+                                onClick={() => uId && handleDeleteUser(uId)} 
+                                title="Delete Forever"
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
 
@@ -303,7 +306,6 @@ const AdminUsers: React.FC = () => {
           </motion.div>
 
           <div className="admin-two-column-grid">
-             {/* Newsletter Section */}
              <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="dashboard-card premium-card-bg">
                 <div className="card-header">
                   <h2><Send size={20} /> Broadcast Newsletter</h2>
@@ -392,7 +394,6 @@ const AdminUsers: React.FC = () => {
                 </form>
              </motion.div>
 
-             {/* Subscribers List Section */}
              <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="dashboard-card premium-card-bg">
                 <div className="card-header">
                   <h2><Mail size={20} /> Newsletter Subscribers</h2>
@@ -427,7 +428,6 @@ const AdminUsers: React.FC = () => {
         </section>
       </main>
 
-      {/* Newsletter Preview Modal */}
       {showPreview && (
         <div className="newsletter-preview-modal" onClick={() => setShowPreview(false)}>
           <motion.div 

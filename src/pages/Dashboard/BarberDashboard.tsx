@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { fetchBarberBookings, updateBookingStatus } from '../../api/bookings';
+import { getSafeId } from '../../utils/ids';
 import type { Booking } from '../../api/types';
 import toast from 'react-hot-toast';
 
@@ -42,11 +43,13 @@ const BarberDashboard: React.FC = () => {
     const getData = async () => {
       try {
         if (user) {
-          const id = user.id || (user as any)._id;
-          const data = await fetchBarberBookings(id);
-          setSchedule(data || []);
+          const id = getSafeId(user);
+          if (id) {
+            const data = await fetchBarberBookings(id);
+            setSchedule(data || []);
+          }
         }
-      } catch (err) {
+      } catch {
         toast.error("Failed to sync your chair's ledger.");
       } finally {
         setLoading(false);
@@ -82,9 +85,9 @@ const BarberDashboard: React.FC = () => {
     const loadToast = toast.loading(`Updating status...`);
     try {
       await updateBookingStatus(bookingId, status);
-      setSchedule(prev => prev.map(b => (b.id === bookingId || (b as any)._id === bookingId) ? { ...b, status } : b));
+      setSchedule(prev => prev.map(b => (getSafeId(b) === bookingId) ? { ...b, status } : b));
       toast.success("Client record updated.", { id: loadToast });
-    } catch (err) {
+    } catch {
       toast.error("Status update failed.", { id: loadToast });
     }
   };
@@ -167,38 +170,41 @@ const BarberDashboard: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredSchedule.map((b, idx) => (
-                    <tr key={`${b.id || (b as any)._id}-${idx}`}>
-                      <td style={{ fontWeight: 600 }}>
-                        {new Date(b.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        <p style={{ fontSize: '0.7rem', opacity: 0.5, fontWeight: 400 }}>{new Date(b.date).toLocaleDateString()}</p>
-                      </td>
-                      <td style={{ fontWeight: 800, color: 'var(--gold)' }}>{b.service}</td>
-                      <td className="truncate">{b.user_id || 'Guest Patron'}</td>
-                      <td>
-                        <span className={`status-badge ${b.status}`}>{b.status}</span>
-                      </td>
-                      <td>
-                        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                          {b.status === 'confirmed' ? (
-                            <button 
-                              className="btn-filled slim" 
-                              style={{ padding: '0.4rem 0.8rem', fontSize: '0.75rem' }}
-                              onClick={() => handleStatusChange(b.id || (b as any)._id, 'completed')}
-                            >
-                              <CheckCircle2 size={14} /> COMPLETE
-                            </button>
-                          ) : b.status === 'completed' ? (
-                             <span style={{ fontSize: '0.75rem', opacity: 0.5, display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                              <Award size={14} /> SESSION DONE
-                             </span>
-                          ) : (
-                             <span style={{ fontSize: '0.75rem', opacity: 0.5 }}>{b.status.toUpperCase()}</span>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                  {filteredSchedule.map((b, idx) => {
+                    const bId = getSafeId(b);
+                    return (
+                      <tr key={`${bId}-${idx}`}>
+                        <td style={{ fontWeight: 600 }}>
+                          {new Date(b.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          <p style={{ fontSize: '0.7rem', opacity: 0.5, fontWeight: 400 }}>{new Date(b.date).toLocaleDateString()}</p>
+                        </td>
+                        <td style={{ fontWeight: 800, color: 'var(--gold)' }}>{b.service}</td>
+                        <td className="truncate">{b.user_id || 'Guest Patron'}</td>
+                        <td>
+                          <span className={`status-badge ${b.status}`}>{b.status}</span>
+                        </td>
+                        <td>
+                          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                            {b.status === 'confirmed' && bId ? (
+                              <button 
+                                className="btn-filled slim" 
+                                style={{ padding: '0.4rem 0.8rem', fontSize: '0.75rem' }}
+                                onClick={() => handleStatusChange(bId, 'completed')}
+                              >
+                                <CheckCircle2 size={14} /> COMPLETE
+                              </button>
+                            ) : b.status === 'completed' ? (
+                               <span style={{ fontSize: '0.75rem', opacity: 0.5, display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                                <Award size={14} /> SESSION DONE
+                               </span>
+                            ) : (
+                               <span style={{ fontSize: '0.75rem', opacity: 0.5 }}>{b.status.toUpperCase()}</span>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
 

@@ -1,5 +1,3 @@
-/* eslint-disable react-refresh/only-export-components */
-/* eslint-disable react-hooks/set-state-in-effect */
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 
@@ -25,7 +23,6 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  // Synchronous initialization to prevent premature redirection on refresh
   const [user, setUser] = useState<User | null>(() => {
     const savedUser = localStorage.getItem('user');
     return savedUser ? JSON.parse(savedUser) : null;
@@ -38,8 +35,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Perform any background validation here if needed
+    const handleStorageChange = () => {
+      const token = localStorage.getItem('token');
+      const savedUser = localStorage.getItem('user');
+      setIsLoggedIn(!!token && !!savedUser);
+      setUser(savedUser ? JSON.parse(savedUser) : null);
+    };
+
+    window.addEventListener('storage', handleStorageChange);
     setIsLoading(false);
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
   const login = (userData: User) => {

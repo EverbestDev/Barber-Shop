@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Maximize2, X } from 'lucide-react';
 import CTA from '../../components/sections/home/CTA';
@@ -16,13 +16,10 @@ const galleryHeroSlides = [
 ];
 
 const staticImages = [
-  // Base Images
   { id: 1, category: 'Men', src: '/images/mensignature.jpg', title: 'Signature Cut', tags: ['Styling'] },
   { id: 2, category: 'Men', src: '/images/taperfade.jpg', title: 'Sharp Skin Fade', tags: ['Fades'] },
   { id: 3, category: 'Men', src: '/images/herobeard.jpg', title: 'Beard Sculpting', tags: ['Beard'] },
   { id: 6, category: 'Men', src: '/images/InTheBarbershop.jpg', title: 'Classic Grooming', tags: ['Styling'] },
-
-  // Men Collection
   { id: 7, category: 'Men', src: '/images/men/beardandfademen.jpg', title: 'Premium Beard & Fade', tags: ['Beard', 'Fades'] },
   { id: 8, category: 'Men', src: '/images/men/cleanbeard.jpg', title: 'Defined Beard Lineup', tags: ['Beard'] },
   { id: 9, category: 'Men', src: '/images/men/curly.jpg', title: 'Natural Curly Texture', tags: ['Styling'] },
@@ -37,8 +34,6 @@ const staticImages = [
   { id: 38, category: 'Men', src: '/images/men/menbraids2.jpg', title: 'Patterned Braids', tags: ['Styling'] },
   { id: 39, category: 'Men', src: '/images/men/menfadedread.jpg', title: 'Fade & Dread Lock Combination', tags: ['Fades'] },
   { id: 40, category: 'Men', src: '/images/men/menfadesignature3.jpg', title: 'Master Level Skin Fade', tags: ['Fades'] },
-
-  // Ladies Collection
   { id: 15, category: 'Ladies', src: '/images/ladies/womencurly.jpg', title: "Women's Curly Taper", tags: ['Styling'] },
   { id: 16, category: 'Ladies', src: '/images/ladies/womensig2.jpg', title: "Elite Women's Styling", tags: ['Styling'] },
   { id: 17, category: 'Ladies', src: '/images/ladies/womensignature.jpg', title: "Women's Master Cut", tags: ['Styling'] },
@@ -48,8 +43,6 @@ const staticImages = [
   { id: 43, category: 'Ladies', src: '/images/ladies/womenfadesignature.jpg', title: "Signature Lady Fade", tags: ['Fades'] },
   { id: 44, category: 'Ladies', src: '/images/ladies/womensignaturecurly.jpg', title: "Artistic Curly Styling", tags: ['Styling'] },
   { id: 45, category: 'Ladies', src: '/images/ladies/womensignaturecut.jpg', title: "Master Female Styling", tags: ['Styling'] },
-
-  // Kids Collection
   { id: 19, category: 'Kids', src: '/images/kids/childbarreltwists.jpg', title: 'Child Barrel Twists', tags: ['Styling'] },
   { id: 24, category: 'Kids', src: '/images/kids/fade.jpg', title: 'Classic Kid Fade', tags: ['Fades'] },
   { id: 25, category: 'Kids', src: '/images/kids/femalechilddeepfadepattern.jpg', title: 'Female Child Deep Fade', tags: ['Fades'] },
@@ -73,7 +66,6 @@ const Gallery: React.FC = () => {
   const [heroIndex, setHeroIndex] = useState(0);
   const { onAuthOpen } = useOutletContext<{ onAuthOpen: () => void }>();
 
-  // Rotate hero backgrounds
   useEffect(() => {
     const timer = setInterval(() => {
       setHeroIndex((prev) => (prev + 1) % galleryHeroSlides.length);
@@ -81,24 +73,20 @@ const Gallery: React.FC = () => {
     return () => clearInterval(timer);
   }, []);
 
-  const [shuffledImages, setShuffledImages] = useState<typeof staticImages>([]);
-
-  // Shuffle images on component mount (once)
-  useEffect(() => {
-    const shuffled = [...staticImages].sort(() => Math.random() - 0.5);
-    setShuffledImages(shuffled);
+  const shuffledImages = useMemo(() => {
+    return [...staticImages].sort(() => Math.random() - 0.5);
   }, []);
 
-  const filteredImages = activeFilter === 'All' 
-    ? (shuffledImages.length > 0 ? shuffledImages : staticImages)
-    : (shuffledImages.length > 0 ? shuffledImages : staticImages).filter(img => 
-        img.category === activeFilter || (img.tags && img.tags.includes(activeFilter))
-      );
+  const filteredImages = useMemo(() => {
+    return activeFilter === 'All' 
+      ? shuffledImages
+      : shuffledImages.filter(img => 
+          img.category === activeFilter || (img.tags && img.tags.includes(activeFilter))
+        );
+  }, [activeFilter, shuffledImages]);
 
   return (
     <div className="gallery-page-wrapper">
-      
-      {/* Dynamic Hero with Bg Transitions */}
       <section className="gallery-hero">
         <AnimatePresence mode="wait">
           <motion.div 
@@ -132,12 +120,12 @@ const Gallery: React.FC = () => {
         </div>
       </section>
 
-      {/* Filters */}
       <section className="gallery-filters-section">
         <div className="container flex-center">
           <div className="filter-chips">
             {categories.map(cat => (
               <button 
+                key={cat}
                 className={`filter-chip ${activeFilter === cat ? 'active' : ''}`}
                 onClick={() => setActiveFilter(cat)}
               >
@@ -148,7 +136,6 @@ const Gallery: React.FC = () => {
         </div>
       </section>
 
-      {/* Grid */}
       <section className="gallery-grid-section">
         <div className="container">
           <motion.div layout className="gallery-masonry">
@@ -176,7 +163,6 @@ const Gallery: React.FC = () => {
         </div>
       </section>
 
-      {/* Simple Lightbox */}
       <AnimatePresence>
         {selectedImage && (
           <motion.div 
@@ -199,7 +185,6 @@ const Gallery: React.FC = () => {
       </AnimatePresence>
 
       <CTA onAuthOpen={onAuthOpen} />
-
     </div>
   );
 };

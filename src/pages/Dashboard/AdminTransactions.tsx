@@ -11,6 +11,7 @@ import {
   MoreVertical
 } from 'lucide-react';
 import { fetchAllBookings, refundBooking } from '../../api/bookings';
+import { getSafeId } from '../../utils/ids';
 import type { Booking } from '../../api/types';
 import { downloadCSV } from '../../utils/export';
 import toast from 'react-hot-toast';
@@ -98,10 +99,10 @@ const AdminTransactions: React.FC = () => {
       const loadToast = toast.loading("Processing refund...");
       try {
           await refundBooking(id);
-          setBookings(bookings.map(b => (b.id === id || (b as any)._id === id) ? { ...b, payment_status: 'refunded' } : b));
+          setBookings(bookings.map(b => (getSafeId(b) === id) ? { ...b, payment_status: 'refunded' } : b));
           toast.success("Transaction refunded successfully.", { id: loadToast });
-      } catch (err) {
-          toast.error("Refund failed.", { id: loadToast });
+      } catch {
+          toast.error("Refund failed. Contact Stripe.", { id: loadToast });
       } finally {
           setRefundConfirmId(null);
       }
@@ -191,49 +192,52 @@ const AdminTransactions: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {sortedAndFilteredTransactions.map((t, idx) => (
-                    <tr key={`${t.id || (t as any)._id}-${idx}`}>
-                      <td className="truncate" title={t.guest_name || t.user_id || 'Guest'}>{t.guest_name || t.user_id || 'Guest'}</td>
-                      <td style={{ fontWeight: 700 }}>{t.service}</td>
-                      <td style={{ fontWeight: 800, color: 'var(--gold)' }}>£{(t.amount || 0).toFixed(2)}</td>
-                      <td><span className={`payment-badge ${t.payment_status}`}>{t.payment_status}</span></td>
-                      <td>{t.created_at ? new Date(t.created_at).toLocaleDateString() : new Date(t.date).toLocaleDateString()}</td>
-                      <td>
-                        <div style={{ position: 'relative' }}>
-                          <button 
-                            className="d-icon-btn" 
-                            style={{ width: '32px', height: '32px' }}
-                            onClick={(e) => { e.stopPropagation(); setOpenActionId(openActionId === (t.id || (t as any)._id) ? null : (t.id || (t as any)._id)); }}
-                          >
-                            <MoreVertical size={16} />
-                          </button>
-                          {openActionId === (t.id || (t as any)._id) && (
-                            <div className="d-profile-dropdown" style={{ right: '0', top: '100%', minWidth: '150px' }} onClick={(e) => e.stopPropagation()}>
-                                <button onClick={() => { setSelectedTransaction(t); setOpenActionId(null); }}>View Details</button>
-                                {t.payment_status === 'paid' && (
-                                   <button 
-                                     style={{ color: '#eb5757' }} 
-                                     onClick={() => { setRefundConfirmId(t.id || (t as any)._id); setOpenActionId(null); }}
-                                   >
-                                     Refund Player
-                                   </button>
-                                )}
-                                {t.payment_status !== 'paid' && (
-                                   <button 
-                                     onClick={() => { 
-                                       toast.success("Payment request sent to patron."); 
-                                       setOpenActionId(null); 
-                                     }}
-                                   >
-                                     Request Transaction
-                                   </button>
-                                )}
-                            </div>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                  {sortedAndFilteredTransactions.map((t, idx) => {
+                    const tId = getSafeId(t);
+                    return (
+                      <tr key={`${tId}-${idx}`}>
+                        <td className="truncate" title={t.guest_name || t.user_id || 'Guest'}>{t.guest_name || t.user_id || 'Guest'}</td>
+                        <td style={{ fontWeight: 700 }}>{t.service}</td>
+                        <td style={{ fontWeight: 800, color: 'var(--gold)' }}>£{(t.amount || 0).toFixed(2)}</td>
+                        <td><span className={`payment-badge ${t.payment_status}`}>{t.payment_status}</span></td>
+                        <td>{t.created_at ? new Date(t.created_at).toLocaleDateString() : new Date(t.date).toLocaleDateString()}</td>
+                        <td>
+                          <div style={{ position: 'relative' }}>
+                            <button 
+                              className="d-icon-btn" 
+                              style={{ width: '32px', height: '32px' }}
+                              onClick={(e) => { e.stopPropagation(); setOpenActionId(openActionId === tId ? null : (tId || null)); }}
+                            >
+                              <MoreVertical size={16} />
+                            </button>
+                            {openActionId === tId && tId && (
+                              <div className="d-profile-dropdown" style={{ right: '0', top: '100%', minWidth: '150px' }} onClick={(e) => e.stopPropagation()}>
+                                  <button onClick={() => { setSelectedTransaction(t); setOpenActionId(null); }}>View Details</button>
+                                  {t.payment_status === 'paid' && (
+                                     <button 
+                                       style={{ color: '#eb5757' }} 
+                                       onClick={() => { setRefundConfirmId(tId); setOpenActionId(null); }}
+                                     >
+                                       Refund Player
+                                     </button>
+                                  )}
+                                  {t.payment_status !== 'paid' && (
+                                     <button 
+                                       onClick={() => { 
+                                         toast.success("Payment request sent to patron."); 
+                                         setOpenActionId(null); 
+                                       }}
+                                     >
+                                       Request Transaction
+                                     </button>
+                                  )}
+                              </div>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
 

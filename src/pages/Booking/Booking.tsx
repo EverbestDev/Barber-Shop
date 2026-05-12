@@ -6,6 +6,7 @@ import { useSearchParams, useOutletContext } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { createBooking } from '../../api/bookings';
 import { createCheckoutSession } from '../../api/payments';
+import { getSafeId } from '../../utils/ids';
 import './Booking.css';
 
 const steps = ['Type', 'Service', 'Time', 'Review'];
@@ -32,7 +33,6 @@ const serviceCategories: Category[] = [
 ];
 
 const allServices: Service[] = [
-  // Shop Services
   { id: 1, cat: 'shop', name: 'Signature Haircut', price: 20, duration: '45m', popular: true },
   { id: 2, cat: 'shop', name: 'Skin Fade', price: 20, duration: '60m', popular: true },
   { id: 3, cat: 'shop', name: 'Beard Sculpture', price: 15, duration: '30m' },
@@ -52,12 +52,10 @@ const allServices: Service[] = [
   { id: 17, cat: 'shop', name: "Undercut Design", price: 20, duration: '30m' },
   { id: 18, cat: 'shop', name: "Short Cut & Style", price: 20, duration: '45m' },
 
-  // Home Services
   { id: 101, cat: 'home', name: 'Executive Home Visit', price: 40, duration: '60m', popular: true },
   { id: 102, cat: 'home', name: 'Full Grooming Home Visit', price: 55, duration: '90m' },
   { id: 103, cat: 'home', name: 'V.I.P Doorstep Session', price: 75, duration: '120m' },
 
-  // Group Services
   { id: 201, cat: 'group', name: 'Father & Son', price: 35, duration: '90m', popular: true },
   { id: 202, cat: 'group', name: 'The Duo Pack', price: 40, duration: '90m' },
   { id: 203, cat: 'group', name: 'The Grooming Party', price: 100, duration: '180m' },
@@ -77,7 +75,6 @@ const BookingPage: React.FC = () => {
   const { user } = useAuth();
   const { onAuthOpen } = useOutletContext<{ onAuthOpen: () => void }>();
 
-
   const allTimeSlots = [
     '10:00 AM', '11:00 AM', '12:00 PM', '01:00 PM', '02:00 PM', 
     '03:00 PM', '04:00 PM', '05:00 PM', '06:00 PM'
@@ -93,7 +90,7 @@ const BookingPage: React.FC = () => {
         const category = serviceCategories.find(c => c.id === service.cat);
         setSelectedService(service);
         setSelectedCategory(category || null);
-        setStep(3); // Jump to Time Selection
+        setStep(3);
         toast.success(`Booking: ${service.name}`);
       }
     }
@@ -118,7 +115,7 @@ const BookingPage: React.FC = () => {
         if (modifier === 'AM' && hour === 12) hour = 0;
 
         if (hour > currentHour) return true;
-        if (hour === currentHour && min > currentMin + 30) return true; // 30 min buffer
+        if (hour === currentHour && min > currentMin + 30) return true;
         return false;
       });
     }
@@ -155,10 +152,10 @@ const BookingPage: React.FC = () => {
       };
 
       const newBooking = await createBooking(bookingData);
-      const bookingId = newBooking.id || (newBooking as any)._id;
+      const bookingId = getSafeId(newBooking);
 
       if (!bookingId) {
-        throw new Error('Studio ID ritual error⣔please contact support.');
+        throw new Error('Studio ID ritual error please contact support.');
       }
       
       const { url } = await createCheckoutSession(bookingId);

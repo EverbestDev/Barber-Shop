@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { fetchAllUsers } from '../../api/admin';
 import { fetchAllBookings } from '../../api/bookings';
+import { getSafeId } from '../../utils/ids';
 import type { UserInfo, Booking } from '../../api/types';
 import { downloadCSV } from '../../utils/export';
 import toast from 'react-hot-toast';
@@ -132,7 +133,7 @@ const AdminDashboard: React.FC = () => {
                 </thead>
                 <tbody>
                   {todayBookings.map(b => (
-                    <tr key={b.id}>
+                    <tr key={getSafeId(b)}>
                       <td>{new Date(b.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
                       <td style={{ fontWeight: 800 }}>{b.service}</td>
                       <td className="truncate">{b.user_id || 'Guest'}</td>

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Calendar, Clock, User } from 'lucide-react';
 import { fetchMyBookings } from '../../api/bookings';
+import { getSafeId } from '../../utils/ids';
 import type { Booking } from '../../api/types';
 import './Dashboard.css';
 
@@ -22,7 +23,6 @@ const UserBookings: React.FC = () => {
     };
     getBookings();
     
-    // Polling every 5 seconds to ensure real-time updates from Admin actions
     const intervalId = setInterval(getBookings, 5000);
     return () => clearInterval(intervalId);
   }, []);
@@ -47,7 +47,7 @@ const UserBookings: React.FC = () => {
             ) : bookings.length > 0 ? (
               <div className="history-list">
                 {bookings.map(app => (
-                  <div key={app.id} className="history-item" style={{ flexWrap: 'wrap', gap: '1rem' }}>
+                  <div key={getSafeId(app)} className="history-item" style={{ flexWrap: 'wrap', gap: '1rem' }}>
                     <div className="history-info">
                       <span className="history-service text-lg">{app.service}</span>
                       <span className="history-meta" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.25rem' }}>

@@ -11,7 +11,8 @@ import {
 } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 import apiClient from '../../api/client';
-import { Booking as BookingDetails } from '../../api/types';
+import type { Booking as BookingDetails } from '../../api/types';
+import { getSafeId } from '../../utils/ids';
 import './BookingSuccess.css';
 
 const BookingSuccess: React.FC = () => {
@@ -92,7 +93,7 @@ const BookingSuccess: React.FC = () => {
   }
 
   const getDisplayId = () => {
-    const id = booking?.id || (booking as any)?._id || 'B2-XXXXXX';
+    const id = getSafeId(booking) || 'B2-XXXXXX';
     return id.toString().slice(-8).toUpperCase();
   };
 

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { CreditCard, CheckCircle2 } from 'lucide-react';
 import { fetchMyBookings } from '../../api/bookings';
+import { getSafeId } from '../../utils/ids';
 import type { Booking } from '../../api/types';
 import './Dashboard.css';
 
@@ -22,7 +23,6 @@ const UserTransactions: React.FC = () => {
     };
     getBookings();
     
-    // Polling every 5 seconds to ensure real-time updates from Admin actions
     const intervalId = setInterval(getBookings, 5000);
     return () => clearInterval(intervalId);
   }, []);
@@ -49,7 +49,7 @@ const UserTransactions: React.FC = () => {
             ) : transactions.length > 0 ? (
               <div className="transaction-list">
                 {transactions.map(booking => (
-                  <div key={booking.id} className="transaction-item">
+                  <div key={getSafeId(booking)} className="transaction-item">
                     <div className="tx-icon">
                       <CheckCircle2 size={18} className={booking.payment_status === 'paid' ? 'text-gold' : 'text-muted'} />
                     </div>

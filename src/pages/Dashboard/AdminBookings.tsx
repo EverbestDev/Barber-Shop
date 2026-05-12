@@ -13,6 +13,7 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { fetchAllBookings, updateBookingStatus } from '../../api/bookings';
+import { getSafeId } from '../../utils/ids';
 import type { Booking } from '../../api/types';
 import { downloadCSV } from '../../utils/export';
 import toast from 'react-hot-toast';
@@ -42,7 +43,6 @@ const AdminBookings: React.FC = () => {
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [openActionId, setOpenActionId] = useState<string | null>(null);
 
-  // Close menus when clicking outside
   useEffect(() => {
     const handleOutsideClick = () => setOpenActionId(null);
     document.addEventListener('click', handleOutsideClick);
@@ -54,8 +54,8 @@ const AdminBookings: React.FC = () => {
       try {
         const b = await fetchAllBookings();
         setBookings(b || []);
-      } catch (err) {
-        toast.error("Failed to sync session data.");
+      } catch {
+        toast.error("Failed to sync studio data.");
       } finally {
         setLoading(false);
       }
@@ -75,7 +75,6 @@ const AdminBookings: React.FC = () => {
   const sortedAndFilteredBookings = useMemo(() => {
     let result = [...bookings];
 
-    // Filter
     if (statusFilter !== 'all') {
       result = result.filter(b => b.status === statusFilter);
     }
@@ -86,7 +85,6 @@ const AdminBookings: React.FC = () => {
       );
     }
 
-    // Sort
     result.sort((a, b) => {
       if (sortBy === 'recent') return new Date(b.date).getTime() - new Date(a.date).getTime();
       if (sortBy === 'oldest') return new Date(a.date).getTime() - new Date(b.date).getTime();
@@ -102,9 +100,9 @@ const AdminBookings: React.FC = () => {
     const loadToast = toast.loading("Updating session status...");
     try {
       await updateBookingStatus(bookingId, status);
-      setBookings(bookings.map(b => (b.id === bookingId || (b as any)._id === bookingId) ? { ...b, status } : b));
+      setBookings(bookings.map(b => (getSafeId(b) === bookingId) ? { ...b, status } : b));
       toast.success("Status updated.", { id: loadToast });
-    } catch (err) {
+    } catch {
       toast.error("Status update failed.", { id: loadToast });
     }
   };
@@ -201,42 +199,45 @@ const AdminBookings: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {sortedAndFilteredBookings.map((b, idx) => (
-                    <tr key={`${b.id || (b as any)._id}-${idx}`} style={{ cursor: 'pointer' }} onClick={() => setSelectedBooking(b)}>
-                      <td style={{ fontWeight: 800 }}>{b.service}</td>
-                      <td>{new Date(b.date).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}</td>
-                      <td style={{ fontWeight: 'bold' }}>£{(b.amount || 0).toFixed(2)}</td>
-                      <td><span className={`status-badge ${b.status}`}>{b.status}</span></td>
-                      <td>{b.created_at ? new Date(b.created_at).toLocaleDateString() : 'N/A'}</td>
-                      <td>
-                        <div style={{ position: 'relative' }}>
-                          <button 
-                            className="d-icon-btn" 
-                            style={{ width: '32px', height: '32px' }}
-                            onClick={(e) => { e.stopPropagation(); setOpenActionId(openActionId === (b.id || (b as any)._id) ? null : (b.id || (b as any)._id)); }}
-                          >
-                            <MoreVertical size={16} />
-                          </button>
-                          {openActionId === (b.id || (b as any)._id) && (
-                            <div className="d-profile-dropdown" style={{ right: '0', top: '100%', minWidth: '150px' }} onClick={(e) => e.stopPropagation()}>
-                                <button onClick={() => { setSelectedBooking(b); setOpenActionId(null); }}>View Details</button>
-                                <div className="divider" style={{ margin: '4px 0' }}></div>
-                                <select 
-                                  value={b.status} 
-                                  onChange={(e) => { handleStatusChange(b.id || (b as any)._id, e.target.value); setOpenActionId(null); }} 
-                                  className="status-selector"
-                                  style={{ padding: '0.75rem 1rem', width: '100%' }}
-                                >
-                                  <option value="confirmed">Confirm</option>
-                                  <option value="completed">Complete</option>
-                                  <option value="cancelled">Cancel</option>
-                                </select>
-                            </div>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                  {sortedAndFilteredBookings.map((b, idx) => {
+                    const bId = getSafeId(b);
+                    return (
+                      <tr key={`${bId}-${idx}`} style={{ cursor: 'pointer' }} onClick={() => setSelectedBooking(b)}>
+                        <td style={{ fontWeight: 800 }}>{b.service}</td>
+                        <td>{new Date(b.date).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}</td>
+                        <td style={{ fontWeight: 'bold' }}>£{(b.amount || 0).toFixed(2)}</td>
+                        <td><span className={`status-badge ${b.status}`}>{b.status}</span></td>
+                        <td>{b.created_at ? new Date(b.created_at).toLocaleDateString() : 'N/A'}</td>
+                        <td>
+                          <div style={{ position: 'relative' }}>
+                            <button 
+                              className="d-icon-btn" 
+                              style={{ width: '32px', height: '32px' }}
+                              onClick={(e) => { e.stopPropagation(); setOpenActionId(openActionId === bId ? null : (bId || null)); }}
+                            >
+                              <MoreVertical size={16} />
+                            </button>
+                            {openActionId === bId && bId && (
+                              <div className="d-profile-dropdown" style={{ right: '0', top: '100%', minWidth: '150px' }} onClick={(e) => e.stopPropagation()}>
+                                  <button onClick={() => { setSelectedBooking(b); setOpenActionId(null); }}>View Details</button>
+                                  <div className="divider" style={{ margin: '4px 0' }}></div>
+                                  <select 
+                                    value={b.status} 
+                                    onChange={(e) => { handleStatusChange(bId, e.target.value); setOpenActionId(null); }} 
+                                    className="status-selector"
+                                    style={{ padding: '0.75rem 1rem', width: '100%' }}
+                                  >
+                                    <option value="confirmed">Confirm</option>
+                                    <option value="completed">Complete</option>
+                                    <option value="cancelled">Cancel</option>
+                                  </select>
+                              </div>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
 

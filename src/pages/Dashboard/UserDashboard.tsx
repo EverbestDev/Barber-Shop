@@ -17,6 +17,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { fetchMyBookings } from '../../api/bookings';
 import { createCheckoutSession } from '../../api/payments';
+import { getSafeId } from '../../utils/ids';
 import type { Booking } from '../../api/types';
 import toast from 'react-hot-toast';
 
@@ -69,7 +70,6 @@ const UserDashboard: React.FC = () => {
   const totalInvested = bookings.filter(b => b.payment_status === 'paid').reduce((sum, b) => sum + (b.amount || 0), 0);
   const pastBookings = bookings.filter(b => b.status === 'completed' || b.payment_status === 'paid');
 
-  // Format member since month/year
   const memberSince = user?.created_at 
     ? new Date(user.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
     : 'New Member';
@@ -123,7 +123,6 @@ const UserDashboard: React.FC = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
         >
-          {/* Active Appointments */}
           <div className="dashboard-card active-bookings premium-card-bg">
             <div className="card-header">
               <h2><Calendar size={20} /> Upcoming Session</h2>
@@ -131,26 +130,29 @@ const UserDashboard: React.FC = () => {
             {loading ? (
               <div className="loading-state">Loading schedule...</div>
             ) : upcomingBookings.length > 0 ? (
-              upcomingBookings.map(app => (
-                <div key={app.id} className="appointment-banner">
-                  <div className="app-main-info">
-                    <div className="app-service">{app.service}</div>
-                    <div className="app-detail"><User size={14} /> Barber: {app.barber}</div>
-                    <div className="app-detail"><Clock size={14} /> {new Date(app.date).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}</div>
-                  </div>
-                  <div className="app-actions">
-                    {app.payment_status === 'pending' && (
-                      <button className="btn-filled-gold" onClick={() => handlePayment(app.id!)}>
-                        <CreditCard size={14} /> Pay Now
-                      </button>
-                    )}
-                    <div className="action-row">
-                      <button className="btn-outlined-studio" onClick={() => navigate('/booking')}>Reschedule</button>
-                      <button className="btn-outlined-studio" onClick={() => toast.success("Support request initiated.")}>Support</button>
+              upcomingBookings.map(app => {
+                const appId = getSafeId(app);
+                return (
+                  <div key={appId} className="appointment-banner">
+                    <div className="app-main-info">
+                      <div className="app-service">{app.service}</div>
+                      <div className="app-detail"><User size={14} /> Barber: {app.barber}</div>
+                      <div className="app-detail"><Clock size={14} /> {new Date(app.date).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}</div>
+                    </div>
+                    <div className="app-actions">
+                      {app.payment_status === 'pending' && appId && (
+                        <button className="btn-filled-gold" onClick={() => handlePayment(appId)}>
+                          <CreditCard size={14} /> Pay Now
+                        </button>
+                      )}
+                      <div className="action-row">
+                        <button className="btn-outlined-studio" onClick={() => navigate('/booking')}>Reschedule</button>
+                        <button className="btn-outlined-studio" onClick={() => toast.success("Support request initiated.")}>Support</button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))
+                );
+              })
             ) : (
               <div className="empty-state-standard">
                 <div className="empty-icon"><Calendar size={32} /></div>
@@ -161,7 +163,6 @@ const UserDashboard: React.FC = () => {
             )}
           </div>
 
-          {/* Transaction History */}
           <div className="dashboard-card transactions-card premium-card-bg">
             <div className="card-header">
               <h2><CreditCard size={20} /> Transaction History</h2>
@@ -169,7 +170,7 @@ const UserDashboard: React.FC = () => {
             {bookings.length > 0 ? (
               <div className="transaction-list">
                 {bookings.slice(0, 3).map(booking => (
-                  <div key={booking.id} className="transaction-item">
+                  <div key={getSafeId(booking)} className="transaction-item">
                     <div className="tx-icon">
                       <CheckCircle2 size={18} className={booking.payment_status === 'paid' ? 'text-gold' : 'text-muted'} />
                     </div>
@@ -194,7 +195,6 @@ const UserDashboard: React.FC = () => {
             )}
           </div>
 
-          {/* Quick Actions / Help */}
           <div className="dashboard-card support-card premium-card-bg">
             <div className="card-header">
               <h2><Settings size={20} /> Studio Support</h2>
@@ -206,7 +206,6 @@ const UserDashboard: React.FC = () => {
             </div>
           </div>
 
-          {/* Booking History */}
           <div className="dashboard-card recent-history premium-card-bg">
             <div className="card-header">
               <h2><TrendingUp size={20} /> Booking History</h2>
@@ -214,7 +213,7 @@ const UserDashboard: React.FC = () => {
             {pastBookings.length > 0 ? (
               <div className="history-list">
                 {pastBookings.slice(0, 4).map(booking => (
-                  <div key={booking.id} className="history-item">
+                  <div key={getSafeId(booking)} className="history-item">
                     <div className="history-info">
                       <span className="history-service">{booking.service}</span>
                       <span className="history-meta">{new Date(booking.date).toLocaleDateString()} ⣢ {booking.barber}</span>
@@ -233,7 +232,6 @@ const UserDashboard: React.FC = () => {
             )}
           </div>
 
-          {/* Studio Showcase */}
           <div className="showcase-grid">
             <div className="showcase-card">
               <AnimatePresence mode="wait">

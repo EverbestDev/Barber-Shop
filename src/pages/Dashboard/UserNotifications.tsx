@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Bell, CheckCircle2 } from 'lucide-react';
 import { useOutletContext } from 'react-router-dom';
+import { getSafeId } from '../../utils/ids';
 import './Dashboard.css';
 
 interface Notification {
@@ -48,26 +49,29 @@ const UserNotifications: React.FC = () => {
             
             {notifications.length > 0 ? (
               <div className="notification-list">
-                {notifications.map(n => (
-                  <div 
-                    key={n.id} 
-                    className={`notification-list-item ${n.isNew ? 'unread' : ''}`} 
-                    onClick={() => { if(n.id) handleMarkAsRead(n.id) }}
-                  >
-                    <div className="notif-list-icon">
-                      <Bell size={18} />
-                    </div>
-                    <div className="notif-list-content">
-                      <div className="notif-list-text">{n.text}</div>
-                      <div className="notif-list-time">{formatRelativeTime(n.time, n.created_at)}</div>
-                    </div>
-                    {n.isNew && (
-                       <div className="new-badge-standard">
-                        <span>NEW</span>
+                {notifications.map(n => {
+                  const nId = getSafeId(n);
+                  return (
+                    <div 
+                      key={nId} 
+                      className={`notification-list-item ${n.isNew ? 'unread' : ''}`} 
+                      onClick={() => { if(nId) handleMarkAsRead(nId) }}
+                    >
+                      <div className="notif-list-icon">
+                        <Bell size={18} />
                       </div>
-                    )}
-                  </div>
-                ))}
+                      <div className="notif-list-content">
+                        <div className="notif-list-text">{n.text}</div>
+                        <div className="notif-list-time">{formatRelativeTime(n.time, n.created_at)}</div>
+                      </div>
+                      {n.isNew && (
+                        <div className="new-badge-standard">
+                          <span>NEW</span>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             ) : (
               <div className="empty-state-standard" style={{ padding: '4rem 2rem' }}>
