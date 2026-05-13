@@ -31,3 +31,8 @@ export const refundBooking = async (bookingId: string): Promise<Booking> => {
   const response = await apiClient.patch<Booking>(`/bookings/${bookingId}/status`, { status: 'refunded' });
   return response.data;
 };
+
+export const rescheduleBooking = async (bookingId: string, newDate: string): Promise<Booking> => {
+  const response = await apiClient.patch<Booking>(`/bookings/${bookingId}/reschedule?new_date=${newDate}`);
+  return response.data;
+};

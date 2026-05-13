@@ -19,27 +19,61 @@ import { fetchMyBookings } from '../../api/bookings';
 import { createCheckoutSession } from '../../api/payments';
 import { getSafeId } from '../../utils/ids';
 import type { Booking } from '../../api/types';
+import RescheduleModal from '../../components/common/RescheduleModal/RescheduleModal';
 import toast from 'react-hot-toast';
+import './Dashboard.css';
 
 const UserDashboard: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
+  const [rescheduleModal, setRescheduleModal] = useState<{isOpen: boolean, booking: Booking | null}>({
+    isOpen: false,
+    booking: null
+  });
 
-  useEffect(() => {
-    const getBookings = async () => {
+  const getBookings = async () => {
       try {
         const data = await fetchMyBookings();
         setBookings(data || []);
+        
+        // Auto-sync pending bookings that have a session ID
+        const pendingWithSession = (data || []).filter(b => 
+          b.payment_status === 'pending' && b.stripe_session_id
+        );
+        
+        if (pendingWithSession.length > 0) {
+          await Promise.all(pendingWithSession.map(async (b) => {
+            try {
+              // Calling the session verify endpoint we just improved
+              await fetch(`/api/bookings/session/${b.stripe_session_id}`);
+            } catch (e) {
+              console.error("Silent sync failed for session:", b.stripe_session_id);
+            }
+          }));
+          
+          // Re-fetch once after syncing to get updated statuses
+          const updatedData = await fetchMyBookings();
+          setBookings(updatedData || []);
+        }
       } catch (err) {
         console.error(err);
       } finally {
         setLoading(false);
       }
     };
+  useEffect(() => {
     getBookings();
   }, []);
+
+  const handleRescheduleClick = (booking: Booking) => {
+    if (booking.status === 'completed') {
+      toast.error("Completed rituals cannot be rescheduled.");
+      return;
+    }
+    setRescheduleModal({ isOpen: true, booking });
+  };
 
   const showcaseImages1 = ['/images/LuxuryLounge.jpg', '/images/premiumtools.jpg', '/images/InTheBarbershop.jpg'];
   const showcaseImages2 = ['/images/herobeard.jpg', '/images/viphomevisit.jpg', '/images/taperfade.jpg'];
@@ -147,7 +181,7 @@ const UserDashboard: React.FC = () => {
                         </button>
                       )}
                       <div className="action-row">
-                        <button className="btn-outlined-studio" onClick={() => navigate('/booking')}>Reschedule</button>
+                        <button className="btn-outlined-studio" onClick={() => handleRescheduleClick(app)}>Reschedule</button>
                         <button className="btn-outlined-studio" onClick={() => toast.success("Support request initiated.")}>Support</button>
                       </div>
                     </div>
@@ -265,6 +299,15 @@ const UserDashboard: React.FC = () => {
           </div>
         </motion.section>
       </main>
+
+      {rescheduleModal.booking && (
+        <RescheduleModal 
+          isOpen={rescheduleModal.isOpen}
+          booking={rescheduleModal.booking}
+          onClose={() => setRescheduleModal({ isOpen: false, booking: null })}
+          onSuccess={getBookings}
+        />
+      )}
     </div>
   );
 };

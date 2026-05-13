@@ -4,7 +4,7 @@
   height: 80vh;
   min-height: 600px;
   width: 100%;
-  margin-top: 80px; /* Pushes the hero down below the solid navbar */
+  margin-top: 100px; /* Increased from 80px to safely clear the navbar on large screens */
   display: flex;
   align-items: center; /* Vertically centers the text box */
   background-color: var(--primary);
@@ -44,7 +44,7 @@
   width: 100%;
   max-width: 1440px;
   margin: 0 auto;
-  padding: 0 4rem;
+  padding: 2rem 4rem 0; /* Added 2rem top padding for better clearance */
 }
 
 .hero-text-box {

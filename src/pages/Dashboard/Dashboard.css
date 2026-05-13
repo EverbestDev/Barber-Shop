@@ -269,6 +269,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 1.5rem;
 }
 
 .app-service {
@@ -291,6 +293,24 @@
   flex-direction: column;
   gap: 1rem;
   align-items: flex-end;
+  min-width: fit-content;
+}
+
+@media (max-width: 768px) {
+  .appointment-banner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .app-actions {
+    align-items: flex-start;
+    width: 100%;
+  }
+  .action-row {
+    width: 100%;
+  }
+  .action-row button {
+    flex: 1;
+  }
 }
 
 .action-row {
@@ -446,7 +466,8 @@
 .support-actions {
   display: flex;
   flex-direction: row;
-  gap: 1rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
   margin-top: 1.5rem;
 }
 
