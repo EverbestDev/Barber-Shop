@@ -78,12 +78,34 @@ const AdminDashboard: React.FC = () => {
     };
   }, [bookings, users]);
 
+  const handleGenerateReport = () => {
+    if (!bookings.length) {
+      toast.error("No data available to generate report.");
+      return;
+    }
+
+    const reportData = bookings.map(b => ({
+      'Transaction Date': new Date(b.date).toLocaleDateString(),
+      'Session Time': new Date(b.date).toLocaleTimeString(),
+      'Service Rendered': b.service,
+      'Patron Reference': b.user_id || 'Guest',
+      'Revenue (£)': b.amount || 30,
+      'Operational Status': b.status,
+      'Settlement': b.payment_status,
+      'Assigned Barber': b.barber
+    }));
+
+    toast.success("Full Executive Report generated successfully.");
+    downloadCSV(reportData, `Studio_Full_Report_${new Date().toISOString().split('T')[0]}.csv`);
+  };
+
   const todayBookings = useMemo(() => {
     const today = new Date().toISOString().split('T')[0];
     return bookings
       .filter(b => b.date.startsWith(today))
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   }, [bookings]);
+
 
   if (loading) return <AdminOverviewSkeleton />;
 
@@ -206,7 +228,7 @@ const AdminDashboard: React.FC = () => {
                     </div>
                 </div>
              </div>
-             <button className="btn-filled-gold w-full mt-6">Generate Full Report</button>
+             <button className="btn-filled-gold w-full mt-6" onClick={handleGenerateReport}>Generate Full Report</button>
           </div>
         </section>
       </main>
