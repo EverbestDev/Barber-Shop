@@ -9,13 +9,16 @@ import {
   CircleDashed,
   Download,
   Search,
-  ChevronRight
+  ChevronRight,
+  TrendingUp,
+  User
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { fetchBarberBookings, updateBookingStatus } from '../../api/bookings';
 import { getSafeId } from '../../utils/ids';
 import type { Booking } from '../../api/types';
 import toast from 'react-hot-toast';
+import DetailModal from '../../components/common/DetailModal/DetailModal';
 
 const BarberDashboardSkeleton = () => (
     <div className="dashboard-content-main">
@@ -38,6 +41,7 @@ const BarberDashboard: React.FC = () => {
   const [schedule, setSchedule] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
 
   useEffect(() => {
     const getData = async () => {
@@ -61,14 +65,15 @@ const BarberDashboard: React.FC = () => {
   const stats = useMemo(() => {
     const today = new Date().toISOString().split('T')[0];
     const todayBookings = schedule.filter(b => b.date.startsWith(today));
-    const completed = schedule.filter(b => b.status === 'completed').length;
+    const completed = schedule.filter(b => b.status === 'completed');
+    const totalEarnings = completed.reduce((sum, b) => sum + (b.amount || 30), 0);
     
     return {
       todayCount: todayBookings.length,
       upcomingCount: todayBookings.filter(b => b.status === "confirmed").length,
-      totalSessions: completed,
-      ratingPoints: completed * 50,
-      efficiency: schedule.length > 0 ? Math.round((completed / schedule.length) * 100) : 0
+      totalSessions: completed.length,
+      earnings: totalEarnings,
+      efficiency: schedule.length > 0 ? Math.round((completed.length / schedule.length) * 100) : 0
     };
   }, [schedule]);
 
@@ -81,7 +86,8 @@ const BarberDashboard: React.FC = () => {
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }, [schedule, searchQuery]);
 
-  const handleStatusChange = async (bookingId: string, status: string) => {
+  const handleStatusChange = async (bookingId: string, status: string, e: React.MouseEvent) => {
+    e.stopPropagation();
     const loadToast = toast.loading(`Updating status...`);
     try {
       await updateBookingStatus(bookingId, status);
@@ -119,23 +125,23 @@ const BarberDashboard: React.FC = () => {
               </div>
             </div>
             <div className="mini-stat-card">
-              <div className="stat-icon-chamber" style={{ color: '#4caf50' }}><CheckCircle2 size={18} /></div>
+              <div className="stat-icon-chamber" style={{ color: '#4caf50' }}><TrendingUp size={18} /></div>
               <div className="stat-text">
-                <span className="stat-label">Sessions Completed</span>
-                <div className="stat-value">{stats.totalSessions}</div>
+                <span className="stat-label">Est. Earnings</span>
+                <div className="stat-value text-gold">£{stats.earnings}</div>
               </div>
             </div>
             <div className="mini-stat-card">
-              <div className="stat-icon-chamber" style={{ color: '#2196f3' }}><Award size={18} /></div>
+              <div className="stat-icon-chamber" style={{ color: '#2196f3' }}><CheckCircle2 size={18} /></div>
               <div className="stat-text">
-                <span className="stat-label">Barber Points</span>
-                <div className="stat-value">{stats.ratingPoints}</div>
+                <span className="stat-label">Sessions Done</span>
+                <div className="stat-value">{stats.totalSessions}</div>
               </div>
             </div>
             <div className="mini-stat-card">
               <div className="stat-icon-chamber" style={{ color: 'var(--gold)' }}><Star size={18} /></div>
               <div className="stat-text">
-                <span className="stat-label">Execution Efficiency</span>
+                <span className="stat-label">Efficiency</span>
                 <div className="stat-value">{stats.efficiency}%</div>
               </div>
             </div>
@@ -173,13 +179,18 @@ const BarberDashboard: React.FC = () => {
                   {filteredSchedule.map((b, idx) => {
                     const bId = getSafeId(b);
                     return (
-                      <tr key={`${bId}-${idx}`}>
+                      <tr key={`${bId}-${idx}`} className="clickable-row" onClick={() => setSelectedBooking(b)}>
                         <td style={{ fontWeight: 600 }}>
                           {new Date(b.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           <p style={{ fontSize: '0.7rem', opacity: 0.5, fontWeight: 400 }}>{new Date(b.date).toLocaleDateString()}</p>
                         </td>
                         <td style={{ fontWeight: 800, color: 'var(--gold)' }}>{b.service}</td>
-                        <td className="truncate">{b.user_id || 'Guest Patron'}</td>
+                        <td className="truncate">
+                           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                              <User size={14} className="text-gold" />
+                              {b.user_id || 'Guest Patron'}
+                           </div>
+                        </td>
                         <td>
                           <span className={`status-badge ${b.status}`}>{b.status}</span>
                         </td>
@@ -189,7 +200,7 @@ const BarberDashboard: React.FC = () => {
                               <button 
                                 className="btn-filled slim" 
                                 style={{ padding: '0.4rem 0.8rem', fontSize: '0.75rem' }}
-                                onClick={() => handleStatusChange(bId, 'completed')}
+                                onClick={(e) => handleStatusChange(bId, 'completed', e)}
                               >
                                 <CheckCircle2 size={14} /> COMPLETE
                               </button>
@@ -223,8 +234,17 @@ const BarberDashboard: React.FC = () => {
           </motion.div>
         </section>
       </main>
+
+      <DetailModal 
+        isOpen={!!selectedBooking}
+        onClose={() => setSelectedBooking(null)}
+        title="Client Record"
+        data={selectedBooking}
+        type="booking"
+      />
     </div>
   );
 };
 
 export default BarberDashboard;
+

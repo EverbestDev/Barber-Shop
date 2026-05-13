@@ -20,6 +20,7 @@ import { createCheckoutSession } from '../../api/payments';
 import { getSafeId } from '../../utils/ids';
 import type { Booking } from '../../api/types';
 import RescheduleModal from '../../components/common/RescheduleModal/RescheduleModal';
+import DetailModal from '../../components/common/DetailModal/DetailModal';
 import toast from 'react-hot-toast';
 import './Dashboard.css';
 
@@ -28,6 +29,7 @@ const UserDashboard: React.FC = () => {
   const navigate = useNavigate();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [rescheduleModal, setRescheduleModal] = useState<{isOpen: boolean, booking: Booking | null}>({
     isOpen: false,
     booking: null
@@ -38,7 +40,6 @@ const UserDashboard: React.FC = () => {
         const data = await fetchMyBookings();
         setBookings(data || []);
         
-        // Auto-sync pending bookings that have a session ID
         const pendingWithSession = (data || []).filter(b => 
           b.payment_status === 'pending' && b.stripe_session_id
         );
@@ -46,14 +47,12 @@ const UserDashboard: React.FC = () => {
         if (pendingWithSession.length > 0) {
           await Promise.all(pendingWithSession.map(async (b) => {
             try {
-              // Calling the session verify endpoint we just improved
               await fetch(`/api/bookings/session/${b.stripe_session_id}`);
-            } catch (e) {
+            } catch {
               console.error("Silent sync failed for session:", b.stripe_session_id);
             }
           }));
           
-          // Re-fetch once after syncing to get updated statuses
           const updatedData = await fetchMyBookings();
           setBookings(updatedData || []);
         }
@@ -63,6 +62,7 @@ const UserDashboard: React.FC = () => {
         setLoading(false);
       }
     };
+
   useEffect(() => {
     getBookings();
   }, []);
@@ -87,7 +87,7 @@ const UserDashboard: React.FC = () => {
       setImgIndex2(prev => (prev + 1) % showcaseImages2.length);
     }, 5000);
     return () => clearInterval(timer);
-  }, []);
+  }, [showcaseImages1.length, showcaseImages2.length]);
 
   const handlePayment = async (bookingId: string) => {
     try {
@@ -168,7 +168,7 @@ const UserDashboard: React.FC = () => {
               upcomingBookings.map(app => {
                 const appId = getSafeId(app);
                 return (
-                  <div key={appId} className="appointment-banner">
+                  <div key={appId} className="appointment-banner clickable" onClick={() => setSelectedBooking(app)}>
                     <div className="app-main-info">
                       <div className="app-service">{app.service}</div>
                       <div className="app-detail"><User size={14} /> Barber: {app.barber}</div>
@@ -176,13 +176,13 @@ const UserDashboard: React.FC = () => {
                     </div>
                     <div className="app-actions">
                       {app.payment_status === 'pending' && appId && (
-                        <button className="btn-filled-gold" onClick={() => handlePayment(appId)}>
+                        <button className="btn-filled-gold" onClick={(e) => { e.stopPropagation(); handlePayment(appId); }}>
                           <CreditCard size={14} /> Pay Now
                         </button>
                       )}
                       <div className="action-row">
-                        <button className="btn-outlined-studio" onClick={() => handleRescheduleClick(app)}>Reschedule</button>
-                        <button className="btn-outlined-studio" onClick={() => toast.success("Support request initiated.")}>Support</button>
+                        <button className="btn-outlined-studio" onClick={(e) => { e.stopPropagation(); handleRescheduleClick(app); }}>Reschedule</button>
+                        <button className="btn-outlined-studio" onClick={(e) => { e.stopPropagation(); toast.success("Support request initiated."); }}>Support</button>
                       </div>
                     </div>
                   </div>
@@ -230,6 +230,32 @@ const UserDashboard: React.FC = () => {
             )}
           </div>
 
+          <div className="dashboard-card recent-history premium-card-bg">
+            <div className="card-header">
+              <h2><TrendingUp size={20} /> Booking History</h2>
+              <button className="text-gold text-xs font-bold" onClick={() => navigate('/dashboard/history')}>VIEW ALL</button>
+            </div>
+            {pastBookings.length > 0 ? (
+              <div className="history-list">
+                {pastBookings.slice(0, 4).map(booking => (
+                  <div key={getSafeId(booking)} className="history-item clickable" onClick={() => setSelectedBooking(booking)}>
+                    <div className="history-info">
+                      <span className="history-service">{booking.service}</span>
+                      <span className="history-meta">{new Date(booking.date).toLocaleDateString()} ⣢ {booking.barber}</span>
+                    </div>
+                    <ChevronRight size={18} className="history-arrow" />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="empty-state-standard small">
+                <div className="empty-icon"><TrendingUp size={24} /></div>
+                <p>Start your booking history with us.</p>
+                <button className="btn-filled-gold mt-2" onClick={() => navigate('/booking')}>Start Your History</button>
+              </div>
+            )}
+          </div>
+
           <div className="dashboard-card support-card premium-card-bg">
             <div className="card-header">
               <h2><Settings size={20} /> Studio Support</h2>
@@ -241,33 +267,7 @@ const UserDashboard: React.FC = () => {
             </div>
           </div>
 
-          <div className="dashboard-card recent-history premium-card-bg">
-            <div className="card-header">
-              <h2><TrendingUp size={20} /> Booking History</h2>
-            </div>
-            {pastBookings.length > 0 ? (
-              <div className="history-list">
-                {pastBookings.slice(0, 4).map(booking => (
-                  <div key={getSafeId(booking)} className="history-item">
-                    <div className="history-info">
-                      <span className="history-service">{booking.service}</span>
-                      <span className="history-meta">{new Date(booking.date).toLocaleDateString()} ⣢ {booking.barber}</span>
-                    </div>
-                    <ChevronRight size={18} className="history-arrow" />
-                  </div>
-                ))}
-                <button className="btn-outlined-studio w-full mt-4" onClick={() => navigate('/dashboard/history')}>View All Past Bookings</button>
-              </div>
-            ) : (
-              <div className="empty-state-standard small">
-                <div className="empty-icon"><TrendingUp size={24} /></div>
-                <p>Start your booking history with us.</p>
-                <button className="btn-filled-gold mt-2" onClick={() => navigate('/booking')}>Start Your History</button>
-              </div>
-            )}
-          </div>
-
-          <div className="showcase-grid">
+          <div className="showcase-grid" style={{ gridColumn: 'span 2' }}>
             <div className="showcase-card">
               <AnimatePresence mode="wait">
                 <motion.img 
@@ -308,8 +308,17 @@ const UserDashboard: React.FC = () => {
           onSuccess={getBookings}
         />
       )}
+
+      <DetailModal 
+        isOpen={!!selectedBooking}
+        onClose={() => setSelectedBooking(null)}
+        title="Session Overview"
+        data={selectedBooking}
+        type="booking"
+      />
     </div>
   );
 };
 
 export default UserDashboard;
+

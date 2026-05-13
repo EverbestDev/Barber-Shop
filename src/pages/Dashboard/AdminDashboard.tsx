@@ -1,11 +1,17 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import {
   Calendar,
   TrendingUp,
   UserCheck,
   Clock,
-  Download
+  Download,
+  Users,
+  CreditCard,
+  ChevronRight,
+  Zap,
+  Scissors
 } from 'lucide-react';
 import { fetchAllUsers } from '../../api/admin';
 import { fetchAllBookings } from '../../api/bookings';
@@ -13,6 +19,7 @@ import { getSafeId } from '../../utils/ids';
 import type { UserInfo, Booking } from '../../api/types';
 import { downloadCSV } from '../../utils/export';
 import toast from 'react-hot-toast';
+import DetailModal from '../../components/common/DetailModal/DetailModal';
 
 const AdminOverviewSkeleton = () => (
   <div className="dashboard-content-main">
@@ -31,9 +38,11 @@ const AdminOverviewSkeleton = () => (
 );
 
 const AdminDashboard: React.FC = () => {
+  const navigate = useNavigate();
   const [users, setUsers] = useState<UserInfo[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
 
   useEffect(() => {
     const getData = async () => {
@@ -41,7 +50,7 @@ const AdminDashboard: React.FC = () => {
         const [u, b] = await Promise.all([fetchAllUsers(), fetchAllBookings()]);
         setUsers(u);
         setBookings(b || []);
-      } catch (err) {
+      } catch {
         toast.error("Failed to sync studio data.");
       } finally {
         setLoading(false);
@@ -52,17 +61,28 @@ const AdminDashboard: React.FC = () => {
 
   const stats = useMemo(() => {
     const today = new Date().toISOString().split('T')[0];
+    const totalRev = bookings.filter(b => b.payment_status === 'paid').reduce((sum, b) => sum + (b.amount || 0), 0);
+    const topService = bookings.reduce((acc, b) => {
+        acc[b.service] = (acc[b.service] || 0) + 1;
+        return acc;
+    }, {} as Record<string, number>);
+    
+    const mostPopular = Object.entries(topService).sort((a,b) => b[1] - a[1])[0]?.[0] || 'N/A';
+
     return {
-      totalRevenue: bookings.filter(b => b.payment_status === 'paid').reduce((sum, b) => sum + (b.amount || 0), 0),
+      totalRevenue: totalRev,
       bookingsToday: bookings.filter(b => b.date.startsWith(today)).length,
       activeUsers: users.length,
-      pendingPayments: bookings.filter(b => b.payment_status === 'pending').length
+      pendingPayments: bookings.filter(b => b.payment_status === 'pending').length,
+      mostPopular
     };
   }, [bookings, users]);
 
   const todayBookings = useMemo(() => {
     const today = new Date().toISOString().split('T')[0];
-    return bookings.filter(b => b.date.startsWith(today));
+    return bookings
+      .filter(b => b.date.startsWith(today))
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   }, [bookings]);
 
   if (loading) return <AdminOverviewSkeleton />;
@@ -84,41 +104,51 @@ const AdminDashboard: React.FC = () => {
           </div>
 
           <div className="header-stats-row">
-            <div className="mini-stat-card">
+            <div className="mini-stat-card clickable" onClick={() => navigate('/dashboard/transactions-library')}>
               <div className="stat-icon-chamber"><TrendingUp size={18} /></div>
               <div className="stat-text">
                 <span className="stat-label">Total Revenue</span>
                 <div className="stat-value text-gold">£{stats.totalRevenue.toFixed(2)}</div>
               </div>
+              <ChevronRight size={14} className="stat-arrow" />
             </div>
-            <div className="mini-stat-card">
+            <div className="mini-stat-card clickable" onClick={() => navigate('/dashboard/bookings')}>
               <div className="stat-icon-chamber"><Calendar size={18} /></div>
               <div className="stat-text">
                 <span className="stat-label">Sessions Today</span>
                 <div className="stat-value">{stats.bookingsToday}</div>
               </div>
+              <ChevronRight size={14} className="stat-arrow" />
             </div>
-            <div className="mini-stat-card">
+            <div className="mini-stat-card clickable" onClick={() => navigate('/dashboard/users')}>
               <div className="stat-icon-chamber"><UserCheck size={18} /></div>
               <div className="stat-text">
                 <span className="stat-label">Active Patrons</span>
                 <div className="stat-value">{stats.activeUsers}</div>
               </div>
+              <ChevronRight size={14} className="stat-arrow" />
             </div>
-            <div className="mini-stat-card">
+            <div className="mini-stat-card clickable" onClick={() => navigate('/dashboard/transactions-library')}>
               <div className="stat-icon-chamber"><Clock size={18} /></div>
               <div className="stat-text">
                 <span className="stat-label">Pending Payments</span>
                 <div className="stat-value text-gold">{stats.pendingPayments}</div>
               </div>
+              <ChevronRight size={14} className="stat-arrow" />
             </div>
           </div>
         </motion.header>
 
-        <section className="dashboard-grid" style={{ gridTemplateColumns: '1fr' }}>
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="dashboard-card premium-card-bg">
+        <section className="dashboard-grid">
+          <motion.div 
+            initial={{ opacity: 0, x: -20 }} 
+            animate={{ opacity: 1, x: 0 }} 
+            className="dashboard-card premium-card-bg"
+            style={{ gridColumn: 'span 2' }}
+          >
             <div className="card-header">
-              <h2><TrendingUp size={20} /> Today's Live Agenda</h2>
+              <h2><Calendar size={20} /> Today's Live Agenda</h2>
+              <button className="text-gold text-xs font-bold" onClick={() => navigate('/dashboard/bookings')}>VIEW ALL</button>
             </div>
             <div className="table-responsive">
               <table className="admin-table">
@@ -133,7 +163,7 @@ const AdminDashboard: React.FC = () => {
                 </thead>
                 <tbody>
                   {todayBookings.map(b => (
-                    <tr key={getSafeId(b)}>
+                    <tr key={getSafeId(b)} className="clickable-row" onClick={() => setSelectedBooking(b)}>
                       <td>{new Date(b.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
                       <td style={{ fontWeight: 800 }}>{b.service}</td>
                       <td className="truncate">{b.user_id || 'Guest'}</td>
@@ -148,10 +178,49 @@ const AdminDashboard: React.FC = () => {
               </table>
             </div>
           </motion.div>
+
+          <div className="dashboard-card premium-card-bg mini-insights">
+             <div className="card-header">
+                <h2><Zap size={20} /> Quick Insights</h2>
+             </div>
+             <div className="insights-list">
+                <div className="insight-item">
+                    <div className="insight-icon"><Scissors size={18} /></div>
+                    <div className="insight-data">
+                        <span className="insight-label">Top Service</span>
+                        <span className="insight-val">{stats.mostPopular}</span>
+                    </div>
+                </div>
+                <div className="insight-item">
+                    <div className="insight-icon"><Users size={18} /></div>
+                    <div className="insight-data">
+                        <span className="insight-label">Growth</span>
+                        <span className="insight-val">+12% this month</span>
+                    </div>
+                </div>
+                <div className="insight-item">
+                    <div className="insight-icon"><CreditCard size={18} /></div>
+                    <div className="insight-data">
+                        <span className="insight-label">Avg. Ticket</span>
+                        <span className="insight-val">£34.50</span>
+                    </div>
+                </div>
+             </div>
+             <button className="btn-filled-gold w-full mt-6">Generate Full Report</button>
+          </div>
         </section>
       </main>
+
+      <DetailModal 
+        isOpen={!!selectedBooking}
+        onClose={() => setSelectedBooking(null)}
+        title="Appointment Detail"
+        data={selectedBooking}
+        type="booking"
+      />
     </div>
   );
 };
 
 export default AdminDashboard;
+

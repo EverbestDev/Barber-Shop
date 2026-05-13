@@ -261,6 +261,72 @@
   background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.2), transparent);
 }
 
+.loyalty-card {
+    display: flex;
+    flex-direction: column;
+}
+
+.loyalty-content {
+    margin-top: 1rem;
+}
+
+.loyalty-bar {
+    height: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.loyalty-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #d4af37, #f4d03f);
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+}
+
+.loyalty-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #666;
+}
+
+.loyalty-desc {
+    font-size: 0.8125rem;
+    color: #888;
+    line-height: 1.5;
+    margin-top: 1.5rem;
+}
+
+.appointment-banner.clickable {
+    cursor: pointer;
+    transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.appointment-banner.clickable:hover {
+    transform: scale(1.02);
+    border-color: rgba(212, 175, 55, 0.4);
+}
+
+.history-item.clickable {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.history-item.clickable:hover {
+    background: rgba(255, 255, 255, 0.03);
+    padding-left: 0.5rem;
+}
+
+.history-item.clickable:hover .history-arrow {
+    color: var(--gold);
+    transform: translateX(3px);
+}
+
 .appointment-banner {
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.05);
@@ -654,6 +720,96 @@
 .search-bar-standard input::placeholder {
   color: var(--text-secondary);
   opacity: 0.5;
+}
+
+.filter-wrapper {
+  display: flex !important;
+  align-items: center !important;
+}
+
+.mini-stat-card.clickable {
+    cursor: pointer;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease;
+    position: relative;
+}
+
+.mini-stat-card.clickable:hover {
+    transform: translateY(-5px);
+    background: rgba(212, 175, 55, 0.05);
+    border-color: rgba(212, 175, 55, 0.3);
+}
+
+.stat-arrow {
+    position: absolute;
+    right: 1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0;
+    transition: all 0.3s ease;
+    color: var(--gold);
+}
+
+.mini-stat-card.clickable:hover .stat-arrow {
+    opacity: 1;
+    right: 1.2rem;
+}
+
+.clickable-row {
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.clickable-row:hover {
+    background: rgba(255, 255, 255, 0.03) !important;
+}
+
+.mini-insights {
+    display: flex;
+    flex-direction: column;
+}
+
+.insights-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-top: 1rem;
+    flex-grow: 1;
+}
+
+.insight-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.insight-icon {
+    width: 40px;
+    height: 40px;
+    background: rgba(212, 175, 55, 0.1);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gold);
+}
+
+.insight-data {
+    display: flex;
+    flex-direction: column;
+}
+
+.insight-label {
+    font-size: 0.7rem;
+    color: #666;
+    text-transform: uppercase;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+}
+
+.insight-val {
+    font-size: 0.95rem;
+    color: #fff;
+    font-weight: 600;
 }
 
 .filter-wrapper {
