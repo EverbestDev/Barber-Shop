@@ -4,7 +4,7 @@
   height: 80vh;
   min-height: 600px;
   width: 100%;
-  margin-top: 100px; /* Increased from 80px to safely clear the navbar on large screens */
+  margin-top: var(--navbar-height);
   display: flex;
   align-items: center; /* Vertically centers the text box */
   background-color: var(--primary);

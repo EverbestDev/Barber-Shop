@@ -50,3 +50,9 @@ Premium grooming platform for the modern gentleman.
 
 ## Contributing
 Please follow the established coding standards and ensure TypeScript types are properly defined for all new features.
+
+
+THE HOME PAGE HERO section
+it has some psaces between the navbar and the heronsection
+the hero section should start immediate after rhe navbar not taht tehre will be some spaces
+it is well done on the pages but the hero pages has some spaces

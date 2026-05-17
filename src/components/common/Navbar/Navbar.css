@@ -3,9 +3,10 @@
   top: 0;
   left: 0;
   width: 100%;
+  height: var(--navbar-height);
+  display: flex;
+  align-items: center;
   z-index: 1000;
-  padding: 1rem 0;
-  /* consistent padding */
   transition: all 0.3s ease;
   background-color: var(--primary);
   /* Always solid background now */
