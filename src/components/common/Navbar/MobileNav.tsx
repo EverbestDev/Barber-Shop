@@ -39,6 +39,7 @@ const MobileNav: React.FC<MobileNavProps> = ({ isOpen, onClose, onLogoutRequest 
   const adminItems = [
     { to: '/dashboard', label: 'Overview', icon: <LayoutDashboard size={18} /> },
     { to: '/dashboard/bookings', label: 'All Bookings', icon: <BookOpen size={18} /> },
+    { to: '/dashboard/promo-bookings', label: 'Promo Bookings', icon: <Tag size={18} /> },
     { to: '/dashboard/users', label: 'Membership Registry', icon: <Users size={18} /> },
     { to: '/dashboard/transactions-library', label: 'Transaction Library', icon: <Tag size={18} /> },
     { to: '/dashboard/notifications', label: 'Notifications', icon: <Bell size={18} /> },

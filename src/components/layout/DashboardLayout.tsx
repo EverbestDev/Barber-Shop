@@ -146,6 +146,10 @@ const DashboardLayout: React.FC = () => {
                                 <Calendar size={20} /> 
                                 {!isCollapsed && <span>All Bookings</span>}
                             </NavLink>
+                            <NavLink to="/dashboard/promo-bookings" className={({ isActive }) => `d-nav-item ${isActive ? 'active' : ''}`} title="Promo Bookings">
+                                <Tag size={20} /> 
+                                {!isCollapsed && <span>Promo Bookings</span>}
+                            </NavLink>
                             <NavLink to="/dashboard/users" className={({ isActive }) => `d-nav-item ${isActive ? 'active' : ''}`} title="Membership">
                                 <Users size={20} /> 
                                 {!isCollapsed && <span>Membership Registry</span>}

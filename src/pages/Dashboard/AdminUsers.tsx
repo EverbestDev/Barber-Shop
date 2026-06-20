@@ -215,13 +215,24 @@ const AdminUsers: React.FC = () => {
                     {selectedUser.email} &bull; Role: <span style={{ textTransform: 'uppercase', fontWeight: 800, color: 'var(--gold)' }}>{selectedUser.role}</span>
                   </p>
                 </div>
-                <button 
-                  className="btn-filled-studio"
-                  onClick={() => setActionUser(selectedUser)}
-                  style={{ backgroundColor: 'var(--gold)', color: 'var(--primary)', fontWeight: 700, padding: '0.5rem 1.25rem', borderRadius: '4px', border: 'none', cursor: 'pointer' }}
-                >
-                  Perform Action
-                </button>
+                {!(currentUser && currentUser.email === selectedUser.email) ? (
+                  <button 
+                    className="btn-filled-studio"
+                    onClick={() => setActionUser(selectedUser)}
+                    style={{ backgroundColor: 'var(--gold)', color: 'var(--primary)', fontWeight: 700, padding: '0.5rem 1.25rem', borderRadius: '4px', border: 'none', cursor: 'pointer' }}
+                  >
+                    Perform Action
+                  </button>
+                ) : (
+                  <button 
+                    className="btn-filled-studio"
+                    style={{ backgroundColor: 'rgba(255,255,255,0.05)', color: 'var(--text-secondary)', fontWeight: 700, padding: '0.5rem 1.25rem', borderRadius: '4px', border: 'none', cursor: 'not-allowed', opacity: 0.6 }}
+                    disabled
+                    title="You cannot perform actions on your own profile."
+                  >
+                    Action Disabled
+                  </button>
+                )}
               </div>
             </div>
 
@@ -388,7 +399,7 @@ const AdminUsers: React.FC = () => {
                       <tbody>
                         {sortedAndFilteredUsers.map((u, idx) => {
                           const uId = getSafeId(u);
-                          const isCurrentUser = currentUser && currentUser.email === u.email;
+                          const isCurrentUser = !!(currentUser && currentUser.email === u.email);
                           return (
                             <tr key={`${uId}-${idx}`} style={{ background: isCurrentUser ? 'rgba(212, 175, 55, 0.04)' : 'transparent' }}>
                               <td 
@@ -416,8 +427,18 @@ const AdminUsers: React.FC = () => {
                                   </button>
                                   <button 
                                     className="btn-outlined-studio" 
-                                    style={{ padding: '0.35rem 0.75rem', fontSize: '0.75rem', borderRadius: '4px', cursor: 'pointer', color: 'var(--gold)', borderColor: 'var(--gold)' }}
-                                    onClick={() => setActionUser(u)}
+                                    style={{ 
+                                      padding: '0.35rem 0.75rem', 
+                                      fontSize: '0.75rem', 
+                                      borderRadius: '4px', 
+                                      cursor: isCurrentUser ? 'not-allowed' : 'pointer', 
+                                      color: isCurrentUser ? 'var(--text-secondary)' : 'var(--gold)', 
+                                      borderColor: isCurrentUser ? 'rgba(255,255,255,0.1)' : 'var(--gold)',
+                                      opacity: isCurrentUser ? 0.6 : 1
+                                    }}
+                                    onClick={() => !isCurrentUser && setActionUser(u)}
+                                    disabled={isCurrentUser}
+                                    title={isCurrentUser ? "You cannot modify your own profile actions." : "Manage account"}
                                   >
                                     Action
                                   </button>

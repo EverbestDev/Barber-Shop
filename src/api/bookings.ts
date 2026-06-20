@@ -46,3 +46,9 @@ export const checkInBooking = async (bookingId: string): Promise<Booking> => {
   const response = await apiClient.patch<Booking>(`/bookings/${bookingId}/checkin`);
   return response.data;
 };
+
+export const nudgeBooking = async (bookingId: string): Promise<{ message: string }> => {
+  const response = await apiClient.post<{ message: string }>(`/bookings/${bookingId}/nudge`);
+  return response.data;
+};
+

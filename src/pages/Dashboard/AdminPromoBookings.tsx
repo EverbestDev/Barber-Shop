@@ -8,24 +8,25 @@ import {
   CheckCircle2,
   Clock,
   XCircle,
-  AlertCircle,
   SortAsc,
   MoreVertical,
-  ChevronRight
+  ChevronRight,
+  BellRing,
+  Tag
 } from 'lucide-react';
-import { fetchAllBookings, updateBookingStatus, fetchBookingByCode, checkInBooking } from '../../api/bookings';
+import { fetchAllBookings, updateBookingStatus, fetchBookingByCode, checkInBooking, nudgeBooking } from '../../api/bookings';
 import { getSafeId } from '../../utils/ids';
 import type { Booking } from '../../api/types';
 import { downloadCSV } from '../../utils/export';
 import toast from 'react-hot-toast';
 
-const AdminBookingsSkeleton = () => (
+const AdminPromoBookingsSkeleton = () => (
     <div className="dashboard-content-main">
       <div className="dashboard-main-view">
         <div className="dashboard-header">
           <div className="skeleton skeleton-title" />
           <div className="header-stats-row">
-            {[1,2,3,4].map(i => <div key={i} className="mini-stat-card skeleton skeleton-card" />)}
+            {[1,2,3].map(i => <div key={i} className="mini-stat-card skeleton skeleton-card" />)}
           </div>
         </div>
         <div className="dashboard-card premium-card-bg">
@@ -35,7 +36,7 @@ const AdminBookingsSkeleton = () => (
     </div>
 );
 
-const AdminBookings: React.FC = () => {
+const AdminPromoBookings: React.FC = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -58,28 +59,28 @@ const AdminBookings: React.FC = () => {
     return () => document.removeEventListener('click', handleOutsideClick);
   }, []);
 
+  const getData = async () => {
+    try {
+      const b = await fetchAllBookings();
+      // Filter only free Tuesday promo bookings
+      const promoBookings = (b || []).filter(item => item.is_free_promo);
+      setBookings(promoBookings);
+    } catch {
+      toast.error("Failed to sync promo database.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const getData = async () => {
-      try {
-        const b = await fetchAllBookings();
-        const standardBookings = (b || []).filter(item => !item.is_free_promo);
-        setBookings(standardBookings);
-      } catch {
-        toast.error("Failed to sync studio data.");
-      } finally {
-        setLoading(false);
-      }
-    };
     getData();
   }, []);
-
 
   const bookingStats = useMemo(() => {
       return {
           confirmed: bookings.filter(b => b.status === 'confirmed').length,
           completed: bookings.filter(b => b.status === 'completed').length,
           cancelled: bookings.filter(b => b.status === 'cancelled').length,
-          pending: bookings.filter(b => b.status === 'pending_payment' || b.status === 'pending').length,
           total: bookings.length
       };
   }, [bookings]);
@@ -88,23 +89,19 @@ const AdminBookings: React.FC = () => {
     let result = [...bookings];
 
     if (statusFilter !== 'all') {
-      if (statusFilter === 'pending_payment') {
-        result = result.filter(b => b.status === 'pending_payment' || b.status === 'pending');
-      } else {
-        result = result.filter(b => b.status === statusFilter);
-      }
+      result = result.filter(b => b.status === statusFilter);
     }
     if (searchQuery) {
       result = result.filter(b => 
         b.service.toLowerCase().includes(searchQuery.toLowerCase()) || 
-        (b.user_id && b.user_id.toLowerCase().includes(searchQuery.toLowerCase()))
+        (b.guest_name && b.guest_name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (b.check_in_code && b.check_in_code.toLowerCase().includes(searchQuery.toLowerCase()))
       );
     }
 
     result.sort((a, b) => {
       if (sortBy === 'recent') return new Date(b.date).getTime() - new Date(a.date).getTime();
       if (sortBy === 'oldest') return new Date(a.date).getTime() - new Date(b.date).getTime();
-      if (sortBy === 'amount') return (b.amount || 0) - (a.amount || 0);
       if (sortBy === 'service') return a.service.localeCompare(b.service);
       return 0;
     });
@@ -113,13 +110,26 @@ const AdminBookings: React.FC = () => {
   }, [bookings, statusFilter, searchQuery, sortBy]);
 
   const handleStatusChange = async (bookingId: string, status: string) => {
-    const loadToast = toast.loading("Updating session status...");
+    const loadToast = toast.loading("Updating status...");
     try {
       await updateBookingStatus(bookingId, status);
       setBookings(bookings.map(b => (getSafeId(b) === bookingId) ? { ...b, status } : b));
+      if (selectedBooking && getSafeId(selectedBooking) === bookingId) {
+        setSelectedBooking({ ...selectedBooking, status });
+      }
       toast.success("Status updated.", { id: loadToast });
     } catch {
       toast.error("Status update failed.", { id: loadToast });
+    }
+  };
+
+  const handleNudge = async (bookingId: string) => {
+    const loadToast = toast.loading("Dispatching nudge reminder...");
+    try {
+      await nudgeBooking(bookingId);
+      toast.success("Nudge email sent successfully!", { id: loadToast });
+    } catch (err: any) {
+      toast.error(err.response?.data?.detail || "Nudge failed.", { id: loadToast });
     }
   };
 
@@ -133,9 +143,13 @@ const AdminBookings: React.FC = () => {
 
     try {
       const result = await fetchBookingByCode(checkInCode);
+      if (!result.is_free_promo) {
+        setCheckInError("This code belongs to a standard booking, not a Tuesday Promo booking.");
+        return;
+      }
       setScannedBooking(result);
     } catch (err: any) {
-      setCheckInError(err.response?.data?.detail || "No active booking found with this check-in code.");
+      setCheckInError(err.response?.data?.detail || "No active promo booking found with this code.");
     } finally {
       setCheckInLoading(false);
     }
@@ -162,7 +176,7 @@ const AdminBookings: React.FC = () => {
     }
   };
 
-  if (loading) return <AdminBookingsSkeleton />;
+  if (loading) return <AdminPromoBookingsSkeleton />;
 
   return (
     <div className="dashboard-content-main">
@@ -170,14 +184,14 @@ const AdminBookings: React.FC = () => {
         <motion.header className="dashboard-header" initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
           <div className="admin-overview-header">
             <div>
-              <h1 className="text-3d">Session <span className="text-gold">Ledgers</span></h1>
-              <p>Comprehensive management of all studio appointments.</p>
+              <h1 className="text-3d">Tuesday Promo <span className="text-gold">Bookings</span></h1>
+              <p>Management and check-in portal for Tuesday Free Grooming slots.</p>
             </div>
             <div className="header-actions" style={{ display: 'flex', gap: '0.75rem' }}>
                <button className="btn-filled-studio" onClick={() => setIsCheckInOpen(true)} style={{ backgroundColor: 'var(--gold)', color: 'var(--primary)', fontWeight: 700, padding: '0.5rem 1.25rem', borderRadius: '4px', border: 'none', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
-                 Check-In Patron
+                 Scan Promo Code
                </button>
-               <button className="btn-outlined-studio" onClick={() => downloadCSV(sortedAndFilteredBookings, 'bookings_report.csv')}>
+               <button className="btn-outlined-studio" onClick={() => downloadCSV(sortedAndFilteredBookings, 'tuesday_promo_bookings.csv')}>
                  <Download size={16} /> Export Data
                </button>
             </div>
@@ -187,28 +201,21 @@ const AdminBookings: React.FC = () => {
             <div className="mini-stat-card">
               <div className="stat-icon-chamber" style={{ color: 'var(--gold)' }}><Clock size={18} /></div>
               <div className="stat-text">
-                <span className="stat-label">Confirmed</span>
+                <span className="stat-label">Confirmed Slots</span>
                 <div className="stat-value">{bookingStats.confirmed}</div>
               </div>
             </div>
             <div className="mini-stat-card">
               <div className="stat-icon-chamber" style={{ color: '#4caf50' }}><CheckCircle2 size={18} /></div>
               <div className="stat-text">
-                <span className="stat-label">Completed</span>
+                <span className="stat-label">Completed slots</span>
                 <div className="stat-value">{bookingStats.completed}</div>
-              </div>
-            </div>
-            <div className="mini-stat-card">
-              <div className="stat-icon-chamber" style={{ color: '#ff9800' }}><AlertCircle size={18} /></div>
-              <div className="stat-text">
-                <span className="stat-label">Pending</span>
-                <div className="stat-value">{bookingStats.pending}</div>
               </div>
             </div>
             <div className="mini-stat-card">
               <div className="stat-icon-chamber" style={{ color: '#f44336' }}><XCircle size={18} /></div>
               <div className="stat-text">
-                <span className="stat-label">Cancelled</span>
+                <span className="stat-label">Cancelled Slots</span>
                 <div className="stat-value">{bookingStats.cancelled}</div>
               </div>
             </div>
@@ -218,13 +225,13 @@ const AdminBookings: React.FC = () => {
         <section className="dashboard-grid" style={{ gridTemplateColumns: '1fr' }}>
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="dashboard-card premium-card-bg">
             <div className="card-header" style={{ flexWrap: 'wrap', gap: '1rem' }}>
-              <h2><Scissors size={20} /> Studio Sessions</h2>
+              <h2><Tag size={20} /> Promo Bookings Ledger</h2>
               <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
                 <div className="search-bar-standard">
                   <Search size={16} color="var(--text-secondary)" />
                   <input 
                     type="text" 
-                    placeholder="Filter session..." 
+                    placeholder="Search by patron/code..." 
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
@@ -233,7 +240,6 @@ const AdminBookings: React.FC = () => {
                     <Filter size={16} color="var(--text-secondary)" />
                     <select className="status-selector" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
                       <option value="all">ALL STATUS</option>
-                      <option value="pending_payment">PENDING</option>
                       <option value="confirmed">CONFIRMED</option>
                       <option value="completed">COMPLETED</option>
                       <option value="cancelled">CANCELLED</option>
@@ -244,7 +250,6 @@ const AdminBookings: React.FC = () => {
                     <select className="status-selector" value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
                       <option value="recent">RECENT</option>
                       <option value="oldest">OLDEST</option>
-                      <option value="amount">AMOUNT</option>
                       <option value="service">SERVICE</option>
                     </select>
                 </div>
@@ -254,68 +259,73 @@ const AdminBookings: React.FC = () => {
             <div className="table-responsive-wrapper">
               <div className="table-responsive">
                 <table className="admin-table">
-                <thead>
-                  <tr>
-                    <th>Service</th>
-                    <th>Schedule</th>
-                    <th>Amount</th>
-                    <th>Status</th>
-                    <th>Booked On</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {sortedAndFilteredBookings.map((b, idx) => {
-                    const bId = getSafeId(b);
-                    return (
-                      <tr key={`${bId}-${idx}`} style={{ cursor: 'pointer' }} onClick={() => setSelectedBooking(b)}>
-                        <td style={{ fontWeight: 800 }}>{b.service}</td>
-                        <td>{new Date(b.date).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}</td>
-                        <td style={{ fontWeight: 'bold' }}>£{(b.amount || 0).toFixed(2)}</td>
-                        <td><span className={`status-badge ${b.status}`}>{b.status}</span></td>
-                        <td>{b.created_at ? new Date(b.created_at).toLocaleDateString() : 'N/A'}</td>
-                        <td>
-                          <div style={{ position: 'relative' }}>
-                            <button 
-                              className="d-icon-btn" 
-                              style={{ width: '32px', height: '32px' }}
-                              onClick={(e) => { e.stopPropagation(); setOpenActionId(openActionId === bId ? null : (bId || null)); }}
-                            >
-                              <MoreVertical size={16} />
-                            </button>
-                            {openActionId === bId && bId && (
-                              <div className="d-profile-dropdown" style={{ right: '0', top: '100%', minWidth: '150px' }} onClick={(e) => e.stopPropagation()}>
-                                  <button onClick={() => { setSelectedBooking(b); setOpenActionId(null); }}>View Details</button>
-                                  <div className="divider" style={{ margin: '4px 0' }}></div>
-                                  <select 
-                                    value={b.status} 
-                                    onChange={(e) => { handleStatusChange(bId, e.target.value); setOpenActionId(null); }} 
-                                    className="status-selector"
-                                    style={{ padding: '0.75rem 1rem', width: '100%' }}
-                                  >
-                                    <option value="confirmed">Confirm</option>
-                                    <option value="completed">Complete</option>
-                                    <option value="cancelled">Cancel</option>
-                                  </select>
-                              </div>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+                  <thead>
+                    <tr>
+                      <th>Patron</th>
+                      <th>Service</th>
+                      <th>Schedule</th>
+                      <th>Check-In Code</th>
+                      <th>Status</th>
+                      <th>Booked On</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {sortedAndFilteredBookings.map((b, idx) => {
+                      const bId = getSafeId(b);
+                      return (
+                        <tr key={`${bId}-${idx}`} style={{ cursor: 'pointer' }} onClick={() => setSelectedBooking(b)}>
+                          <td style={{ fontWeight: 800, color: 'var(--gold)' }}>{b.guest_name || 'Registered Patron'}</td>
+                          <td>{b.service}</td>
+                          <td>{new Date(b.date).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}</td>
+                          <td style={{ fontFamily: 'monospace', fontWeight: 'bold', letterSpacing: '0.5px' }}>{b.check_in_code || 'N/A'}</td>
+                          <td><span className={`status-badge ${b.status}`}>{b.status}</span></td>
+                          <td>{b.created_at ? new Date(b.created_at).toLocaleDateString() : 'N/A'}</td>
+                          <td>
+                            <div style={{ position: 'relative' }}>
+                              <button 
+                                className="d-icon-btn" 
+                                style={{ width: '32px', height: '32px' }}
+                                onClick={(e) => { e.stopPropagation(); setOpenActionId(openActionId === bId ? null : (bId || null)); }}
+                              >
+                                <MoreVertical size={16} />
+                              </button>
+                              {openActionId === bId && bId && (
+                                <div className="d-profile-dropdown" style={{ right: '0', top: '100%', minWidth: '160px' }} onClick={(e) => e.stopPropagation()}>
+                                    <button onClick={() => { setSelectedBooking(b); setOpenActionId(null); }}>View Details</button>
+                                    <button onClick={() => { handleNudge(bId); setOpenActionId(null); }} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--gold)' }}>
+                                      <BellRing size={14} /> Nudge Patron
+                                    </button>
+                                    <div className="divider" style={{ margin: '4px 0' }}></div>
+                                    <select 
+                                      value={b.status} 
+                                      onChange={(e) => { handleStatusChange(bId, e.target.value); setOpenActionId(null); }} 
+                                      className="status-selector"
+                                      style={{ padding: '0.75rem 1rem', width: '100%' }}
+                                    >
+                                      <option value="confirmed">Confirm</option>
+                                      <option value="completed">Complete</option>
+                                      <option value="cancelled">Cancel</option>
+                                    </select>
+                                </div>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
 
-              {sortedAndFilteredBookings.length === 0 && (
-                <div className="empty-state-standard" style={{ padding: '4rem 2rem', textAlign: 'center' }}>
-                  <div className="empty-icon-chamber">
-                    <Scissors size={48} style={{ opacity: 0.1, marginBottom: '1.5rem' }} />
+                {sortedAndFilteredBookings.length === 0 && (
+                  <div className="empty-state-standard" style={{ padding: '4rem 2rem', textAlign: 'center' }}>
+                    <div className="empty-icon-chamber">
+                      <Scissors size={48} style={{ opacity: 0.1, marginBottom: '1.5rem' }} />
+                    </div>
+                    <h3 style={{ color: 'var(--gold)', marginBottom: '0.5rem' }}>No Promo Bookings Found</h3>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>No free Tuesday promo bookings found for the selected criteria.</p>
                   </div>
-                  <h3 style={{ color: 'var(--gold)', marginBottom: '0.5rem' }}>No Sessions Found</h3>
-                  <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>The session ledger is currently empty for the selected criteria.</p>
-                </div>
-              )}
+                )}
               </div>
               <div className="scroll-hint-icon mobile-only"><ChevronRight size={10} /> Scroll</div>
             </div>
@@ -338,21 +348,37 @@ const AdminBookings: React.FC = () => {
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="modal-header">
-                   <h2>Session Details</h2>
+                   <h2>Promo Booking Details</h2>
                    <button className="close-btn" onClick={() => setSelectedBooking(null)}>&times;</button>
                 </div>
                 <div className="modal-body">
                    <div className="detail-row"><span>Service:</span> <strong>{selectedBooking.service}</strong></div>
-                   <div className="detail-row"><span>Patron:</span> <strong>{selectedBooking.guest_name || 'Anonymous Guest'}</strong></div>
-                   {selectedBooking.home_address && (
-                     <div className="detail-row"><span>Home Address:</span> <strong style={{ color: 'var(--gold)' }}>{selectedBooking.home_address}</strong></div>
-                   )}
+                   <div className="detail-row"><span>Patron:</span> <strong>{selectedBooking.guest_name || 'Registered Patron'}</strong></div>
                    <div className="detail-row"><span>Date:</span> <strong>{new Date(selectedBooking.date).toLocaleDateString()}</strong></div>
                    <div className="detail-row"><span>Time:</span> <strong>{new Date(selectedBooking.date).toLocaleTimeString()}</strong></div>
+                   <div className="detail-row"><span>Check-In Code:</span> <strong className="text-gold" style={{ fontFamily: 'monospace' }}>{selectedBooking.check_in_code || 'N/A'}</strong></div>
                    <div className="detail-row"><span>Booked On:</span> <strong>{selectedBooking.created_at ? new Date(selectedBooking.created_at).toLocaleString() : 'N/A'}</strong></div>
-                   <div className="detail-row"><span>Investment:</span> <strong className="text-gold">£{(selectedBooking.amount || 0).toFixed(2)}</strong></div>
+                   <div className="detail-row"><span>Promotion:</span> <span className="status-badge confirmed">Free Tuesday Promo</span></div>
                    <div className="detail-row"><span>Session Status:</span> <span className={`status-badge ${selectedBooking.status}`}>{selectedBooking.status}</span></div>
-                   <div className="detail-row"><span>Payment Status:</span> <span className={`payment-badge ${selectedBooking.payment_status}`}>{selectedBooking.payment_status}</span></div>
+                   
+                   <div style={{ marginTop: '1.5rem', display: 'flex', gap: '1rem' }}>
+                     {selectedBooking.status === 'confirmed' && (
+                       <button 
+                         className="btn-filled-gold" 
+                         onClick={() => { const id = getSafeId(selectedBooking); id && handleNudge(id); }}
+                         style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+                       >
+                         <BellRing size={16} /> Nudge Patron
+                       </button>
+                     )}
+                     <button 
+                       className="btn-outlined-studio" 
+                       onClick={() => setSelectedBooking(null)}
+                       style={{ flex: 1 }}
+                     >
+                       Close Details
+                     </button>
+                   </div>
                 </div>
               </motion.div>
             </motion.div>
@@ -377,18 +403,18 @@ const AdminBookings: React.FC = () => {
                 style={{ maxWidth: '500px', width: '100%' }}
               >
                 <div className="modal-header">
-                   <h2>Patron Check-In</h2>
+                   <h2>Patron Promo Check-In</h2>
                    <button className="close-btn" onClick={() => { setIsCheckInOpen(false); setScannedBooking(null); setCheckInError(''); setCheckInCode(''); }}>&times;</button>
                 </div>
                 <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                    <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                     Scan the patron's QR code or type their unique 8-character code below to verify their booking and mark the session as completed.
+                     Scan the Tuesday Promo QR code or type their unique 8-character check-in code below to verify their booking and mark the session as completed.
                    </p>
                    
                    <form onSubmit={handleVerifyCode} style={{ display: 'flex', gap: '0.5rem' }}>
                      <input 
                        type="text" 
-                       placeholder="e.g. B2-A3F45E or Booking ID"
+                       placeholder="e.g. B2-A3F45E"
                        value={checkInCode}
                        onChange={(e) => setCheckInCode(e.target.value)}
                        className="luxury-input"
@@ -428,12 +454,6 @@ const AdminBookings: React.FC = () => {
                          <span style={{ fontWeight: 'bold' }}>{scannedBooking.guest_name || 'Registered Patron'}</span>
                        </div>
                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
-                         <span style={{ color: 'var(--text-secondary)' }}>Promo Booking:</span>
-                         <span style={{ fontWeight: 'bold', color: scannedBooking.is_free_promo ? 'var(--gold)' : 'var(--text-secondary)' }}>
-                           {scannedBooking.is_free_promo ? 'Yes (Free Tuesday)' : 'No (Standard Paid)'}
-                         </span>
-                       </div>
-                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
                          <span style={{ color: 'var(--text-secondary)' }}>Status:</span>
                          <span className={`status-badge ${scannedBooking.status}`} style={{ margin: 0 }}>{scannedBooking.status}</span>
                        </div>
@@ -464,4 +484,4 @@ const AdminBookings: React.FC = () => {
   );
 };
 
-export default AdminBookings;
+export default AdminPromoBookings;
