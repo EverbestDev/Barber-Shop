@@ -57,10 +57,31 @@ export const downloadReceiptPDF = async (booking: Booking) => {
       <span>${amount}</span>
     </div>
     ${booking.check_in_code ? `
-    <div style="border-top: 1px dashed #ccc; margin: 20px 0;"></div>
-    <div style="display: flex; flex-direction: column; align-items: center; margin: 15px 0;">
-      <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${booking.check_in_code}" style="width: 100px; height: 100px;" alt="QR" />
-      <span style="font-size: 9px; color: #666; margin-top: 6px;">SCAN TO CHECK-IN</span>
+    <div style="border: 1px solid rgba(0,0,0,0.08); border-radius: 8px; padding: 12px; margin: 15px 0; background-color: #fcfcfc; font-size: 11px; color: #333; text-align: left;">
+      <div style="margin-bottom: 6px; display: flex; justify-content: space-between;">
+        <span style="color: #666;">Patron Name:</span>
+        <span style="font-weight: 700; color: #000;">${booking.guest_name || 'Registered Patron'}</span>
+      </div>
+      <div style="margin-bottom: 6px; display: flex; justify-content: space-between;">
+        <span style="color: #666;">Service:</span>
+        <span style="font-weight: 700; color: #000;">${booking.service}</span>
+      </div>
+      <div style="margin-bottom: 6px; display: flex; justify-content: space-between;">
+        <span style="color: #666;">Schedule:</span>
+        <span style="font-weight: 700; color: #000;">${new Date(booking.date).toLocaleDateString([], { dateStyle: 'short' })} ${new Date(booking.date).toLocaleTimeString([], { timeStyle: 'short' })}</span>
+      </div>
+      <div style="margin-bottom: 6px; display: flex; justify-content: space-between;">
+        <span style="color: #666;">Booked On:</span>
+        <span style="font-weight: 700; color: #000;">${booking.created_at ? new Date(booking.created_at).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }) : 'N/A'}</span>
+      </div>
+      <div style="margin-bottom: 12px; display: flex; justify-content: space-between;">
+        <span style="color: #666;">Code:</span>
+        <span style="font-weight: 800; color: #d4af37; letter-spacing: 0.5px;">${booking.check_in_code}</span>
+      </div>
+      <div style="display: flex; flex-direction: column; align-items: center; margin-top: 10px; border-top: 1px solid #eee; padding-top: 10px;">
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${booking.check_in_code}" style="width: 100px; height: 100px; border: 2px solid #000; padding: 4px; background-color: #fff;" alt="${booking.check_in_code}" />
+        <span style="font-size: 8px; color: #666; margin-top: 6px; letter-spacing: 1px; font-weight: bold; text-transform: uppercase;">SCAN TO CHECK-IN</span>
+      </div>
     </div>
     ` : ''}
     <div style="text-align: center; margin-top: 40px;">

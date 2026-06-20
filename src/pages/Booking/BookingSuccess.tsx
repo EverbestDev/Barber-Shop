@@ -179,13 +179,39 @@ const BookingSuccess: React.FC = () => {
                 <div className="receipt-divider"></div>
 
                 {booking?.check_in_code && (
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', margin: '15px 0' }}>
-                    <img 
-                      src={`https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${booking.check_in_code}`} 
-                      style={{ width: '100px', height: '100px', border: '2px solid #000', padding: '4px', backgroundColor: '#fff', display: 'block' }} 
-                      alt="QR Code" 
-                    />
-                    <span style={{ fontSize: '9px', color: '#666', marginTop: '6px', letterSpacing: '1px' }}>SCAN TO CHECK-IN</span>
+                  <div style={{ border: '1px solid rgba(0,0,0,0.08)', borderRadius: '8px', padding: '12px', margin: '15px 0', backgroundColor: '#fcfcfc', fontSize: '11px', color: '#333', textAlign: 'left' }}>
+                    <div style={{ marginBottom: '6px', display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ color: '#666' }}>Patron Name:</span>
+                      <span style={{ fontWeight: 700 }}>{booking.guest_name || 'Registered Patron'}</span>
+                    </div>
+                    <div style={{ marginBottom: '6px', display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ color: '#666' }}>Service:</span>
+                      <span style={{ fontWeight: 700 }}>{booking.service}</span>
+                    </div>
+                    <div style={{ marginBottom: '6px', display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ color: '#666' }}>Schedule:</span>
+                      <span style={{ fontWeight: 700 }}>
+                        {new Date(booking.date).toLocaleDateString([], { dateStyle: 'short' })} {new Date(booking.date).toLocaleTimeString([], { timeStyle: 'short' })}
+                      </span>
+                    </div>
+                    <div style={{ marginBottom: '6px', display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ color: '#666' }}>Booked On:</span>
+                      <span style={{ fontWeight: 700 }}>
+                        {booking.created_at ? new Date(booking.created_at).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }) : 'N/A'}
+                      </span>
+                    </div>
+                    <div style={{ marginBottom: '12px', display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ color: '#666' }}>Code:</span>
+                      <span style={{ fontWeight: 800, color: '#d4af37', letterSpacing: '0.5px' }}>{booking.check_in_code}</span>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '10px', borderTop: '1px solid #eee', paddingTop: '10px' }}>
+                      <img 
+                        src={`https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${booking.check_in_code}`} 
+                        style={{ width: '100px', height: '100px', border: '2px solid #000', padding: '4px', backgroundColor: '#fff', display: 'block' }} 
+                        alt={booking.check_in_code} 
+                      />
+                      <span style={{ fontSize: '8px', color: '#666', marginTop: '6px', letterSpacing: '1px', fontWeight: 'bold' }}>SCAN TO CHECK-IN</span>
+                    </div>
                   </div>
                 )}
 

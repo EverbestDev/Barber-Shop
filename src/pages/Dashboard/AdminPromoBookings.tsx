@@ -19,6 +19,8 @@ import { getSafeId } from '../../utils/ids';
 import type { Booking } from '../../api/types';
 import { downloadCSV } from '../../utils/export';
 import toast from 'react-hot-toast';
+import { Html5Qrcode } from 'html5-qrcode';
+
 
 const AdminPromoBookingsSkeleton = () => (
     <div className="dashboard-content-main">
@@ -47,6 +49,7 @@ const AdminPromoBookings: React.FC = () => {
 
   // Check-In State variables
   const [isCheckInOpen, setIsCheckInOpen] = useState(false);
+  const [checkInMode, setCheckInMode] = useState<'input' | 'scan'>('input');
   const [checkInCode, setCheckInCode] = useState('');
   const [scannedBooking, setScannedBooking] = useState<Booking | null>(null);
   const [checkInError, setCheckInError] = useState('');
@@ -75,6 +78,50 @@ const AdminPromoBookings: React.FC = () => {
   useEffect(() => {
     getData();
   }, []);
+
+  useEffect(() => {
+    if (!isCheckInOpen || checkInMode !== 'scan') return;
+
+    let html5QrCode: Html5Qrcode | null = null;
+    const containerId = "promo-qr-reader";
+
+    const timer = setTimeout(() => {
+      try {
+        html5QrCode = new Html5Qrcode(containerId);
+        html5QrCode.start(
+          { facingMode: "environment" },
+          {
+            fps: 10,
+            qrbox: { width: 250, height: 250 },
+            aspectRatio: 1.0
+          },
+          async (decodedText) => {
+            if (html5QrCode && html5QrCode.isScanning) {
+              await html5QrCode.stop();
+            }
+            setCheckInCode(decodedText);
+            setCheckInMode('input');
+            verifyCode(decodedText);
+          },
+          () => {
+            // Silent error handler for scanning frames
+          }
+        ).catch((err) => {
+          console.error("Error starting camera qr scanner", err);
+          setCheckInError("Could not access camera. Please make sure you are on HTTPS and have granted camera permissions.");
+        });
+      } catch (err) {
+        console.error("Error initializing qr scanner", err);
+      }
+    }, 200);
+
+    return () => {
+      clearTimeout(timer);
+      if (html5QrCode && html5QrCode.isScanning) {
+        html5QrCode.stop().catch(err => console.error("Error stopping qr code scanner on unmount", err));
+      }
+    };
+  }, [isCheckInOpen, checkInMode]);
 
   const bookingStats = useMemo(() => {
       return {
@@ -133,16 +180,15 @@ const AdminPromoBookings: React.FC = () => {
     }
   };
 
-  const handleVerifyCode = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!checkInCode.trim()) return;
+  const verifyCode = async (code: string) => {
+    if (!code.trim()) return;
 
     setCheckInLoading(true);
     setCheckInError('');
     setScannedBooking(null);
 
     try {
-      const result = await fetchBookingByCode(checkInCode);
+      const result = await fetchBookingByCode(code);
       if (!result.is_free_promo) {
         setCheckInError("This code belongs to a standard booking, not a Tuesday Promo booking.");
         return;
@@ -153,6 +199,11 @@ const AdminPromoBookings: React.FC = () => {
     } finally {
       setCheckInLoading(false);
     }
+  };
+
+  const handleVerifyCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await verifyCode(checkInCode);
   };
 
   const handleCompleteCheckIn = async () => {
@@ -392,7 +443,7 @@ const AdminPromoBookings: React.FC = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => { setIsCheckInOpen(false); setScannedBooking(null); setCheckInError(''); setCheckInCode(''); }}
+              onClick={() => { setIsCheckInOpen(false); setScannedBooking(null); setCheckInError(''); setCheckInCode(''); setCheckInMode('input'); }}
             >
               <motion.div 
                 className="modal-content premium-card-bg"
@@ -404,33 +455,75 @@ const AdminPromoBookings: React.FC = () => {
               >
                 <div className="modal-header">
                    <h2>Patron Promo Check-In</h2>
-                   <button className="close-btn" onClick={() => { setIsCheckInOpen(false); setScannedBooking(null); setCheckInError(''); setCheckInCode(''); }}>&times;</button>
+                   <button className="close-btn" onClick={() => { setIsCheckInOpen(false); setScannedBooking(null); setCheckInError(''); setCheckInCode(''); setCheckInMode('input'); }}>&times;</button>
                 </div>
                 <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                    <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                     Scan the Tuesday Promo QR code or type their unique 8-character check-in code below to verify their booking and mark the session as completed.
+                     Scan the Tuesday Promo QR code or type their unique 8-character check-in code below to verify their booking.
                    </p>
-                   
-                   <form onSubmit={handleVerifyCode} style={{ display: 'flex', gap: '0.5rem' }}>
-                     <input 
-                       type="text" 
-                       placeholder="e.g. B2-A3F45E"
-                       value={checkInCode}
-                       onChange={(e) => setCheckInCode(e.target.value)}
-                       className="luxury-input"
-                       style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', borderRadius: '4px', padding: '0.75rem' }}
-                       disabled={checkInLoading}
-                       autoFocus
-                     />
+
+                   <div style={{ display: 'flex', gap: '0.5rem', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '0.75rem' }}>
                      <button 
-                       type="submit"
-                       className="btn-filled"
-                       style={{ padding: '0 1.5rem', height: 'auto', border: 'none', borderRadius: '4px', backgroundColor: 'var(--gold)', color: 'var(--primary)', fontWeight: 700, cursor: 'pointer' }}
-                       disabled={checkInLoading}
+                       onClick={() => { setCheckInMode('input'); setCheckInError(''); }}
+                       style={{ 
+                         flex: 1, 
+                         padding: '0.5rem', 
+                         borderRadius: '4px', 
+                         border: 'none', 
+                         cursor: 'pointer',
+                         backgroundColor: checkInMode === 'input' ? 'var(--gold)' : 'rgba(255,255,255,0.02)',
+                         color: checkInMode === 'input' ? 'var(--primary)' : 'var(--text-secondary)',
+                         fontWeight: 700
+                       }}
                      >
-                       {checkInLoading ? 'Verifying...' : 'Verify'}
+                       Input Code
                      </button>
-                   </form>
+                     <button 
+                       onClick={() => { setCheckInMode('scan'); setCheckInError(''); }}
+                       style={{ 
+                         flex: 1, 
+                         padding: '0.5rem', 
+                         borderRadius: '4px', 
+                         border: 'none', 
+                         cursor: 'pointer',
+                         backgroundColor: checkInMode === 'scan' ? 'var(--gold)' : 'rgba(255,255,255,0.02)',
+                         color: checkInMode === 'scan' ? 'var(--primary)' : 'var(--text-secondary)',
+                         fontWeight: 700
+                       }}
+                     >
+                       Scan QR Code
+                     </button>
+                   </div>
+
+                   {checkInMode === 'input' ? (
+                     <form onSubmit={handleVerifyCode} style={{ display: 'flex', gap: '0.5rem' }}>
+                       <input 
+                         type="text" 
+                         placeholder="e.g. B2-A3F45E"
+                         value={checkInCode}
+                         onChange={(e) => setCheckInCode(e.target.value)}
+                         className="luxury-input"
+                         style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', borderRadius: '4px', padding: '0.75rem' }}
+                         disabled={checkInLoading}
+                         autoFocus
+                       />
+                       <button 
+                         type="submit"
+                         className="btn-filled"
+                         style={{ padding: '0 1.5rem', height: 'auto', border: 'none', borderRadius: '4px', backgroundColor: 'var(--gold)', color: 'var(--primary)', fontWeight: 700, cursor: 'pointer' }}
+                         disabled={checkInLoading}
+                       >
+                         {checkInLoading ? 'Verifying...' : 'Verify'}
+                       </button>
+                     </form>
+                   ) : (
+                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                       <div id="promo-qr-reader" style={{ width: '100%', minHeight: '250px' }}></div>
+                       <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textAlign: 'center' }}>
+                         Position the QR code inside the camera view to scan.
+                       </p>
+                     </div>
+                   )}
 
                    {checkInError && (
                      <div style={{ padding: '0.75rem', backgroundColor: 'rgba(244, 67, 54, 0.1)', border: '1px solid rgba(244, 67, 54, 0.2)', color: '#f44336', borderRadius: '4px', fontSize: '0.85rem' }}>

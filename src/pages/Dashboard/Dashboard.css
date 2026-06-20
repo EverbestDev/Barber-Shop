@@ -1479,3 +1479,97 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Custom styling for HTML5 QR Code scanner to fit premium dark-gold theme */
+#bookings-qr-reader, #promo-qr-reader {
+  border: 1px solid rgba(212, 175, 55, 0.2) !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  background: rgba(0, 0, 0, 0.3) !important;
+  font-family: inherit !important;
+}
+
+#bookings-qr-reader img, #promo-qr-reader img {
+  display: none !important; /* Hide the dummy instruction image inside the scanner if it exists */
+}
+
+/* style html5-qrcode's generated buttons */
+#bookings-qr-reader button, #promo-qr-reader button {
+  background-color: var(--gold) !important;
+  color: var(--primary) !important;
+  border: none !important;
+  padding: 0.6rem 1.25rem !important;
+  font-weight: 700 !important;
+  border-radius: 6px !important;
+  cursor: pointer !important;
+  font-family: inherit !important;
+  font-size: 0.85rem !important;
+  transition: all 0.2s ease !important;
+  margin: 0.5rem 0.25rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+}
+
+#bookings-qr-reader button:hover, #promo-qr-reader button:hover {
+  opacity: 0.9 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.2) !important;
+}
+
+/* Style select dropdown for camera selection */
+#bookings-qr-reader select, #promo-qr-reader select {
+  background-color: var(--secondary) !important;
+  color: var(--gold) !important;
+  border: 1px solid rgba(212, 175, 55, 0.3) !important;
+  padding: 0.5rem 1rem !important;
+  border-radius: 6px !important;
+  font-family: inherit !important;
+  font-size: 0.85rem !important;
+  font-weight: 700 !important;
+  width: 100% !important;
+  max-width: 320px !important;
+  margin: 0.5rem auto !important;
+  display: block !important;
+  cursor: pointer !important;
+  outline: none !important;
+}
+
+#bookings-qr-reader select:focus, #promo-qr-reader select:focus {
+  border-color: var(--gold) !important;
+}
+
+/* Style text labels and messages */
+#bookings-qr-reader a, #promo-qr-reader a {
+  color: var(--gold) !important;
+  text-decoration: none !important;
+  font-size: 0.8rem !important;
+  font-weight: bold !important;
+  margin-top: 0.5rem !important;
+  display: inline-block !important;
+}
+
+#bookings-qr-reader a:hover, #promo-qr-reader a:hover {
+  text-decoration: underline !important;
+}
+
+/* Video display container resizing */
+#bookings-qr-reader__scan_region, #promo-qr-reader__scan_region {
+  background: #000 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+#bookings-qr-reader__scan_region video, #promo-qr-reader__scan_region video {
+  width: 100% !important;
+  object-fit: cover !important;
+  border-radius: 8px !important;
+}
+
+/* Hide standard scanner borders inside the wrapper if any */
+#bookings-qr-reader__dashboard, #promo-qr-reader__dashboard {
+  padding: 1rem !important;
+  border: none !important;
+  background: transparent !important;
+}
+

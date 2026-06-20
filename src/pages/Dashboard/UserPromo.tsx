@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Gift, Check, Loader2, Video, Calendar, Clock } from 'lucide-react';
+import { Gift, Check, Loader2, Video, Calendar, Clock, Sparkles } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { createBooking } from '../../api/bookings';
+import { createBooking, fetchMyBookings } from '../../api/bookings';
 import { getSafeId } from '../../utils/ids';
+import type { Booking } from '../../api/types';
+import { downloadReceiptPDF } from '../../utils/receipt';
 import toast from 'react-hot-toast';
 import './Dashboard.css';
 
@@ -35,9 +37,37 @@ const UserPromo: React.FC = () => {
   const [recordingConsent, setRecordingConsent] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const [activePromoBooking, setActivePromoBooking] = useState<Booking | null>(null);
+  const [fetchingActive, setFetchingActive] = useState(true);
+
   const todayObj = new Date();
   const isTuesday = todayObj.getDay() === 2; // 0 = Sunday, 1 = Monday, 2 = Tuesday
   const todayStr = todayObj.toISOString().split('T')[0];
+
+  useEffect(() => {
+    const checkActivePromo = async () => {
+      try {
+        const bookings = await fetchMyBookings();
+        const promoToday = bookings.find(b => 
+          b.is_free_promo && 
+          b.date.startsWith(todayStr) && 
+          b.status !== 'cancelled'
+        );
+        if (promoToday) {
+          setActivePromoBooking(promoToday);
+        }
+      } catch (err) {
+        console.error("Error checking active promo bookings:", err);
+      } finally {
+        setFetchingActive(false);
+      }
+    };
+    if (user) {
+      checkActivePromo();
+    } else {
+      setFetchingActive(false);
+    }
+  }, [user, todayStr]);
 
   const getVisibleTimes = () => {
     const now = new Date();
@@ -113,6 +143,16 @@ const UserPromo: React.FC = () => {
     }
   };
 
+  if (fetchingActive) {
+    return (
+      <div className="dashboard-content-main">
+        <main className="dashboard-main-view" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '300px' }}>
+          <Loader2 className="spinning-icon text-gold" size={32} />
+        </main>
+      </div>
+    );
+  }
+
   return (
     <div className="dashboard-content-main">
       <main className="dashboard-main-view">
@@ -147,138 +187,214 @@ const UserPromo: React.FC = () => {
             </div>
           </div>
 
-          {/* Booking Card (Active/Inactive State) */}
-          <div className="dashboard-card premium-card-bg" style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.2)' }}>
-            <div className="card-header" style={{ marginBottom: '1.5rem' }}>
-              <h2><Calendar size={20} /> Reserve Today's Session</h2>
-            </div>
-
-            {isTuesday ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-                
-                {/* Step 1: Select Service */}
+          {/* Active Promo Claimed Card (MTN Awoof Tuesday style) */}
+          {activePromoBooking ? (
+            <div className="dashboard-card premium-card-bg" style={{ border: '1px solid rgba(212, 175, 55, 0.3)', boxShadow: '0 8px 32px rgba(212, 175, 55, 0.15)' }}>
+              <div className="card-header" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '1rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <div style={{ backgroundColor: 'rgba(212, 175, 55, 0.1)', padding: '8px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Sparkles className="text-gold" size={24} style={{ animation: 'pulse 2s infinite' }} />
+                </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--text-secondary)', marginBottom: '0.75rem', fontWeight: 'bold' }}>1. Choose Walk-In Service</label>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '1rem' }}>
-                    {walkInServices.map(s => (
-                      <div 
-                        key={s.id} 
-                        style={{
-                          backgroundColor: 'var(--primary)',
-                          padding: '1rem 1.25rem',
-                          borderRadius: '8px',
-                          border: '1px solid',
-                          borderColor: selectedService?.id === s.id ? 'var(--gold)' : 'rgba(255, 255, 255, 0.05)',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
-                          transition: 'all 0.2s ease',
-                          background: selectedService?.id === s.id ? 'rgba(212, 175, 55, 0.05)' : 'var(--primary)'
-                        }}
-                        onClick={() => setSelectedService(s)}
-                      >
-                        <div>
-                          <h4 style={{ margin: 0, fontSize: '0.95rem' }}>{s.name}</h4>
-                          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{s.duration} duration</span>
-                        </div>
-                        {selectedService?.id === s.id && <Check size={16} className="text-gold" />}
-                      </div>
-                    ))}
+                  <h2 style={{ margin: 0 }}>Tuesday Awoof Secured</h2>
+                  <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-secondary)' }}>You have successfully claimed your free walk-in session for today!</p>
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                  <div style={{ padding: '1.25rem', backgroundColor: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '12px', display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.03)', paddingBottom: '0.5rem' }}>
+                      <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Patron:</span>
+                      <strong style={{ fontSize: '0.85rem' }}>{activePromoBooking.guest_name || user?.name || 'Registered Patron'}</strong>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.03)', paddingBottom: '0.5rem' }}>
+                      <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Groom Type:</span>
+                      <strong style={{ fontSize: '0.85rem' }}>{activePromoBooking.service}</strong>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.03)', paddingBottom: '0.5rem' }}>
+                      <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Date:</span>
+                      <strong style={{ fontSize: '0.85rem' }}>{new Date(activePromoBooking.date).toLocaleDateString([], { dateStyle: 'long' })}</strong>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.03)', paddingBottom: '0.5rem' }}>
+                      <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Time Schedule:</span>
+                      <strong style={{ fontSize: '0.85rem' }}>{new Date(activePromoBooking.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}</strong>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.03)', paddingBottom: '0.5rem' }}>
+                      <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Booked On:</span>
+                      <strong style={{ fontSize: '0.85rem' }}>{activePromoBooking.created_at ? new Date(activePromoBooking.created_at).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }) : 'N/A'}</strong>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: '0.25rem' }}>
+                      <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Session Status:</span>
+                      <span className={`status-badge ${activePromoBooking.status}`} style={{ fontSize: '0.7rem' }}>{activePromoBooking.status}</span>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '1rem' }}>
+                    <button 
+                      onClick={() => downloadReceiptPDF(activePromoBooking)}
+                      className="btn-outlined-studio" 
+                      style={{ flex: 1, padding: '0.75rem', fontSize: '0.85rem', fontWeight: 700, borderRadius: '6px' }}
+                    >
+                      Download PDF
+                    </button>
+                    <a 
+                      href={`/booking/success?booking_id=${getSafeId(activePromoBooking)}`}
+                      className="btn-filled-studio"
+                      style={{ flex: 1, padding: '0.75rem', fontSize: '0.85rem', fontWeight: 700, borderRadius: '6px', textAlign: 'center', textDecoration: 'none', backgroundColor: 'var(--gold)', color: 'var(--primary)' }}
+                    >
+                      View Receipt
+                    </a>
                   </div>
                 </div>
 
-                {/* Step 2: Choose Time */}
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--text-secondary)', marginBottom: '0.75rem', fontWeight: 'bold' }}>2. Select Time Slot (Today)</label>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '0.75rem' }}>
-                    {visibleTimes.length > 0 ? visibleTimes.map(t => (
-                      <button 
-                        key={t}
-                        style={{
-                          padding: '0.75rem',
-                          borderRadius: '4px',
-                          border: '1px solid',
-                          borderColor: selectedTime === t ? 'var(--gold)' : 'rgba(255,255,255,0.1)',
-                          backgroundColor: selectedTime === t ? 'var(--gold)' : 'transparent',
-                          color: selectedTime === t ? 'var(--primary)' : 'var(--white)',
-                          fontWeight: '600',
-                          cursor: 'pointer',
-                          fontSize: '0.85rem',
-                          transition: 'all 0.2s ease'
-                        }}
-                        onClick={() => setSelectedTime(t)}
-                      >
-                        {t}
-                      </button>
-                    )) : (
-                      <div style={{ gridColumn: '1 / -1', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-                        No more time slots are available for walk-ins today. Please check back next Tuesday.
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Step 3: Consent Checkbox */}
-                <div style={{ padding: '1.25rem', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '8px', backgroundColor: 'var(--primary)' }}>
-                  <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start', cursor: 'pointer' }}>
-                    <input 
-                      id="recording-consent-promo"
-                      type="checkbox" 
-                      checked={recordingConsent} 
-                      onChange={(e) => setRecordingConsent(e.target.checked)}
-                      style={{ marginTop: '4px', accentColor: 'var(--gold)', scale: '1.1' }}
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.01)', border: '1px dashed rgba(255,255,255,0.08)', borderRadius: '12px', padding: '1.5rem' }}>
+                  <div style={{ padding: '16px', backgroundColor: '#fff', borderRadius: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.5)', display: 'inline-block' }}>
+                    <img 
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${activePromoBooking.check_in_code}`} 
+                      style={{ width: '150px', height: '150px', display: 'block' }} 
+                      alt={activePromoBooking.check_in_code} 
                     />
-                    <label htmlFor="recording-consent-promo" style={{ fontSize: '0.85rem', lineHeight: '1.5', color: '#ccc', cursor: 'pointer', userSelect: 'none' }}>
-                      <strong>I agree to the privacy conditions:</strong> I explicitly consent to being video and audio recorded during this free grooming session, and I grant Bazetwo Barbers the rights to use the media for promotional outreach and social media.
-                    </label>
+                  </div>
+                  <strong style={{ color: 'var(--gold)', letterSpacing: '1px', marginTop: '1rem', fontSize: '1rem', fontFamily: 'monospace' }}>
+                    {activePromoBooking.check_in_code}
+                  </strong>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '4px' }}>SHOW QR AT THE RITUAL CHECK-IN</span>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="dashboard-card premium-card-bg" style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.2)' }}>
+              <div className="card-header" style={{ marginBottom: '1.5rem' }}>
+                <h2><Calendar size={20} /> Reserve Today's Session</h2>
+              </div>
+
+              {isTuesday ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                  
+                  {/* Step 1: Select Service */}
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--text-secondary)', marginBottom: '0.75rem', fontWeight: 'bold' }}>1. Choose Walk-In Service</label>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '1rem' }}>
+                      {walkInServices.map(s => (
+                        <div 
+                          key={s.id} 
+                          style={{
+                            backgroundColor: 'var(--primary)',
+                            padding: '1rem 1.25rem',
+                            borderRadius: '8px',
+                            border: '1px solid',
+                            borderColor: selectedService?.id === s.id ? 'var(--gold)' : 'rgba(255, 255, 255, 0.05)',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            transition: 'all 0.2s ease',
+                            background: selectedService?.id === s.id ? 'rgba(212, 175, 55, 0.05)' : 'var(--primary)'
+                          }}
+                          onClick={() => setSelectedService(s)}
+                        >
+                          <div>
+                            <h4 style={{ margin: 0, fontSize: '0.95rem' }}>{s.name}</h4>
+                            <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{s.duration} duration</span>
+                          </div>
+                          {selectedService?.id === s.id && <Check size={16} className="text-gold" />}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Step 2: Choose Time */}
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--text-secondary)', marginBottom: '0.75rem', fontWeight: 'bold' }}>2. Select Time Slot (Today)</label>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '0.75rem' }}>
+                      {visibleTimes.length > 0 ? visibleTimes.map(t => (
+                        <button 
+                          key={t}
+                          style={{
+                            padding: '0.75rem',
+                            borderRadius: '4px',
+                            border: '1px solid',
+                            borderColor: selectedTime === t ? 'var(--gold)' : 'rgba(255,255,255,0.1)',
+                            backgroundColor: selectedTime === t ? 'var(--gold)' : 'transparent',
+                            color: selectedTime === t ? 'var(--primary)' : 'var(--white)',
+                            fontWeight: '600',
+                            cursor: 'pointer',
+                            fontSize: '0.85rem',
+                            transition: 'all 0.2s ease'
+                          }}
+                          onClick={() => setSelectedTime(t)}
+                        >
+                          {t}
+                        </button>
+                      )) : (
+                        <div style={{ gridColumn: '1 / -1', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+                          No more time slots are available for walk-ins today. Please check back next Tuesday.
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Step 3: Consent Checkbox */}
+                  <div style={{ padding: '1.25rem', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '8px', backgroundColor: 'var(--primary)' }}>
+                    <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start', cursor: 'pointer' }}>
+                      <input 
+                        id="recording-consent-promo"
+                        type="checkbox" 
+                        checked={recordingConsent} 
+                        onChange={(e) => setRecordingConsent(e.target.checked)}
+                        style={{ marginTop: '4px', accentColor: 'var(--gold)', scale: '1.1' }}
+                      />
+                      <label htmlFor="recording-consent-promo" style={{ fontSize: '0.85rem', lineHeight: '1.5', color: '#ccc', cursor: 'pointer', userSelect: 'none' }}>
+                        <strong>I agree to the privacy conditions:</strong> I explicitly consent to being video and audio recorded during this free grooming session, and I grant Bazetwo Barbers the rights to use the media for promotional outreach and social media.
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* Submit button */}
+                  <button
+                    onClick={handleBookingSubmit}
+                    disabled={loading || !selectedService || !selectedTime || !recordingConsent}
+                    className="btn-filled"
+                    style={{
+                      width: '100%',
+                      padding: '1.1rem',
+                      fontWeight: 700,
+                      textTransform: 'uppercase',
+                      letterSpacing: '1px',
+                      opacity: (!selectedService || !selectedTime || !recordingConsent) ? 0.5 : 1,
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      gap: '0.5rem'
+                    }}
+                  >
+                    {loading ? (
+                      <>
+                        <Loader2 className="spinning-icon" size={18} /> Processing...
+                      </>
+                    ) : (
+                      <>
+                        <Video size={18} /> Book Free Tuesday Session
+                      </>
+                    )}
+                  </button>
+
+                </div>
+              ) : (
+                <div style={{ textAlign: 'center', padding: '3rem 1.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.25rem' }}>
+                  <div style={{ width: '60px', height: '60px', borderRadius: '50%', backgroundColor: 'rgba(212, 175, 55, 0.05)', border: '1px solid rgba(212, 175, 55, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Clock size={30} className="text-gold" />
+                  </div>
+                  <div>
+                    <h3 style={{ margin: '0 0 0.5rem', fontSize: '1.25rem' }}>Booking Window Closed</h3>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', maxWidth: '440px', margin: 0, lineHeight: '1.6' }}>
+                      Free Tuesday walk-in slots can only be reserved on <strong>Tuesdays</strong> for same-day sessions. Advanced booking is disabled. Please return on Tuesday morning to book your free seat!
+                    </p>
                   </div>
                 </div>
-
-                {/* Submit button */}
-                <button
-                  onClick={handleBookingSubmit}
-                  disabled={loading || !selectedService || !selectedTime || !recordingConsent}
-                  className="btn-filled"
-                  style={{
-                    width: '100%',
-                    padding: '1.1rem',
-                    fontWeight: 700,
-                    textTransform: 'uppercase',
-                    letterSpacing: '1px',
-                    opacity: (!selectedService || !selectedTime || !recordingConsent) ? 0.5 : 1,
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    gap: '0.5rem'
-                  }}
-                >
-                  {loading ? (
-                    <>
-                      <Loader2 className="spinning-icon" size={18} /> Processing...
-                    </>
-                  ) : (
-                    <>
-                      <Video size={18} /> Book Free Tuesday Session
-                    </>
-                  )}
-                </button>
-
-              </div>
-            ) : (
-              <div style={{ textAlign: 'center', padding: '3rem 1.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.25rem' }}>
-                <div style={{ width: '60px', height: '60px', borderRadius: '50%', backgroundColor: 'rgba(212, 175, 55, 0.05)', border: '1px solid rgba(212, 175, 55, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Clock size={30} className="text-gold" />
-                </div>
-                <div>
-                  <h3 style={{ margin: '0 0 0.5rem', fontSize: '1.25rem' }}>Booking Window Closed</h3>
-                  <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', maxWidth: '440px', margin: 0, lineHeight: '1.6' }}>
-                    Free Tuesday walk-in slots can only be reserved on <strong>Tuesdays</strong> for same-day sessions. Advanced booking is disabled. Please return on Tuesday morning to book your free seat!
-                  </p>
-                </div>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          )}
 
         </motion.section>
       </main>
