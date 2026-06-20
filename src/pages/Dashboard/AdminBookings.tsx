@@ -8,6 +8,7 @@ import {
   CheckCircle2,
   Clock,
   XCircle,
+  AlertCircle,
   SortAsc,
   MoreVertical,
   ChevronRight
@@ -24,7 +25,7 @@ const AdminBookingsSkeleton = () => (
         <div className="dashboard-header">
           <div className="skeleton skeleton-title" />
           <div className="header-stats-row">
-            {[1,2,3].map(i => <div key={i} className="mini-stat-card skeleton skeleton-card" />)}
+            {[1,2,3,4].map(i => <div key={i} className="mini-stat-card skeleton skeleton-card" />)}
           </div>
         </div>
         <div className="dashboard-card premium-card-bg">
@@ -76,6 +77,7 @@ const AdminBookings: React.FC = () => {
           confirmed: bookings.filter(b => b.status === 'confirmed').length,
           completed: bookings.filter(b => b.status === 'completed').length,
           cancelled: bookings.filter(b => b.status === 'cancelled').length,
+          pending: bookings.filter(b => b.status === 'pending_payment' || b.status === 'pending').length,
           total: bookings.length
       };
   }, [bookings]);
@@ -84,7 +86,11 @@ const AdminBookings: React.FC = () => {
     let result = [...bookings];
 
     if (statusFilter !== 'all') {
-      result = result.filter(b => b.status === statusFilter);
+      if (statusFilter === 'pending_payment') {
+        result = result.filter(b => b.status === 'pending_payment' || b.status === 'pending');
+      } else {
+        result = result.filter(b => b.status === statusFilter);
+      }
     }
     if (searchQuery) {
       result = result.filter(b => 
@@ -191,6 +197,13 @@ const AdminBookings: React.FC = () => {
               </div>
             </div>
             <div className="mini-stat-card">
+              <div className="stat-icon-chamber" style={{ color: '#ff9800' }}><AlertCircle size={18} /></div>
+              <div className="stat-text">
+                <span className="stat-label">Pending</span>
+                <div className="stat-value">{bookingStats.pending}</div>
+              </div>
+            </div>
+            <div className="mini-stat-card">
               <div className="stat-icon-chamber" style={{ color: '#f44336' }}><XCircle size={18} /></div>
               <div className="stat-text">
                 <span className="stat-label">Cancelled</span>
@@ -218,6 +231,7 @@ const AdminBookings: React.FC = () => {
                     <Filter size={16} color="var(--text-secondary)" />
                     <select className="status-selector" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
                       <option value="all">ALL STATUS</option>
+                      <option value="pending_payment">PENDING</option>
                       <option value="confirmed">CONFIRMED</option>
                       <option value="completed">COMPLETED</option>
                       <option value="cancelled">CANCELLED</option>
@@ -327,7 +341,7 @@ const AdminBookings: React.FC = () => {
                 </div>
                 <div className="modal-body">
                    <div className="detail-row"><span>Service:</span> <strong>{selectedBooking.service}</strong></div>
-                   <div className="detail-row"><span>Patron:</span> <strong>{selectedBooking.guest_name || 'Anonymous Guest'} (ID: {selectedBooking.user_id || 'N/A'})</strong></div>
+                   <div className="detail-row"><span>Patron:</span> <strong>{selectedBooking.guest_name || 'Anonymous Guest'}</strong></div>
                    {selectedBooking.home_address && (
                      <div className="detail-row"><span>Home Address:</span> <strong style={{ color: 'var(--gold)' }}>{selectedBooking.home_address}</strong></div>
                    )}

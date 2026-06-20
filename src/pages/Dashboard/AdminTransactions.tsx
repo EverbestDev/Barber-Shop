@@ -276,7 +276,6 @@ const AdminTransactions: React.FC = () => {
                 <div className="modal-body">
                    <div className="detail-row"><span>Service:</span> <strong>{selectedTransaction.service}</strong></div>
                    <div className="detail-row"><span>Patron Name:</span> <strong>{selectedTransaction.guest_name || 'Guest'}</strong></div>
-                   <div className="detail-row"><span>Patron ID (Auth):</span> <strong>{selectedTransaction.user_id || 'N/A'}</strong></div>
                    <div className="detail-row"><span>Transaction Code:</span> <strong className="text-muted">{selectedTransaction.stripe_session_id || 'N/A'}</strong></div>
                    <div className="detail-row"><span>Service Date:</span> <strong>{new Date(selectedTransaction.date).toLocaleDateString()}</strong></div>
                    <div className="detail-row"><span>Payment Logged On:</span> <strong>{selectedTransaction.created_at ? new Date(selectedTransaction.created_at).toLocaleString() : 'N/A'}</strong></div>
