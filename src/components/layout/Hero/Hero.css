@@ -2,7 +2,7 @@
   position: relative;
   /* Reduced height to 80vh to allow the About section to peek from the bottom */
   height: 80vh;
-  min-height: 600px;
+  min-height: 500px;
   width: 100%;
   margin-top: var(--navbar-height);
   display: flex;
@@ -44,12 +44,16 @@
   width: 100%;
   max-width: 1440px;
   margin: 0 auto;
-  padding: 2rem 4rem 0; /* Added 2rem top padding for better clearance */
+  padding: 0.75rem 4rem 0; /* Reduced top padding for better vertical spacing on laptop screens */
 }
 
 .hero-text-box {
   max-width: 700px; /* Increased to allow one-line title and 2-line subtitle */
   text-align: left; /* Strict left alignment */
+}
+
+.hero-text-box .hero-tagline {
+  margin-bottom: 1rem; /* Compact margin for tagline */
 }
 
 .hero-title {
@@ -59,7 +63,7 @@
   line-height: 0.9;
   color: var(--white); 
   text-transform: uppercase;
-  margin-bottom: 2rem;
+  margin-bottom: 1.25rem; /* Reduced margin to pull content up */
   letter-spacing: -2px;
 }
 
@@ -69,7 +73,7 @@
   font-weight: 400; /* Standard readable text weight */
   color: #ffffff;
   line-height: 1.5;
-  margin-bottom: 2rem;
+  margin-bottom: 1.25rem; /* Reduced margin to pull content up */
   text-transform: none; /* sentence case */
   opacity: 0.95;
   max-width: 550px; /* Strong 2-line guarantee for shortened lengths */
