@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
+import toast from 'react-hot-toast';
 
 interface User {
   id?: string;
@@ -51,6 +52,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setIsLoggedIn(true);
     setUser(userData);
     localStorage.setItem('user', JSON.stringify(userData));
+    localStorage.setItem('lastActivity', Date.now().toString()); // Set fresh activity on login
   };
 
   const logout = () => {
@@ -58,7 +60,83 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setUser(null);
     localStorage.removeItem('user');
     localStorage.removeItem('token');
+    localStorage.removeItem('lastActivity'); // Clear activity on logout
   };
+
+  // Inactivity Session Expiry (30 Minutes)
+  useEffect(() => {
+    if (!isLoggedIn) {
+      localStorage.removeItem('lastActivity');
+      return;
+    }
+
+    const INACTIVITY_LIMIT = 30 * 60 * 1000; // 30 minutes in milliseconds
+
+    // Initial check on mount
+    const lastActivity = localStorage.getItem('lastActivity');
+    if (lastActivity) {
+      const elapsed = Date.now() - parseInt(lastActivity, 10);
+      if (elapsed >= INACTIVITY_LIMIT) {
+        logout();
+        toast.error("Session expired due to inactivity.");
+        return;
+      }
+    } else {
+      localStorage.setItem('lastActivity', Date.now().toString());
+    }
+
+    let timeoutId: any;
+
+    const resetTimer = () => {
+      localStorage.setItem('lastActivity', Date.now().toString());
+      window.clearTimeout(timeoutId);
+      timeoutId = window.setTimeout(() => {
+        logout();
+        toast.error("Session expired due to inactivity. Please log in again.");
+      }, INACTIVITY_LIMIT);
+    };
+
+    // Sync inactivity timers across multiple tabs
+    const handleCrossTabSync = (e: StorageEvent) => {
+      if (e.key === 'lastActivity' && e.newValue) {
+        const timestamp = parseInt(e.newValue, 10);
+        const elapsed = Date.now() - timestamp;
+        window.clearTimeout(timeoutId);
+
+        if (elapsed >= INACTIVITY_LIMIT) {
+          logout();
+          toast.error("Session expired due to inactivity.");
+        } else {
+          timeoutId = window.setTimeout(() => {
+            logout();
+            toast.error("Session expired due to inactivity. Please log in again.");
+          }, INACTIVITY_LIMIT - elapsed);
+        }
+      }
+    };
+
+    const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
+    
+    events.forEach(event => {
+      window.addEventListener(event, resetTimer);
+    });
+    window.addEventListener('storage', handleCrossTabSync);
+
+    // Start initial timer
+    const initialElapsed = lastActivity ? Date.now() - parseInt(lastActivity, 10) : 0;
+    timeoutId = window.setTimeout(() => {
+      logout();
+      toast.error("Session expired due to inactivity. Please log in again.");
+    }, INACTIVITY_LIMIT - initialElapsed);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+      events.forEach(event => {
+        window.removeEventListener(event, resetTimer);
+      });
+      window.removeEventListener('storage', handleCrossTabSync);
+    };
+  }, [isLoggedIn]);
 
   return (
     <AuthContext.Provider value={{ isLoggedIn, isLoading, user, login, logout }}>
