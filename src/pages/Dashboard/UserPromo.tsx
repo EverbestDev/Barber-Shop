@@ -39,6 +39,8 @@ const UserPromo: React.FC = () => {
 
   const [activePromoBooking, setActivePromoBooking] = useState<Booking | null>(null);
   const [fetchingActive, setFetchingActive] = useState(true);
+  const [completedPromoCount, setCompletedPromoCount] = useState<number>(0);
+  const [countdownText, setCountdownText] = useState<string>('No Active Session');
 
   const todayObj = new Date();
   const isTuesday = todayObj.getDay() === 2; // 0 = Sunday, 1 = Monday, 2 = Tuesday
@@ -56,6 +58,8 @@ const UserPromo: React.FC = () => {
         if (promoToday) {
           setActivePromoBooking(promoToday);
         }
+        const completedCount = (bookings || []).filter(b => b.is_free_promo && b.status === 'completed').length;
+        setCompletedPromoCount(completedCount);
       } catch (err) {
         console.error("Error checking active promo bookings:", err);
       } finally {
@@ -68,6 +72,45 @@ const UserPromo: React.FC = () => {
       setFetchingActive(false);
     }
   }, [user, todayStr]);
+
+  useEffect(() => {
+    if (!activePromoBooking) {
+      setCountdownText('No Active Session');
+      return;
+    }
+    if (activePromoBooking.status === 'completed') {
+      setCountdownText('Ritual Completed');
+      return;
+    }
+    if (activePromoBooking.status === 'cancelled') {
+      setCountdownText('Cancelled');
+      return;
+    }
+
+    const targetTime = new Date(activePromoBooking.date).getTime();
+
+    const updateCountdown = () => {
+      const now = new Date().getTime();
+      const diff = targetTime - now;
+
+      if (diff <= 0) {
+        setCountdownText('Session Started');
+        return;
+      }
+
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+      const hourPart = hours > 0 ? `${hours}h ` : '';
+      setCountdownText(`${hourPart}${minutes}m ${seconds}s`);
+    };
+
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000);
+
+    return () => clearInterval(interval);
+  }, [activePromoBooking]);
 
   const getVisibleTimes = () => {
     const now = new Date();
@@ -163,6 +206,35 @@ const UserPromo: React.FC = () => {
           </div>
         </motion.header>
 
+        {/* Normal Dashboard Stats Row */}
+        <div className="header-stats-row" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
+          <div className="mini-stat-card">
+            <div className="stat-icon-chamber" style={{ color: 'var(--gold)' }}><Gift size={18} /></div>
+            <div className="stat-text">
+              <span className="stat-label">Promo Status</span>
+              <div className="stat-value" style={{ fontSize: '1.2rem', textTransform: 'uppercase', color: activePromoBooking ? (activePromoBooking.status === 'completed' ? '#4caf50' : 'var(--gold)') : 'var(--text-secondary)' }}>
+                {activePromoBooking ? (activePromoBooking.status === 'completed' ? 'Checked In' : 'Claimed') : 'Available'}
+              </div>
+            </div>
+          </div>
+          <div className="mini-stat-card">
+            <div className="stat-icon-chamber" style={{ color: '#4caf50' }}><Check size={18} /></div>
+            <div className="stat-text">
+              <span className="stat-label">Awoofs Completed</span>
+              <div className="stat-value">{completedPromoCount}</div>
+            </div>
+          </div>
+          <div className="mini-stat-card">
+            <div className="stat-icon-chamber" style={{ color: '#00bcd4' }}><Clock size={18} /></div>
+            <div className="stat-text">
+              <span className="stat-label">Session Countdown</span>
+              <div className="stat-value" style={{ fontSize: '1.1rem', color: countdownText.includes('m') ? '#00bcd4' : 'var(--text-secondary)' }}>
+                {countdownText}
+              </div>
+            </div>
+          </div>
+        </div>
+
         <motion.section className="dashboard-grid" style={{ gridTemplateColumns: '1fr' }} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
           
           {/* Rules & Privacy Card */}
@@ -189,14 +261,24 @@ const UserPromo: React.FC = () => {
 
           {/* Active Promo Claimed Card (MTN Awoof Tuesday style) */}
           {activePromoBooking ? (
-            <div className="dashboard-card premium-card-bg" style={{ border: '1px solid rgba(212, 175, 55, 0.3)', boxShadow: '0 8px 32px rgba(212, 175, 55, 0.15)' }}>
+            <div className="dashboard-card premium-card-bg" style={{ border: activePromoBooking.status === 'completed' ? '1px solid rgba(46, 204, 113, 0.3)' : '1px solid rgba(212, 175, 55, 0.3)', boxShadow: activePromoBooking.status === 'completed' ? '0 8px 32px rgba(46, 204, 113, 0.05)' : '0 8px 32px rgba(212, 175, 55, 0.15)' }}>
               <div className="card-header" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '1rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <div style={{ backgroundColor: 'rgba(212, 175, 55, 0.1)', padding: '8px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Sparkles className="text-gold" size={24} style={{ animation: 'pulse 2s infinite' }} />
+                <div style={{ backgroundColor: activePromoBooking.status === 'completed' ? 'rgba(46, 204, 113, 0.1)' : 'rgba(212, 175, 55, 0.1)', padding: '8px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {activePromoBooking.status === 'completed' ? (
+                    <Check style={{ color: '#2ecc71' }} size={24} />
+                  ) : (
+                    <Sparkles className="text-gold" size={24} style={{ animation: 'pulse 2s infinite' }} />
+                  )}
                 </div>
                 <div>
-                  <h2 style={{ margin: 0 }}>Tuesday Awoof Secured</h2>
-                  <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-secondary)' }}>You have successfully claimed your free walk-in session for today!</p>
+                  <h2 style={{ margin: 0 }}>
+                    {activePromoBooking.status === 'completed' ? 'Awoof Ritual Complete' : 'Tuesday Awoof Secured'}
+                  </h2>
+                  <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                    {activePromoBooking.status === 'completed' 
+                      ? 'Thank you for participating! We hope you love your signature walk-in groom.' 
+                      : 'You have successfully claimed your free walk-in session for today!'}
+                  </p>
                 </div>
               </div>
 
@@ -247,19 +329,33 @@ const UserPromo: React.FC = () => {
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.01)', border: '1px dashed rgba(255,255,255,0.08)', borderRadius: '12px', padding: '1.5rem' }}>
-                  <div style={{ padding: '16px', backgroundColor: '#fff', borderRadius: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.5)', display: 'inline-block' }}>
-                    <img 
-                      src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${activePromoBooking.check_in_code}`} 
-                      style={{ width: '150px', height: '150px', display: 'block' }} 
-                      alt={activePromoBooking.check_in_code} 
-                    />
+                {activePromoBooking.status === 'completed' ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(46, 204, 113, 0.02)', border: '1px dashed rgba(46, 204, 113, 0.15)', borderRadius: '12px', padding: '1.5rem', textAlign: 'center' }}>
+                    <div style={{ width: '70px', height: '70px', borderRadius: '50%', backgroundColor: 'rgba(46, 204, 113, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.75rem' }}>
+                      <Check style={{ color: '#2ecc71' }} size={32} />
+                    </div>
+                    <strong style={{ color: '#2ecc71', fontSize: '1.1rem', letterSpacing: '0.5px' }}>
+                      Ritual Checked In
+                    </strong>
+                    <p style={{ color: '#ccc', fontSize: '0.75rem', marginTop: '6px', maxWidth: '220px', margin: '6px auto 0', lineHeight: '1.4' }}>
+                      Your walk-in groom has been successfully verified by our barber. Enjoy your fresh new style!
+                    </p>
                   </div>
-                  <strong style={{ color: 'var(--gold)', letterSpacing: '1px', marginTop: '1rem', fontSize: '1rem', fontFamily: 'monospace' }}>
-                    {activePromoBooking.check_in_code}
-                  </strong>
-                  <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '4px' }}>SHOW QR AT THE RITUAL CHECK-IN</span>
-                </div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.01)', border: '1px dashed rgba(255,255,255,0.08)', borderRadius: '12px', padding: '1.5rem' }}>
+                    <div style={{ padding: '16px', backgroundColor: '#fff', borderRadius: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.5)', display: 'inline-block' }}>
+                      <img 
+                        src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${activePromoBooking.check_in_code}`} 
+                        style={{ width: '150px', height: '150px', display: 'block' }} 
+                        alt={activePromoBooking.check_in_code} 
+                      />
+                    </div>
+                    <strong style={{ color: 'var(--gold)', letterSpacing: '1px', marginTop: '1rem', fontSize: '1rem', fontFamily: 'monospace' }}>
+                      {activePromoBooking.check_in_code}
+                    </strong>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '4px' }}>SHOW QR AT THE RITUAL CHECK-IN</span>
+                  </div>
+                )}
               </div>
             </div>
           ) : (

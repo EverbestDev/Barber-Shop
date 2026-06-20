@@ -79,8 +79,14 @@
   padding: 1rem 0.75rem;
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.45rem; /* Increased spacing to prevent compact look */
   flex: 1;
+  overflow-y: auto;
+  scrollbar-width: none; /* Hide scrollbars for clean dashboard UI */
+}
+
+.d-sidebar-nav::-webkit-scrollbar {
+  display: none; /* Hide scrollbars for Chrome/Safari/Blink */
 }
 
 .d-nav-item {

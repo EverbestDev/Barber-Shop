@@ -54,7 +54,21 @@ const UserBookings: React.FC = () => {
                         <User size={12} /> {app.barber} | <Clock size={12} /> {new Date(app.date).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}
                       </span>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                       {app.is_free_promo && (
+                         <span style={{ 
+                           padding: '4px 10px', 
+                           borderRadius: '4px', 
+                           fontSize: '0.65rem', 
+                           fontWeight: 800, 
+                           backgroundColor: 'rgba(212, 175, 55, 0.15)',
+                           color: 'var(--gold)',
+                           border: '1px solid rgba(212, 175, 55, 0.2)',
+                           letterSpacing: '0.5px'
+                         }}>
+                           FREE PROMO
+                         </span>
+                       )}
                        <span style={{ 
                          padding: '6px 12px', 
                          borderRadius: '20px', 
