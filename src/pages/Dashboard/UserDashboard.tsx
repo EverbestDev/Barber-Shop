@@ -267,7 +267,7 @@ const UserDashboard: React.FC = () => {
             </div>
           </div>
 
-          <div className="showcase-grid" style={{ gridColumn: 'span 2' }}>
+          <div className="showcase-grid">
             <div className="showcase-card">
               <AnimatePresence mode="wait">
                 <motion.img 
