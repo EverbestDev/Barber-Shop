@@ -37,7 +37,9 @@ const AuthDrawer: React.FC<AuthDrawerProps> = ({ onClose }) => {
       login(userData);
       toast.success(`Welcome to the studio, ${userData.name.split(' ')[0]}!`, { id: loadToast });
       onClose();
-      navigate('/dashboard');
+      const redirect = sessionStorage.getItem('redirectAfterAuth') || '/dashboard';
+      sessionStorage.removeItem('redirectAfterAuth');
+      navigate(redirect);
     } catch(err: any) {
       toast.error(err.response?.data?.detail || 'Google Authentication failed.', { id: loadToast });
       console.error(err);
@@ -102,7 +104,9 @@ const AuthDrawer: React.FC<AuthDrawerProps> = ({ onClose }) => {
         login(userData);
         toast.success(`Welcome back, ${userData.name.split(' ')[0]}!`, { id: loadToast });
         onClose();
-        navigate('/dashboard');
+        const redirect = sessionStorage.getItem('redirectAfterAuth') || '/dashboard';
+        sessionStorage.removeItem('redirectAfterAuth');
+        navigate(redirect);
       } else {
         // Registration: get token but show OTP screen first, don't go to dashboard yet
         const response = await registerUser({ name, email, password });
@@ -130,7 +134,9 @@ const AuthDrawer: React.FC<AuthDrawerProps> = ({ onClose }) => {
       const userData = await fetchCurrentUser();
       login(userData);
       onClose();
-      navigate('/dashboard');
+      const redirect = sessionStorage.getItem('redirectAfterAuth') || '/dashboard';
+      sessionStorage.removeItem('redirectAfterAuth');
+      navigate(redirect);
     } catch (err: any) {
       toast.error(err.response?.data?.detail || "Invalid code. Please try again.", { id: verifToast });
     } finally {
@@ -173,7 +179,9 @@ const AuthDrawer: React.FC<AuthDrawerProps> = ({ onClose }) => {
       setOtpCode('');
       
       onClose();
-      navigate('/dashboard');
+      const redirect = sessionStorage.getItem('redirectAfterAuth') || '/dashboard';
+      sessionStorage.removeItem('redirectAfterAuth');
+      navigate(redirect);
     } catch (err: any) {
       toast.error(err.response?.data?.detail || "Invalid code. Please try again.", { id: rsToast });
     } finally {
@@ -325,7 +333,17 @@ const AuthDrawer: React.FC<AuthDrawerProps> = ({ onClose }) => {
           <span>Or continue with</span>
         </div>
 
-        <div id="googleAuthDiv" style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem', width: '100%' }}></div>
+        <div id="googleAuthDiv" style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem', width: '100%', minHeight: '40px', position: 'relative' }}>
+          <div className="google-btn-placeholder">
+            <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" className="google-icon-svg">
+              <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path>
+              <path fill="#4285F4" d="M46.5 24c0-1.55-.15-3.24-.47-4.77H24v9.03h12.75c-.53 2.87-2.14 5.3-4.57 6.93l7.1 5.5C43.43 36.57 46.5 30.77 46.5 24z"></path>
+              <path fill="#FBBC05" d="M10.54 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.98-6.19z"></path>
+              <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.1-5.5c-2.2 1.49-5.01 2.31-8.79 2.31-6.26 0-11.57-4.22-13.46-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path>
+            </svg>
+            <span className="google-btn-text">Continue with Google</span>
+          </div>
+        </div>
 
         <div className="drawer-footer-text">
           <p>

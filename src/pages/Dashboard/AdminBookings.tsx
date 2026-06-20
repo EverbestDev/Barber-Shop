@@ -12,7 +12,7 @@ import {
   MoreVertical,
   ChevronRight
 } from 'lucide-react';
-import { fetchAllBookings, updateBookingStatus } from '../../api/bookings';
+import { fetchAllBookings, updateBookingStatus, fetchBookingByCode, checkInBooking } from '../../api/bookings';
 import { getSafeId } from '../../utils/ids';
 import type { Booking } from '../../api/types';
 import { downloadCSV } from '../../utils/export';
@@ -42,6 +42,14 @@ const AdminBookings: React.FC = () => {
   const [sortBy, setSortBy] = useState('recent');
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [openActionId, setOpenActionId] = useState<string | null>(null);
+
+  // Check-In State variables
+  const [isCheckInOpen, setIsCheckInOpen] = useState(false);
+  const [checkInCode, setCheckInCode] = useState('');
+  const [scannedBooking, setScannedBooking] = useState<Booking | null>(null);
+  const [checkInError, setCheckInError] = useState('');
+  const [checkInLoading, setCheckInLoading] = useState(false);
+  const [verifyingCheckIn, setVerifyingCheckIn] = useState(false);
 
   useEffect(() => {
     const handleOutsideClick = () => setOpenActionId(null);
@@ -107,6 +115,45 @@ const AdminBookings: React.FC = () => {
     }
   };
 
+  const handleVerifyCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!checkInCode.trim()) return;
+
+    setCheckInLoading(true);
+    setCheckInError('');
+    setScannedBooking(null);
+
+    try {
+      const result = await fetchBookingByCode(checkInCode);
+      setScannedBooking(result);
+    } catch (err: any) {
+      setCheckInError(err.response?.data?.detail || "No active booking found with this check-in code.");
+    } finally {
+      setCheckInLoading(false);
+    }
+  };
+
+  const handleCompleteCheckIn = async () => {
+    if (!scannedBooking) return;
+    const bookingId = getSafeId(scannedBooking);
+    if (!bookingId) return;
+
+    setVerifyingCheckIn(true);
+    const loadToast = toast.loading("Checking in patron...");
+    try {
+      await checkInBooking(bookingId);
+      setBookings(prev => prev.map(b => getSafeId(b) === bookingId ? { ...b, status: 'completed' } : b));
+      toast.success("Patron checked in successfully!", { id: loadToast });
+      setIsCheckInOpen(false);
+      setCheckInCode('');
+      setScannedBooking(null);
+    } catch {
+      toast.error("Check-in failed.", { id: loadToast });
+    } finally {
+      setVerifyingCheckIn(false);
+    }
+  };
+
   if (loading) return <AdminBookingsSkeleton />;
 
   return (
@@ -118,7 +165,10 @@ const AdminBookings: React.FC = () => {
               <h1 className="text-3d">Session <span className="text-gold">Ledgers</span></h1>
               <p>Comprehensive management of all studio appointments.</p>
             </div>
-            <div className="header-actions">
+            <div className="header-actions" style={{ display: 'flex', gap: '0.75rem' }}>
+               <button className="btn-filled-studio" onClick={() => setIsCheckInOpen(true)} style={{ backgroundColor: 'var(--gold)', color: 'var(--primary)', fontWeight: 700, padding: '0.5rem 1.25rem', borderRadius: '4px', border: 'none', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                 Check-In Patron
+               </button>
                <button className="btn-outlined-studio" onClick={() => downloadCSV(sortedAndFilteredBookings, 'bookings_report.csv')}>
                  <Download size={16} /> Export Data
                </button>
@@ -287,6 +337,107 @@ const AdminBookings: React.FC = () => {
                    <div className="detail-row"><span>Investment:</span> <strong className="text-gold">£{(selectedBooking.amount || 0).toFixed(2)}</strong></div>
                    <div className="detail-row"><span>Session Status:</span> <span className={`status-badge ${selectedBooking.status}`}>{selectedBooking.status}</span></div>
                    <div className="detail-row"><span>Payment Status:</span> <span className={`payment-badge ${selectedBooking.payment_status}`}>{selectedBooking.payment_status}</span></div>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <AnimatePresence>
+          {isCheckInOpen && (
+            <motion.div 
+              className="modal-overlay"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => { setIsCheckInOpen(false); setScannedBooking(null); setCheckInError(''); setCheckInCode(''); }}
+            >
+              <motion.div 
+                className="modal-content premium-card-bg"
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                onClick={(e) => e.stopPropagation()}
+                style={{ maxWidth: '500px', width: '100%' }}
+              >
+                <div className="modal-header">
+                   <h2>Patron Check-In</h2>
+                   <button className="close-btn" onClick={() => { setIsCheckInOpen(false); setScannedBooking(null); setCheckInError(''); setCheckInCode(''); }}>&times;</button>
+                </div>
+                <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                   <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                     Scan the patron's QR code or type their unique 8-character code below to verify their booking and mark the session as completed.
+                   </p>
+                   
+                   <form onSubmit={handleVerifyCode} style={{ display: 'flex', gap: '0.5rem' }}>
+                     <input 
+                       type="text" 
+                       placeholder="e.g. B2-A3F45E or Booking ID"
+                       value={checkInCode}
+                       onChange={(e) => setCheckInCode(e.target.value)}
+                       className="luxury-input"
+                       style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', borderRadius: '4px', padding: '0.75rem' }}
+                       disabled={checkInLoading}
+                       autoFocus
+                     />
+                     <button 
+                       type="submit"
+                       className="btn-filled"
+                       style={{ padding: '0 1.5rem', height: 'auto', border: 'none', borderRadius: '4px', backgroundColor: 'var(--gold)', color: 'var(--primary)', fontWeight: 700, cursor: 'pointer' }}
+                       disabled={checkInLoading}
+                     >
+                       {checkInLoading ? 'Verifying...' : 'Verify'}
+                     </button>
+                   </form>
+
+                   {checkInError && (
+                     <div style={{ padding: '0.75rem', backgroundColor: 'rgba(244, 67, 54, 0.1)', border: '1px solid rgba(244, 67, 54, 0.2)', color: '#f44336', borderRadius: '4px', fontSize: '0.85rem' }}>
+                       {checkInError}
+                     </div>
+                   )}
+
+                   {scannedBooking && (
+                     <div style={{ padding: '1.25rem', backgroundColor: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '6px', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                       <h3 style={{ color: 'var(--gold)', fontSize: '1.05rem', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '0.5rem', marginBottom: '0.25rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Booking Details</h3>
+                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
+                         <span style={{ color: 'var(--text-secondary)' }}>Service:</span>
+                         <span style={{ fontWeight: 'bold' }}>{scannedBooking.service}</span>
+                       </div>
+                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
+                         <span style={{ color: 'var(--text-secondary)' }}>Schedule:</span>
+                         <span style={{ fontWeight: 'bold' }}>{new Date(scannedBooking.date).toLocaleString()}</span>
+                       </div>
+                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
+                         <span style={{ color: 'var(--text-secondary)' }}>Patron Name:</span>
+                         <span style={{ fontWeight: 'bold' }}>{scannedBooking.guest_name || 'Registered Patron'}</span>
+                       </div>
+                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
+                         <span style={{ color: 'var(--text-secondary)' }}>Promo Booking:</span>
+                         <span style={{ fontWeight: 'bold', color: scannedBooking.is_free_promo ? 'var(--gold)' : 'var(--text-secondary)' }}>
+                           {scannedBooking.is_free_promo ? 'Yes (Free Tuesday)' : 'No (Standard Paid)'}
+                         </span>
+                       </div>
+                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
+                         <span style={{ color: 'var(--text-secondary)' }}>Status:</span>
+                         <span className={`status-badge ${scannedBooking.status}`} style={{ margin: 0 }}>{scannedBooking.status}</span>
+                       </div>
+
+                       {scannedBooking.status !== 'completed' && scannedBooking.status !== 'cancelled' ? (
+                         <button 
+                           onClick={handleCompleteCheckIn}
+                           className="btn-filled"
+                           style={{ marginTop: '0.75rem', width: '100%', padding: '0.8rem', border: 'none', borderRadius: '4px', backgroundColor: 'var(--gold)', color: 'var(--primary)', fontWeight: 700, cursor: 'pointer' }}
+                           disabled={verifyingCheckIn}
+                         >
+                           {verifyingCheckIn ? 'Checking In...' : 'Verify & Complete Ritual'}
+                         </button>
+                       ) : (
+                         <div style={{ marginTop: '0.75rem', textAlign: 'center', fontSize: '0.85rem', color: scannedBooking.status === 'completed' ? '#4caf50' : '#f44336', fontWeight: 'bold' }}>
+                           {scannedBooking.status === 'completed' ? 'This appointment has already been completed.' : 'This appointment was cancelled.'}
+                         </div>
+                       )}
+                     </div>
+                   )}
                 </div>
               </motion.div>
             </motion.div>

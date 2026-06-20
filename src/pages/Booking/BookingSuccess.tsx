@@ -24,6 +24,7 @@ const BookingSuccess: React.FC = () => {
   const [loading, setLoading] = useState(true);
   
   const sessionId = searchParams.get('session_id');
+  const bookingId = searchParams.get('booking_id');
   const isGuest = searchParams.get('guest') === 'true';
 
   useEffect(() => {
@@ -37,13 +38,22 @@ const BookingSuccess: React.FC = () => {
         } finally {
           setLoading(false);
         }
+      } else if (bookingId) {
+        try {
+          const response = await apiClient.get(`/bookings/${bookingId}`);
+          setBooking(response.data);
+        } catch (error) {
+          console.error("Error fetching booking details:", error);
+        } finally {
+          setLoading(false);
+        }
       } else {
         setLoading(false);
       }
     };
 
     fetchBooking();
-  }, [sessionId]);
+  }, [sessionId, bookingId]);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -124,7 +134,9 @@ const BookingSuccess: React.FC = () => {
             <div className="receipt-paper">
               <div className="receipt-header">
                 <div className="studio-brand">BAZETWO</div>
-                <div className="receipt-badge">PAID</div>
+                <div className={`receipt-badge ${booking?.is_free_promo ? 'promo' : ''}`}>
+                  {booking?.is_free_promo ? 'PROMO' : 'PAID'}
+                </div>
               </div>
 
               <div className="receipt-divider"></div>
@@ -134,6 +146,12 @@ const BookingSuccess: React.FC = () => {
                   <span className="label">Order ID</span>
                   <span className="value">#{getDisplayId()}</span>
                 </div>
+                {booking?.check_in_code && (
+                  <div className="receipt-row">
+                    <span className="label">Check-In Code</span>
+                    <span className="value" style={{ color: 'var(--gold)', fontWeight: 800 }}>{booking.check_in_code}</span>
+                  </div>
+                )}
                 <div className="receipt-row">
                   <span className="label">Date</span>
                   <span className="value">{booking ? new Date(booking.created_at || new Date()).toLocaleDateString() : '--/--/--'}</span>
@@ -147,7 +165,7 @@ const BookingSuccess: React.FC = () => {
                       <p className="item-name">{booking?.service || 'Premium Grooming'}</p>
                       <p className="item-desc">with {booking?.barber || 'Master Barber'}</p>
                     </div>
-                    <span className="item-price">£{booking?.amount?.toFixed(2) || '0.00'}</span>
+                    <span className="item-price">{booking?.is_free_promo ? 'FREE' : `£${booking?.amount?.toFixed(2) || '0.00'}`}</span>
                   </div>
                 </div>
 
@@ -155,8 +173,21 @@ const BookingSuccess: React.FC = () => {
 
                 <div className="receipt-total">
                   <span>Grand Total</span>
-                  <span className="total-value">£{booking?.amount?.toFixed(2) || '0.00'}</span>
+                  <span className="total-value">{booking?.is_free_promo ? 'FREE' : `£${booking?.amount?.toFixed(2) || '0.00'}`}</span>
                 </div>
+
+                <div className="receipt-divider"></div>
+
+                {booking?.check_in_code && (
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', margin: '15px 0' }}>
+                    <img 
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${booking.check_in_code}`} 
+                      style={{ width: '100px', height: '100px', border: '2px solid #000', padding: '4px', backgroundColor: '#fff', display: 'block' }} 
+                      alt="QR Code" 
+                    />
+                    <span style={{ fontSize: '9px', color: '#666', marginTop: '6px', letterSpacing: '1px' }}>SCAN TO CHECK-IN</span>
+                  </div>
+                )}
 
                 <div className="receipt-footer">
                   <div className="barcode"></div>
@@ -182,8 +213,9 @@ const BookingSuccess: React.FC = () => {
               </motion.div>
               <h1 className="success-title">Ritual Secured.</h1>
               <p className="success-description">
-                Your appointment has been successfully added to the studio ledger. 
-                A digital confirmation has been dispatched to your ritual email.
+                {booking?.is_free_promo 
+                  ? "Your Tuesday Free Grooming session is locked in! Please arrive 10 minutes early with your QR code receipt. The session will be recorded for promotional outreach."
+                  : "Your appointment has been successfully added to the studio ledger. A digital confirmation has been dispatched to your ritual email."}
               </p>
             </div>
 

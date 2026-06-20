@@ -40,6 +40,9 @@ export interface BookingBase {
   barber_id?: string;
   amount?: number;
   home_address?: string;
+  is_free_promo?: boolean;
+  recording_consent?: boolean;
+  check_in_code?: string;
 }
 
 export interface BookingCreate extends BookingBase {

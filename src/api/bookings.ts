@@ -36,3 +36,13 @@ export const rescheduleBooking = async (bookingId: string, newDate: string): Pro
   const response = await apiClient.patch<Booking>(`/bookings/${bookingId}/reschedule?new_date=${newDate}`);
   return response.data;
 };
+
+export const fetchBookingByCode = async (code: string): Promise<Booking> => {
+  const response = await apiClient.get<Booking>(`/bookings/verify/${code}`);
+  return response.data;
+};
+
+export const checkInBooking = async (bookingId: string): Promise<Booking> => {
+  const response = await apiClient.patch<Booking>(`/bookings/${bookingId}/checkin`);
+  return response.data;
+};

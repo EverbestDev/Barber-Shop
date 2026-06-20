@@ -83,7 +83,7 @@
   padding: 4rem;
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.05);
-  box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
   width: 100%;
   max-width: 100%;
   overflow: hidden;
@@ -378,6 +378,11 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
   .time-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .options-grid.cols-3 {
+    grid-template-columns: 1fr;
+    gap: 1rem;
   }
 
   .luxury-input {

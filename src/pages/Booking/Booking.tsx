@@ -29,7 +29,8 @@ interface Service {
 const serviceCategories: Category[] = [
   { id: 'shop', name: 'In-Shop Service', desc: 'Standard treatments at our luxury studio.' },
   { id: 'home', name: 'Home Service (Doorstep)', desc: 'We bring the premium experience to you.' },
-  { id: 'group', name: 'Group & Family', desc: 'Bookings for multiple people or family packs.' }
+  { id: 'group', name: 'Group & Family', desc: 'Bookings for multiple people or family packs.' },
+  { id: 'free-tuesday', name: 'Free Tuesday Promo', desc: 'Complimentary walk-in grooming on Tuesdays (Membership & Consent required).' }
 ];
 
 const allServices: Service[] = [
@@ -72,17 +73,41 @@ const BookingPage: React.FC = () => {
   const [guestName, setGuestName] = useState('');
   const [guestEmail, setGuestEmail] = useState('');
   const [loading, setLoading] = useState(false);
+  const [recordingConsent, setRecordingConsent] = useState(false);
   const { user } = useAuth();
   const { onAuthOpen } = useOutletContext<{ onAuthOpen: () => void }>();
+
+  const [searchParams] = useSearchParams();
+
+  const visibleCategories = serviceCategories.filter(cat => {
+    if (cat.id === 'free-tuesday') {
+      return searchParams.get('promo') === 'free-tuesday' && user;
+    }
+    return true;
+  });
 
   const allTimeSlots = [
     '10:00 AM', '11:00 AM', '12:00 PM', '01:00 PM', '02:00 PM', 
     '03:00 PM', '04:00 PM', '05:00 PM', '06:00 PM'
   ];
 
-  const [searchParams] = useSearchParams();
-
   useEffect(() => {
+    const promo = searchParams.get('promo');
+    if (promo === 'free-tuesday') {
+      if (!user) {
+        toast.error("Membership required to access Tuesday Free Promo.");
+        return;
+      }
+      const category = serviceCategories.find(c => c.id === 'free-tuesday');
+      if (category) {
+        setSelectedCategory(category);
+        setSelectedService(null);
+        setStep(2);
+        toast.success("Welcome to Free Tuesday Promo!");
+      }
+      return;
+    }
+
     const serviceId = searchParams.get('serviceId');
     if (serviceId) {
       const service = allServices.find(s => s.id === parseInt(serviceId));
@@ -99,7 +124,9 @@ const BookingPage: React.FC = () => {
   const nextStep = () => setStep(s => s + 1);
   const prevStep = () => setStep(s => s - 1);
 
-  const filteredServices = allServices.filter(s => s.cat === selectedCategory?.id);
+  const filteredServices = selectedCategory?.id === 'free-tuesday'
+    ? allServices.filter(s => s.cat === 'shop').map(s => ({ ...s, price: 0 }))
+    : allServices.filter(s => s.cat === selectedCategory?.id);
 
   const getVisibleTimes = () => {
     if (selectedDate === today) {
@@ -127,13 +154,15 @@ const BookingPage: React.FC = () => {
   const handleBookingSubmit = async () => {
     if (!selectedService) return;
 
-    if (!user && (!guestName || !guestEmail)) {
+    const isFreePromo = selectedCategory?.id === 'free-tuesday';
+
+    if (!isFreePromo && !user && (!guestName || !guestEmail)) {
       toast.error("Please provide contact details to secure your chair.");
       return;
     }
 
     setLoading(true);
-    const loadingToast = toast.loading("Securing your chair...");
+    const loadingToast = toast.loading(isFreePromo ? "Securing your promotional slot..." : "Securing your chair...");
     try {
       const [timeStr, modifier] = selectedTime.split(' ');
       let [hour, min] = timeStr.split(':').map(Number);
@@ -146,9 +175,11 @@ const BookingPage: React.FC = () => {
         service: selectedService.name,
         date: `${selectedDate}T${formattedTime}`,
         barber: 'Any',
-        amount: selectedService.price,
-        guest_name: !user ? guestName : undefined,
-        guest_email: !user ? guestEmail : undefined
+        amount: isFreePromo ? 0.0 : selectedService.price,
+        guest_name: !isFreePromo && !user ? guestName : undefined,
+        guest_email: !isFreePromo && !user ? guestEmail : undefined,
+        is_free_promo: isFreePromo,
+        recording_consent: isFreePromo ? recordingConsent : false
       };
 
       const newBooking = await createBooking(bookingData);
@@ -158,17 +189,21 @@ const BookingPage: React.FC = () => {
         throw new Error('Studio ID ritual error please contact support.');
       }
       
-      const { url } = await createCheckoutSession(bookingId);
-      
-      if (url) {
-        toast.success("Ready for session checkout!", { id: loadingToast });
-        window.location.href = url;
+      if (isFreePromo) {
+        toast.success("Free Tuesday promo seat secured!", { id: loadingToast });
+        window.location.href = `/booking/success?booking_id=${bookingId}`;
       } else {
-        throw new Error('Stripe gateway session failed.');
+        const { url } = await createCheckoutSession(bookingId);
+        if (url) {
+          toast.success("Ready for session checkout!", { id: loadingToast });
+          window.location.href = url;
+        } else {
+          throw new Error('Stripe gateway session failed.');
+        }
       }
     } catch (err: any) {
       console.error(err);
-      toast.error(err.message || "Booking failed. Please check your ritual details.", { id: loadingToast });
+      toast.error(err.response?.data?.detail || err.message || "Booking failed. Please check your ritual details.", { id: loadingToast });
     } finally {
       setLoading(false);
     }
@@ -186,7 +221,7 @@ const BookingPage: React.FC = () => {
           >
             <div className="loader-content">
               <Loader2 className="spinning-icon" size={40} />
-              <p>Preparing Checkout...</p>
+              <p>{selectedCategory?.id === 'free-tuesday' ? 'Securing Promo Seat...' : 'Preparing Checkout...'}</p>
             </div>
           </motion.div>
         )}
@@ -207,7 +242,7 @@ const BookingPage: React.FC = () => {
               <motion.div key="s1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="step-view">
                 <h2 className="step-title">Select Service Category</h2>
                 <div className="options-grid">
-                  {serviceCategories.map(cat => (
+                  {visibleCategories.map(cat => (
                     <div 
                       key={cat.id} 
                       className={`option-card ${selectedCategory?.id === cat.id ? 'selected' : ''}`}
@@ -225,8 +260,8 @@ const BookingPage: React.FC = () => {
 
             {step === 2 && (
               <motion.div key="s2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="step-view">
-                <h2 className="step-title">Choose Service</h2>
-                <div className="options-grid">
+                <h2 className="step-title">{selectedCategory?.id === 'free-tuesday' ? 'Choose Walk-In Service (Free)' : 'Choose Service'}</h2>
+                <div className="options-grid cols-3">
                   {filteredServices.map(s => (
                     <div 
                       key={s.id} 
@@ -235,7 +270,7 @@ const BookingPage: React.FC = () => {
                     >
                       <div className="option-info">
                         <h3>{s.name}</h3>
-                        <span>{s.duration} - £{s.price}</span>
+                        <span>{s.duration} - {selectedCategory?.id === 'free-tuesday' ? 'Free (Tuesday Promo)' : `£${s.price}`}</span>
                       </div>
                     </div>
                   ))}
@@ -260,6 +295,17 @@ const BookingPage: React.FC = () => {
                           toast.error("You cannot book in the past.");
                           setSelectedDate(today);
                         } else {
+                          if (selectedCategory?.id === 'free-tuesday') {
+                            const [year, month, day] = val.split('-').map(Number);
+                            const dateObj = new Date(year, month - 1, day);
+                            const selectedDay = dateObj.getDay(); // 0 = Sunday, 1 = Monday, 2 = Tuesday
+                            if (selectedDay !== 2) {
+                              toast.error("Free Tuesday Grooming is only available on Tuesdays!");
+                              setSelectedDate('');
+                              setSelectedTime('');
+                              return;
+                            }
+                          }
                           setSelectedDate(val);
                         }
                         setSelectedTime(''); 
@@ -296,41 +342,78 @@ const BookingPage: React.FC = () => {
                     <h3>Booking Summary</h3>
                     <p><b>Service:</b> {selectedService?.name}</p>
                     <p><b>Time:</b> {selectedDate} at {selectedTime}</p>
-                    <p><b>Price:</b> £{selectedService?.price}</p>
+                    <p><b>Price:</b> {selectedCategory?.id === 'free-tuesday' ? 'Free (Tuesday Promo)' : `£${selectedService?.price}`}</p>
                   </div>
 
-                  {!user && (
-                    <div className="guest-details-box">
-                      <div className="guest-header">
-                        <h3>Guest Details</h3>
-                        <button onClick={onAuthOpen} className="inline-login-btn">Already a member? Login</button>
+                  {selectedCategory?.id === 'free-tuesday' ? (
+                    !user ? (
+                      <div className="guest-details-box text-center" style={{ padding: '2rem 1.5rem', border: '1px solid rgba(255, 204, 0, 0.2)', display: 'flex', flexDirection: 'column', alignItems: 'center', borderRadius: '8px' }}>
+                        <h3 style={{ color: 'var(--gold)', marginBottom: '1rem' }}>Membership Required</h3>
+                        <p style={{ fontSize: '0.875rem', marginBottom: '1.5rem', color: '#ccc' }}>
+                          The Free Tuesday walk-in promotion is exclusive to registered members of the studio.
+                        </p>
+                        <button onClick={onAuthOpen} className="btn-filled" style={{ width: '100%' }}>
+                          Register or Login to Book
+                        </button>
                       </div>
-                      <p className="guest-note">Checkout as guest or secure your chair with an account for history tracking.</p>
-                      <div className="input-group">
-                        <label>Display Name</label>
-                        <input 
-                          type="text" 
-                          placeholder="How should we address you?" 
-                          className="luxury-input"
-                          value={guestName}
-                          onChange={(e) => setGuestName(e.target.value)}
-                        />
+                    ) : (
+                      <div className="guest-details-box" style={{ padding: '1.5rem', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '8px' }}>
+                        <h3 style={{ marginBottom: '0.5rem' }}>Promotional Consent</h3>
+                        <p className="guest-note" style={{ marginBottom: '1.5rem' }}>
+                          Please review the recording consent terms to complete your booking.
+                        </p>
+                        <div className="consent-checkbox-wrapper" style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start', cursor: 'pointer' }}>
+                          <input 
+                            id="recording-consent"
+                            type="checkbox" 
+                            checked={recordingConsent} 
+                            onChange={(e) => setRecordingConsent(e.target.checked)}
+                            style={{ marginTop: '3px', accentColor: 'var(--gold)' }}
+                          />
+                          <label htmlFor="recording-consent" style={{ fontSize: '0.85rem', lineHeight: '1.4', color: '#ccc', cursor: 'pointer' }}>
+                            I consent to being video and audio recorded during my grooming session for marketing, outreach, and social media campaigns.
+                          </label>
+                        </div>
                       </div>
-                      <div className="input-group">
-                        <label>Email Address</label>
-                        <input 
-                          type="email" 
-                          placeholder="For your confirmation" 
-                          className="luxury-input"
-                          value={guestEmail}
-                          onChange={(e) => setGuestEmail(e.target.value.toLowerCase())}
-                        />
+                    )
+                  ) : (
+                    !user && (
+                      <div className="guest-details-box">
+                        <div className="guest-header">
+                          <h3>Guest Details</h3>
+                          <button onClick={onAuthOpen} className="inline-login-btn">Already a member? Login</button>
+                        </div>
+                        <p className="guest-note">Checkout as guest or secure your chair with an account for history tracking.</p>
+                        <div className="input-group">
+                          <label>Display Name</label>
+                          <input 
+                            type="text" 
+                            placeholder="How should we address you?" 
+                            className="luxury-input"
+                            value={guestName}
+                            onChange={(e) => setGuestName(e.target.value)}
+                          />
+                        </div>
+                        <div className="input-group">
+                          <label>Email Address</label>
+                          <input 
+                            type="email" 
+                            placeholder="For your confirmation" 
+                            className="luxury-input"
+                            value={guestEmail}
+                            onChange={(e) => setGuestEmail(e.target.value.toLowerCase())}
+                          />
+                        </div>
                       </div>
-                    </div>
+                    )
                   )}
                 </div>
-                <button className="btn-filled wide-booking-btn" onClick={handleBookingSubmit} disabled={loading}>
-                  {loading ? 'Processing...' : 'Secure Chair & Pay'}
+                <button 
+                  className="btn-filled wide-booking-btn" 
+                  onClick={handleBookingSubmit} 
+                  disabled={loading || (selectedCategory?.id === 'free-tuesday' && (!user || !recordingConsent))}
+                >
+                  {loading ? 'Processing...' : (selectedCategory?.id === 'free-tuesday' ? 'Secure Free Promo Seat' : 'Secure Chair & Pay')}
                 </button>
               </motion.div>
             )}

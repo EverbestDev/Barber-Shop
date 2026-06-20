@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Outlet, useLocation } from 'react-router-dom';
+import { Outlet, useLocation, Link } from 'react-router-dom';
 import { motion, useScroll, useSpring, AnimatePresence } from 'framer-motion';
 import Navbar from '../Navbar/Navbar';
 import Footer from '../Footer/Footer';
@@ -7,11 +7,13 @@ import AuthDrawer from '../AuthDrawer/AuthDrawer';
 import CookieConsent from '../CookieConsent/CookieConsent';
 import ChatBot from '../ChatBot/ChatBot';
 import Newsletter from '../../sections/home/Newsletter';
+import { useAuth } from '../../../context/AuthContext';
 
 const Layout: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isAuthDrawerOpen, setIsAuthDrawerOpen] = useState(false);
+  const { isLoggedIn } = useAuth();
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   
@@ -53,10 +55,43 @@ const Layout: React.FC = () => {
     return () => { document.body.style.overflow = 'auto'; };
   }, [isAuthDrawerOpen]);
 
+  const hasPromo = !location.pathname.startsWith('/dashboard') && !location.pathname.startsWith('/profile');
+
   return (
-    <div className={`app-layout ${isAuthDrawerOpen ? 'drawer-open' : ''}`}>
+    <div className={`app-layout ${isAuthDrawerOpen ? 'drawer-open' : ''} ${hasPromo ? 'has-announcement' : ''}`}>
       {/* Scroll Progress Bar */}
       <motion.div className="progress-bar" style={{ scaleX }} />
+
+      {hasPromo && (
+        <div className="promo-announcement-bar">
+          <span>🎉 PROMO: Free Tuesday Walk-In Grooming!</span>
+          {isLoggedIn ? (
+            <Link to="/dashboard/promo">Book Free</Link>
+          ) : (
+            <button 
+              onClick={() => {
+                sessionStorage.setItem('redirectAfterAuth', '/dashboard/promo');
+                setIsAuthDrawerOpen(true);
+              }} 
+              className="banner-link-btn" 
+              style={{ 
+                background: 'none', 
+                border: 'none', 
+                color: 'var(--primary)', 
+                fontWeight: 900, 
+                textDecoration: 'underline', 
+                cursor: 'pointer', 
+                fontSize: '0.75rem', 
+                marginLeft: '10px', 
+                textTransform: 'uppercase', 
+                letterSpacing: '1px' 
+              }}
+            >
+              Book Free
+            </button>
+          )}
+        </div>
+      )}
 
       <Navbar 
         isScrolled={isScrolled} 

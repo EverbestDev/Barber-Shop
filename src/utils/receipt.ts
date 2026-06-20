@@ -18,18 +18,25 @@ export const downloadReceiptPDF = async (booking: Booking) => {
 
   const bookingId = getDisplayId(booking);
   const dateStr = new Date(booking.created_at || new Date()).toLocaleDateString();
-  const amount = booking.amount?.toFixed(2) || '0.00';
+  const amount = booking.is_free_promo ? 'FREE' : `£${booking.amount?.toFixed(2) || '0.00'}`;
+  const badgeText = booking.is_free_promo ? 'PROMO' : 'PAID';
 
   receiptDiv.innerHTML = `
     <div style="text-align: center; margin-bottom: 20px;">
       <div style="font-weight: 900; font-size: 24px; letter-spacing: 2px;">BAZETWO</div>
-      <div style="background: #000; color: #fff; display: inline-block; padding: 4px 12px; font-size: 12px; font-weight: 700; margin-top: 10px;">PAID</div>
+      <div style="background: #000; color: #fff; display: inline-block; padding: 4px 12px; font-size: 12px; font-weight: 700; margin-top: 10px;">${badgeText}</div>
     </div>
     <div style="border-top: 1px dashed #ccc; margin: 20px 0;"></div>
     <div style="font-size: 13px; margin-bottom: 10px; display: flex; justify-content: space-between;">
       <span style="color: #666;">Order ID</span>
       <span style="font-weight: 700;">#${bookingId}</span>
     </div>
+    ${booking.check_in_code ? `
+    <div style="font-size: 13px; margin-bottom: 10px; display: flex; justify-content: space-between;">
+      <span style="color: #666;">Check-In Code</span>
+      <span style="font-weight: 700; color: #000;">${booking.check_in_code}</span>
+    </div>
+    ` : ''}
     <div style="font-size: 13px; margin-bottom: 20px; display: flex; justify-content: space-between;">
       <span style="color: #666;">Date</span>
       <span style="font-weight: 700;">${dateStr}</span>
@@ -41,14 +48,21 @@ export const downloadReceiptPDF = async (booking: Booking) => {
           <div style="font-weight: 700; font-size: 15px;">${booking.service}</div>
           <div style="font-size: 12px; color: #666;">with ${booking.barber}</div>
         </div>
-        <div style="font-weight: 700;">£${amount}</div>
+        <div style="font-weight: 700;">${amount}</div>
       </div>
     </div>
     <div style="border-top: 1px dashed #ccc; margin: 20px 0;"></div>
     <div style="display: flex; justify-content: space-between; align-items: center; font-weight: 900; font-size: 18px; margin-top: 20px;">
       <span>Grand Total</span>
-      <span>£${amount}</span>
+      <span>${amount}</span>
     </div>
+    ${booking.check_in_code ? `
+    <div style="border-top: 1px dashed #ccc; margin: 20px 0;"></div>
+    <div style="display: flex; flex-direction: column; align-items: center; margin: 15px 0;">
+      <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${booking.check_in_code}" style="width: 100px; height: 100px;" alt="QR" />
+      <span style="font-size: 9px; color: #666; margin-top: 6px;">SCAN TO CHECK-IN</span>
+    </div>
+    ` : ''}
     <div style="text-align: center; margin-top: 40px;">
       <div style="height: 40px; background: linear-gradient(to right, #000 0%, #000 5%, transparent 5%, transparent 7%, #000 7%, #000 15%, transparent 15%, transparent 20%, #000 20%, #000 22%, transparent 22%, transparent 25%, #000 25%, #000 40%, transparent 40%, transparent 45%, #000 45%, #000 48%, transparent 48%, transparent 50%, #000 50%, #000 70%, transparent 70%, transparent 75%, #000 75%, #000 85%, transparent 85%, transparent 90%, #000 90%, #000 100%); width: 100%; margin-bottom: 10px;"></div>
       <p style="font-size: 10px; letter-spacing: 1px; color: #999; margin: 0;">THANK YOU FOR CHOOSING EXCELLENCE</p>

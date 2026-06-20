@@ -14,7 +14,8 @@ import {
   Clock,
   CreditCard,
   Users,
-  ShieldAlert
+  ShieldAlert,
+  Tag
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { fetchNotifications, markNotificationRead, markAllNotificationsRead } from '../../api/notifications';
@@ -132,6 +133,10 @@ const DashboardLayout: React.FC = () => {
                             <NavLink to="/dashboard/transactions" className={({ isActive }) => `d-nav-item ${isActive ? 'active' : ''}`} title="Transactions">
                                 <CreditCard size={20} /> 
                                 {!isCollapsed && <span>Transactions</span>}
+                            </NavLink>
+                            <NavLink to="/dashboard/promo" className={({ isActive }) => `d-nav-item ${isActive ? 'active' : ''}`} title="Tuesday Promo">
+                                <Tag size={20} /> 
+                                {!isCollapsed && <span>Tuesday Promo</span>}
                             </NavLink>
                         </>
                     )}

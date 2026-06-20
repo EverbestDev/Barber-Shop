@@ -18,6 +18,7 @@ import UserNotifications from './pages/Dashboard/UserNotifications'
 import AdminBookings from './pages/Dashboard/AdminBookings'
 import AdminUsers from './pages/Dashboard/AdminUsers'
 import AdminTransactions from './pages/Dashboard/AdminTransactions'
+import UserPromo from './pages/Dashboard/UserPromo'
 import Terms from './pages/Legal/Terms'
 import Privacy from './pages/Legal/Privacy'
 import Refund from './pages/Legal/Refund'
@@ -116,6 +117,10 @@ const router = createBrowserRouter([
       {
         path: 'transactions',
         element: <UserTransactions />,
+      },
+      {
+        path: 'promo',
+        element: <UserPromo />,
       },
       {
         path: 'notifications',

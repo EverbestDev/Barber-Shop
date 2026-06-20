@@ -31,6 +31,7 @@ const MobileNav: React.FC<MobileNavProps> = ({ isOpen, onClose, onLogoutRequest 
     { to: '/booking', label: 'New Booking', icon: <BookOpen size={18} /> },
     { to: '/dashboard/history', label: 'Booking History', icon: <BookOpen size={18} /> },
     { to: '/dashboard/transactions', label: 'Transactions', icon: <Tag size={18} /> },
+    { to: '/dashboard/promo', label: 'Tuesday Promo', icon: <Tag size={18} /> },
     { to: '/dashboard/notifications', label: 'Notifications', icon: <Bell size={18} /> },
     { to: '/profile', label: 'Profile Settings', icon: <User size={18} /> },
   ];
