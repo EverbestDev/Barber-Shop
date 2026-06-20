@@ -43,8 +43,18 @@ const UserPromo: React.FC = () => {
   const [countdownText, setCountdownText] = useState<string>('No Active Session');
 
   const todayObj = new Date();
-  const isTuesday = todayObj.getDay() === 2; // 0 = Sunday, 1 = Monday, 2 = Tuesday
-  const todayStr = todayObj.toISOString().split('T')[0];
+  
+  // Compute date and weekday relative to the UK shop's timezone (Europe/London)
+  // This guarantees synchronization for both UK and Nigerian users booking appointments
+  const londonDayName = new Intl.DateTimeFormat('en-US', { weekday: 'long', timeZone: 'Europe/London' }).format(todayObj);
+  const isTuesday = londonDayName === 'Tuesday';
+
+  const todayStr = new Intl.DateTimeFormat('en-CA', { 
+    year: 'numeric', 
+    month: '2-digit', 
+    day: '2-digit', 
+    timeZone: 'Europe/London' 
+  }).format(todayObj);
 
   useEffect(() => {
     const checkActivePromo = async () => {
