@@ -16,13 +16,16 @@
 .reschedule-modal {
   width: 100%;
   max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
   border-radius: 24px;
-  overflow: hidden;
+  background: #0a0a0a;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  scrollbar-width: thin;
 }
 
 .modal-header {
-  padding: 2rem;
+  padding: 1.25rem 1.5rem;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
@@ -56,15 +59,15 @@
 }
 
 .modal-body {
-  padding: 2rem;
+  padding: 1.5rem;
 }
 
 .booking-summary-mini {
   background: rgba(212, 175, 55, 0.05);
   border: 1px solid rgba(212, 175, 55, 0.1);
   border-radius: 12px;
-  padding: 1rem;
-  margin-bottom: 2rem;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
 }
 
 .summary-item {
@@ -92,7 +95,7 @@
 .reschedule-form {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
 .reschedule-form label {
@@ -102,7 +105,7 @@
   color: var(--gold);
   font-size: 0.875rem;
   font-weight: 700;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.5rem;
 }
 
 .time-grid-mini {
@@ -145,7 +148,7 @@
 }
 
 .modal-footer {
-  padding: 1.5rem 2rem;
+  padding: 1.25rem 1.5rem;
   background: rgba(0, 0, 0, 0.2);
   display: flex;
   gap: 1rem;
