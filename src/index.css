@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap');
+@import "tailwindcss";
 
 :root {
   --primary: #0a0a0a; /* Darker, sleeker background */

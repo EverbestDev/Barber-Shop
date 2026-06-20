@@ -86,14 +86,25 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
 
     let timeoutId: any;
+    let lastSaved = Date.now();
 
     const resetTimer = () => {
-      localStorage.setItem('lastActivity', Date.now().toString());
+      const now = Date.now();
       window.clearTimeout(timeoutId);
       timeoutId = window.setTimeout(() => {
         logout();
         toast.error("Session expired due to inactivity. Please log in again.");
       }, INACTIVITY_LIMIT);
+
+      // Throttle localStorage updates to prevent performance lag and browser quota limits
+      if (now - lastSaved > 10000) {
+        try {
+          localStorage.setItem('lastActivity', now.toString());
+          lastSaved = now;
+        } catch (e) {
+          console.error("Inactivity storage sync failed:", e);
+        }
+      }
     };
 
     // Sync inactivity timers across multiple tabs
