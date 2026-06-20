@@ -42,7 +42,95 @@ const UserPromo: React.FC = () => {
   const [completedPromoCount, setCompletedPromoCount] = useState<number>(0);
   const [countdownText, setCountdownText] = useState<string>('No Active Session');
 
+  const [nextActiveText, setNextActiveText] = useState<string>('00d : 00h : 00m : 00s');
+  const [nextActiveIsActive, setNextActiveIsActive] = useState<boolean>(false);
+
   const todayObj = new Date();
+
+  const getNextActiveTimeText = () => {
+    const now = new Date();
+    
+    // Find current date and weekday relative to London time
+    const weekdayName = new Intl.DateTimeFormat('en-US', { weekday: 'long', timeZone: 'Europe/London' }).format(now);
+    const londonHourStr = new Intl.DateTimeFormat('en-US', { hour: 'numeric', hour12: false, timeZone: 'Europe/London' }).format(now);
+    const lHour = parseInt(londonHourStr, 10);
+    
+    const weekdayMap: Record<string, number> = {
+      'Sunday': 0, 'Monday': 1, 'Tuesday': 2, 'Wednesday': 3, 'Thursday': 4, 'Friday': 5, 'Saturday': 6
+    };
+    const lWeekday = weekdayMap[weekdayName] ?? now.getDay();
+
+    // Compute London's local year, month, day, min, sec for accurate math
+    const formatter = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'Europe/London',
+      year: 'numeric',
+      month: 'numeric',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      second: 'numeric',
+      hour12: false
+    });
+    const parts = formatter.formatToParts(now);
+    const getPartVal = (type: string) => parseInt(parts.find(p => p.type === type)?.value || '0', 10);
+    
+    const lYear = getPartVal('year');
+    const lMonth = getPartVal('month') - 1;
+    const lDay = getPartVal('day');
+    const lMin = getPartVal('minute');
+    const lSec = getPartVal('second');
+
+    const lCurrentUTC = Date.UTC(lYear, lMonth, lDay, lHour, lMin, lSec);
+
+    // Days until next Tuesday (Tuesday = 2)
+    let daysUntilTuesday = (2 - lWeekday + 7) % 7;
+
+    let isActive = false;
+    if (lWeekday === 2) {
+      if (lHour < 10) {
+        daysUntilTuesday = 0;
+      } else if (lHour >= 18) {
+        daysUntilTuesday = 7;
+      } else {
+        isActive = true;
+      }
+    }
+
+    if (isActive) {
+      return { isActive: true, text: 'ACTIVE NOW' };
+    }
+
+    // Target date: next Tuesday at 10:00:00 London local time
+    const targetUTC = Date.UTC(lYear, lMonth, lDay + daysUntilTuesday, 10, 0, 0);
+    const diffMs = targetUTC - lCurrentUTC;
+
+    if (diffMs <= 0) {
+      return { isActive: true, text: 'ACTIVE NOW' };
+    }
+
+    const totalSecs = Math.floor(diffMs / 1000);
+    const days = Math.floor(totalSecs / 86400);
+    const hours = Math.floor((totalSecs % 86400) / 3600);
+    const mins = Math.floor((totalSecs % 3600) / 60);
+    const secs = totalSecs % 60;
+
+    const pad = (num: number) => num.toString().padStart(2, '0');
+    return {
+      isActive: false,
+      text: `${pad(days)}d : ${pad(hours)}h : ${pad(mins)}m : ${pad(secs)}s`
+    };
+  };
+
+  useEffect(() => {
+    const updateNextActive = () => {
+      const res = getNextActiveTimeText();
+      setNextActiveText(res.text);
+      setNextActiveIsActive(res.isActive);
+    };
+    updateNextActive();
+    const interval = setInterval(updateNextActive, 1000);
+    return () => clearInterval(interval);
+  }, []);
   
   // Compute date and weekday relative to the UK shop's timezone (Europe/London)
   // This guarantees synchronization for both UK and Nigerian users booking appointments
@@ -209,10 +297,55 @@ const UserPromo: React.FC = () => {
   return (
     <div className="dashboard-content-main">
       <main className="dashboard-main-view">
-        <motion.header className="dashboard-header" initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
+        <motion.header 
+          className="dashboard-header" 
+          style={{ 
+            display: 'flex', 
+            flexDirection: 'row', 
+            justifyContent: 'space-between', 
+            alignItems: 'center', 
+            flexWrap: 'wrap', 
+            gap: '1.5rem' 
+          }} 
+          initial={{ opacity: 0, y: -20 }} 
+          animate={{ opacity: 1, y: 0 }}
+        >
           <div className="header-greeting">
             <h1>Tuesday Free <span className="text-gold">Grooming</span></h1>
             <p>Exclusive walking outreach promotion for registered studio members.</p>
+          </div>
+          
+          <div className="promo-countdown-wrapper" style={{ 
+            display: 'flex', 
+            flexDirection: 'column', 
+            alignItems: 'flex-end', 
+            backgroundColor: 'rgba(20, 20, 20, 0.6)', 
+            border: '1px solid rgba(255, 255, 255, 0.05)', 
+            borderRadius: '12px', 
+            padding: '0.75rem 1.25rem',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
+            minWidth: '220px'
+          }}>
+            <span style={{ 
+              fontSize: '0.65rem', 
+              textTransform: 'uppercase', 
+              letterSpacing: '1px', 
+              color: 'var(--text-secondary)', 
+              fontWeight: 800, 
+              marginBottom: '0.25rem' 
+            }}>
+              Next Active Promo Countdown
+            </span>
+            <div style={{ 
+              fontSize: '1.2rem', 
+              fontFamily: 'monospace', 
+              fontWeight: 800, 
+              color: nextActiveIsActive ? '#2ecc71' : 'var(--gold)', 
+              letterSpacing: '0.5px',
+              textShadow: nextActiveIsActive ? '0 0 10px rgba(46, 204, 113, 0.3)' : '0 0 10px rgba(212, 175, 55, 0.2)'
+            }}>
+              {nextActiveText}
+            </div>
           </div>
         </motion.header>
 
