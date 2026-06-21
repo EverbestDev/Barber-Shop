@@ -1,10 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { useNavigate, useOutletContext } from 'react-router-dom';
 import { Gift, Video, Calendar, Sparkles, CheckCircle2 } from 'lucide-react';
+import { useAuth } from '../../../context/AuthContext';
 import './TuesdayPromo.css';
 
 const TuesdayPromo: React.FC = () => {
+  const { isLoggedIn } = useAuth();
+  const navigate = useNavigate();
+  const { onAuthOpen } = useOutletContext<{ onAuthOpen: () => void }>();
+
+  const handleBookClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (isLoggedIn) {
+      navigate('/dashboard/promo');
+    } else {
+      sessionStorage.setItem('redirectAfterAuth', '/dashboard/promo');
+      onAuthOpen();
+    }
+  };
   const [nextActiveText, setNextActiveText] = useState<string>('00d : 00h : 00m : 00s');
   const [nextActiveIsActive, setNextActiveIsActive] = useState<boolean>(false);
 
@@ -94,7 +108,7 @@ const TuesdayPromo: React.FC = () => {
   }, []);
 
   return (
-    <section className="tuesday-promo-section section-padding">
+    <section id="tuesday-promo" className="tuesday-promo-section section-padding">
       <div className="container">
         <motion.div 
           className="promo-card"
@@ -137,12 +151,12 @@ const TuesdayPromo: React.FC = () => {
               </ul>
               
               <div className="promo-action-group">
-                <Link to="/booking?promo=free-tuesday" className="btn-filled tuesday-promo-btn">
+                <button onClick={handleBookClick} className="btn-filled tuesday-promo-btn" style={{ cursor: 'pointer' }}>
                   <Gift size={18} /> Book Free Session
-                </Link>
-                <Link to="/dashboard/promo" className="btn-outlined tuesday-promo-info">
+                </button>
+                <button onClick={handleBookClick} className="btn-outlined tuesday-promo-info" style={{ cursor: 'pointer' }}>
                   Learn More
-                </Link>
+                </button>
               </div>
             </div>
             

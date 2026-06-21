@@ -7,13 +7,12 @@ import AuthDrawer from '../AuthDrawer/AuthDrawer';
 import CookieConsent from '../CookieConsent/CookieConsent';
 import ChatBot from '../ChatBot/ChatBot';
 import Newsletter from '../../sections/home/Newsletter';
-import { useAuth } from '../../../context/AuthContext';
+
 
 const Layout: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isAuthDrawerOpen, setIsAuthDrawerOpen] = useState(false);
-  const { isLoggedIn } = useAuth();
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   
@@ -30,12 +29,32 @@ const Layout: React.FC = () => {
     restDelta: 0.001
   });
 
-  // Reset scroll on path change
+  // Reset scroll on path change or handle hash scroll
   useEffect(() => {
-    window.scrollTo(0, 0);
+    if (location.hash === '#tuesday-promo') {
+      const timer = setTimeout(() => {
+        const element = document.getElementById('tuesday-promo');
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+      return () => clearTimeout(timer);
+    } else {
+      window.scrollTo(0, 0);
+    }
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsMobileMenuOpen(false);
-  }, [location.pathname]);
+  }, [location.pathname, location.hash]);
+
+  const handlePromoBannerClick = (e: React.MouseEvent) => {
+    if (location.pathname === '/') {
+      e.preventDefault();
+      const element = document.getElementById('tuesday-promo');
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -66,31 +85,7 @@ const Layout: React.FC = () => {
         <div className="promo-announcement-bar">
           <span className="promo-text-desktop">🎉 PROMO: Free Tuesday Walk-In Grooming!</span>
           <span className="promo-text-mobile">🎉 Free Tuesday Grooming!</span>
-          {isLoggedIn ? (
-            <Link to="/dashboard/promo">Book Free</Link>
-          ) : (
-            <button 
-              onClick={() => {
-                sessionStorage.setItem('redirectAfterAuth', '/dashboard/promo');
-                setIsAuthDrawerOpen(true);
-              }} 
-              className="banner-link-btn" 
-              style={{ 
-                background: 'none', 
-                border: 'none', 
-                color: 'var(--primary)', 
-                fontWeight: 900, 
-                textDecoration: 'underline', 
-                cursor: 'pointer', 
-                fontSize: 'inherit', 
-                marginLeft: '10px', 
-                textTransform: 'uppercase', 
-                letterSpacing: '1px' 
-              }}
-            >
-              Book Free
-            </button>
-          )}
+          <Link to="/#tuesday-promo" onClick={handlePromoBannerClick}>Book Free</Link>
         </div>
       )}
 
