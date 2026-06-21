@@ -489,6 +489,7 @@ const AdminUsers: React.FC = () => {
                             >
                               <option value="subscribers">Subscribers Only</option>
                               <option value="users">Registered Users Only</option>
+                              <option value="tuesday_promo">Tuesday Promo Subscribers</option>
                               <option value="all">Everyone</option>
                             </select>
                          </div>

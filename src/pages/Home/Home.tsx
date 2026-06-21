@@ -2,6 +2,7 @@ import React from 'react';
 import Hero from '../../components/layout/Hero/Hero';
 import ServicesPreview from '../../components/sections/home/ServicesPreview';
 import WhyChooseUs from '../../components/sections/home/WhyChooseUs';
+import TuesdayPromo from '../../components/sections/home/TuesdayPromo';
 import VideoShowcase from '../../components/sections/home/VideoShowcase';
 import ProfessionalTeam from '../../components/sections/home/ProfessionalTeam';
 import PricingSnippet from '../../components/sections/home/PricingSnippet';
@@ -15,6 +16,7 @@ const Home: React.FC = () => {
       <Hero />
       <ServicesPreview />
       <WhyChooseUs />
+      <TuesdayPromo />
       <VideoShowcase />
       <ProfessionalTeam />
       <PricingSnippet />

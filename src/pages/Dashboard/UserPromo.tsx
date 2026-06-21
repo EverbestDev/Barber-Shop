@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Gift, Check, Loader2, Video, Calendar, Clock, Sparkles } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { createBooking, fetchMyBookings } from '../../api/bookings';
+import { updateCurrentUser } from '../../api/auth';
 import { getSafeId } from '../../utils/ids';
 import type { Booking } from '../../api/types';
 import { downloadReceiptPDF } from '../../utils/receipt';
@@ -31,11 +32,31 @@ const allTimeSlots = [
 ];
 
 const UserPromo: React.FC = () => {
-  const { user } = useAuth();
+  const { user, login } = useAuth();
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [selectedTime, setSelectedTime] = useState<string>('');
   const [recordingConsent, setRecordingConsent] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [submittingSub, setSubmittingSub] = useState(false);
+
+  const handleToggleSubscription = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!user) return;
+    const checked = e.target.checked;
+    setSubmittingSub(true);
+    try {
+      const updatedInfo = await updateCurrentUser({ tuesday_promo_subscribed: checked });
+      login({
+        ...user,
+        tuesday_promo_subscribed: updatedInfo.tuesday_promo_subscribed
+      });
+      toast.success(checked ? "Subscribed to Tuesday Promo reminders!" : "Unsubscribed from Tuesday Promo reminders.");
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err.response?.data?.detail || err.message || "Failed to update subscription preference.");
+    } finally {
+      setSubmittingSub(false);
+    }
+  };
 
   const [activePromoBooking, setActivePromoBooking] = useState<Booking | null>(null);
   const [fetchingActive, setFetchingActive] = useState(true);
@@ -398,6 +419,39 @@ const UserPromo: React.FC = () => {
                   <li><strong>Booking Limit:</strong> Maximum of one Free Tuesday slot per member per week.</li>
                   <li><strong>Marketing Recording:</strong> <span className="text-gold">Your session will be video and audio recorded.</span> Footages are utilized for studio marketing, social media reels, and publicity.</li>
                 </ul>
+              </div>
+            </div>
+          </div>
+
+          {/* Subscription Preferences Card */}
+          <div className="dashboard-card premium-card-bg" style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.2)' }}>
+            <div className="card-header" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '1rem', marginBottom: '1.5rem' }}>
+              <h2 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
+                <Sparkles size={20} className="text-gold" /> Tuesday Promo Subscriptions
+              </h2>
+            </div>
+            <div style={{ lineHeight: '1.7', fontSize: '0.925rem', color: '#ccc', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <p>
+                Take control of your Tuesday Promo notifications. Turn reminders on or off for opening schedules and session nudges.
+              </p>
+              <div style={{ padding: '1.25rem', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '8px', backgroundColor: 'var(--primary)' }}>
+                <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', cursor: 'pointer' }}>
+                  <input 
+                    id="tuesday-promo-subscribe"
+                    type="checkbox" 
+                    checked={user?.tuesday_promo_subscribed !== false} 
+                    onChange={handleToggleSubscription}
+                    disabled={submittingSub}
+                    style={{ accentColor: 'var(--gold)', scale: '1.2', cursor: 'pointer' }}
+                  />
+                  <label htmlFor="tuesday-promo-subscribe" style={{ fontSize: '0.9rem', color: '#fff', cursor: 'pointer', userSelect: 'none', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                    <strong>Subscribe to updates & reminders</strong>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                      Get notified when booking windows open, plus automated 30-minute arrival reminders.
+                    </span>
+                  </label>
+                  {submittingSub && <Loader2 className="spinning-icon text-gold" size={16} style={{ marginLeft: 'auto' }} />}
+                </div>
               </div>
             </div>
           </div>

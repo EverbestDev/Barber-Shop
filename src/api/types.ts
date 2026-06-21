@@ -21,6 +21,7 @@ export interface UserInfo {
   phone?: string;
   role: string;
   cookie_consent: boolean;
+  tuesday_promo_subscribed?: boolean;
   avatar_url?: string;
   created_at: string;
 }
@@ -30,6 +31,7 @@ export interface UserUpdate {
   email?: string;
   phone?: string;
   cookie_consent?: boolean;
+  tuesday_promo_subscribed?: boolean;
   avatar_url?: string;
 }
 

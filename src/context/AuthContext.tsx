@@ -9,6 +9,7 @@ interface User {
   phone?: string;
   role: string;
   cookie_consent: boolean;
+  tuesday_promo_subscribed?: boolean;
   avatar_url?: string;
   created_at: string;
 }
