@@ -11,7 +11,8 @@ import {
   CreditCard,
   ChevronRight,
   Zap,
-  Scissors
+  Scissors,
+  PieChart
 } from 'lucide-react';
 import { fetchAllUsers } from '../../api/admin';
 import { fetchAllBookings } from '../../api/bookings';
@@ -43,6 +44,40 @@ const AdminDashboard: React.FC = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [chartFilter, setChartFilter] = useState<'service' | 'status' | 'payment'>('service');
+
+  const CHART_COLORS = ['#D4AF37', '#F1D87A', '#8C8C8C', '#E63946', '#2A9D8F', '#457B9D', '#1D3557', '#F4A261'];
+
+  const getCoordinatesForPercent = (percent: number) => {
+    const x = Math.cos(2 * Math.PI * percent);
+    const y = Math.sin(2 * Math.PI * percent);
+    return [x, y];
+  };
+
+  const chartData = useMemo(() => {
+    const counts: Record<string, number> = {};
+    bookings.forEach(b => {
+      let key = '';
+      if (chartFilter === 'service') {
+        key = b.service;
+      } else if (chartFilter === 'status') {
+        key = b.status;
+      } else {
+        key = b.payment_status;
+      }
+      counts[key] = (counts[key] || 0) + 1;
+    });
+
+    const total = Object.values(counts).reduce((sum, val) => sum + val, 0);
+    if (total === 0) return [];
+
+    return Object.entries(counts).map(([label, value], index) => ({
+      label: label.charAt(0).toUpperCase() + label.slice(1),
+      value,
+      percentage: (value / total) * 100,
+      color: CHART_COLORS[index % CHART_COLORS.length]
+    }));
+  }, [bookings, chartFilter]);
 
   useEffect(() => {
     const getData = async () => {
@@ -161,12 +196,11 @@ const AdminDashboard: React.FC = () => {
           </div>
         </motion.header>
 
-        <section className="dashboard-grid">
+        <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <motion.div 
             initial={{ opacity: 0, x: -20 }} 
             animate={{ opacity: 1, x: 0 }} 
-            className="dashboard-card premium-card-bg"
-            style={{ gridColumn: 'span 2' }}
+            className="dashboard-card premium-card-bg lg:col-span-2"
           >
             <div className="card-header">
               <h2><Calendar size={20} /> Today's Live Agenda</h2>
@@ -201,34 +235,127 @@ const AdminDashboard: React.FC = () => {
             </div>
           </motion.div>
 
-          <div className="dashboard-card premium-card-bg mini-insights">
-             <div className="card-header">
-                <h2><Zap size={20} /> Quick Insights</h2>
-             </div>
-             <div className="insights-list">
-                <div className="insight-item">
-                    <div className="insight-icon"><Scissors size={18} /></div>
-                    <div className="insight-data">
-                        <span className="insight-label">Top Service</span>
-                        <span className="insight-val">{stats.mostPopular}</span>
+          <div className="flex flex-col gap-6 lg:col-span-1">
+            <div className="dashboard-card premium-card-bg mini-insights">
+               <div className="card-header">
+                  <h2><Zap size={20} /> Quick Insights</h2>
+               </div>
+               <div className="insights-list">
+                  <div className="insight-item">
+                      <div className="insight-icon"><Scissors size={18} /></div>
+                      <div className="insight-data">
+                          <span className="insight-label">Top Service</span>
+                          <span className="insight-val">{stats.mostPopular}</span>
+                      </div>
+                  </div>
+                  <div className="insight-item">
+                      <div className="insight-icon"><Users size={18} /></div>
+                      <div className="insight-data">
+                          <span className="insight-label">Growth</span>
+                          <span className="insight-val">+12% this month</span>
+                      </div>
+                  </div>
+                  <div className="insight-item">
+                      <div className="insight-icon"><CreditCard size={18} /></div>
+                      <div className="insight-data">
+                          <span className="insight-label">Avg. Ticket</span>
+                          <span className="insight-val">£34.50</span>
+                      </div>
+                  </div>
+               </div>
+               <button className="btn-filled-gold w-full mt-6" onClick={handleGenerateReport}>Generate Full Report</button>
+            </div>
+
+            <div className="dashboard-card premium-card-bg">
+              <div className="card-header flex items-center justify-between border-b border-white/5 pb-4 mb-4">
+                <h2 className="flex items-center gap-2 text-white font-bold">
+                  <PieChart size={20} className="text-gold" /> Grooming Distribution
+                </h2>
+                <select 
+                  value={chartFilter}
+                  onChange={(e) => setChartFilter(e.target.value as any)}
+                  className="bg-black border border-white/10 rounded px-2 py-1 text-xs text-white cursor-pointer focus:outline-none focus:border-gold"
+                >
+                  <option value="service">Service Type</option>
+                  <option value="status">Grooming Status</option>
+                  <option value="payment">Payment Settlement</option>
+                </select>
+              </div>
+              
+              <div className="flex flex-col sm:flex-row lg:flex-col xl:flex-row items-center justify-center gap-6 mt-4">
+                {chartData.length > 0 ? (
+                  <>
+                    <div className="relative w-36 h-36 shrink-0">
+                      <svg viewBox="-1 -1 2 2" className="w-full h-full transform -rotate-90">
+                        {(() => {
+                          let cumulativePercent = 0;
+                          return chartData.map((slice, index) => {
+                            const percent = slice.value / bookings.length;
+                            const [startX, startY] = getCoordinatesForPercent(cumulativePercent);
+                            cumulativePercent += percent;
+                            const [endX, endY] = getCoordinatesForPercent(cumulativePercent);
+                            const largeArcFlag = percent > 0.5 ? 1 : 0;
+                            
+                            if (percent === 1) {
+                              return (
+                                <circle 
+                                  key={index} 
+                                  cx="0" 
+                                  cy="0" 
+                                  r="1" 
+                                  fill={slice.color} 
+                                >
+                                  <title>{`${slice.label}: ${slice.value} (${slice.percentage.toFixed(1)}%)`}</title>
+                                </circle>
+                              );
+                            }
+                            
+                            const pathData = [
+                              `M 0 0`,
+                              `L ${startX} ${startY}`,
+                              `A 1 1 0 ${largeArcFlag} 1 ${endX} ${endY}`,
+                              `Z`
+                            ].join(' ');
+                            
+                            return (
+                              <path 
+                                key={index} 
+                                d={pathData} 
+                                fill={slice.color} 
+                                className="transition-all duration-300 hover:opacity-80 cursor-pointer"
+                              >
+                                <title>{`${slice.label}: ${slice.value} (${slice.percentage.toFixed(1)}%)`}</title>
+                              </path>
+                            );
+                          });
+                        })()}
+                      </svg>
                     </div>
-                </div>
-                <div className="insight-item">
-                    <div className="insight-icon"><Users size={18} /></div>
-                    <div className="insight-data">
-                        <span className="insight-label">Growth</span>
-                        <span className="insight-val">+12% this month</span>
+                    
+                    <div className="flex-1 w-full flex flex-col gap-2">
+                      {chartData.map((slice, index) => (
+                        <div key={index} className="flex items-center justify-between text-xs">
+                          <div className="flex items-center gap-2">
+                            <span 
+                              className="w-2.5 h-2.5 rounded-full shrink-0" 
+                              style={{ backgroundColor: slice.color }}
+                            />
+                            <span className="text-gray-300 truncate max-w-[140px]">{slice.label}</span>
+                          </div>
+                          <span className="font-semibold text-white">
+                            {slice.value} ({slice.percentage.toFixed(0)}%)
+                          </span>
+                        </div>
+                      ))}
                     </div>
-                </div>
-                <div className="insight-item">
-                    <div className="insight-icon"><CreditCard size={18} /></div>
-                    <div className="insight-data">
-                        <span className="insight-label">Avg. Ticket</span>
-                        <span className="insight-val">£34.50</span>
-                    </div>
-                </div>
-             </div>
-             <button className="btn-filled-gold w-full mt-6" onClick={handleGenerateReport}>Generate Full Report</button>
+                  </>
+                ) : (
+                  <div className="text-gray-400 text-center py-8 w-full text-sm">
+                    No stats available for selected filter.
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </section>
       </main>

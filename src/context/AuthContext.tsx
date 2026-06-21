@@ -71,7 +71,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       return;
     }
 
-    const INACTIVITY_LIMIT = 30 * 60 * 1000; // 30 minutes in milliseconds
+    const INACTIVITY_LIMIT = 60 * 60 * 1000; // 60 minutes in milliseconds
 
     // Initial check on mount
     const lastActivity = localStorage.getItem('lastActivity');
