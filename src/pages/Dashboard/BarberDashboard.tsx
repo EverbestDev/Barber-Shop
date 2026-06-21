@@ -43,6 +43,13 @@ const BarberDashboard: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
+
   useEffect(() => {
     const getData = async () => {
       try {
@@ -85,6 +92,11 @@ const BarberDashboard: React.FC = () => {
       )
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }, [schedule, searchQuery]);
+
+  const paginatedSchedule = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return filteredSchedule.slice(startIndex, startIndex + itemsPerPage);
+  }, [filteredSchedule, currentPage]);
 
   const handleStatusChange = async (bookingId: string, status: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -176,7 +188,7 @@ const BarberDashboard: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredSchedule.map((b, idx) => {
+                  {paginatedSchedule.map((b, idx) => {
                     const bId = getSafeId(b);
                     return (
                       <tr key={`${bId}-${idx}`} className="clickable-row" onClick={() => setSelectedBooking(b)}>
@@ -219,7 +231,7 @@ const BarberDashboard: React.FC = () => {
                 </tbody>
               </table>
 
-              {filteredSchedule.length === 0 && (
+              {paginatedSchedule.length === 0 && (
                 <div className="empty-state-standard" style={{ padding: '5rem 2rem' }}>
                    <div className="empty-icon-chamber">
                      <CircleDashed size={48} style={{ opacity: 0.1, marginBottom: '1.5rem' }} />
@@ -229,6 +241,76 @@ const BarberDashboard: React.FC = () => {
                 </div>
               )}
               </div>
+
+              {/* Pagination Controls */}
+              {filteredSchedule.length > itemsPerPage && (
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 pt-6 border-t border-white/5 px-2">
+                  <div className="text-xs text-neutral-400 font-medium">
+                    Showing <span className="text-white font-semibold">{(currentPage - 1) * itemsPerPage + 1}</span> to{' '}
+                    <span className="text-white font-semibold">
+                      {Math.min(currentPage * itemsPerPage, filteredSchedule.length)}
+                    </span>{' '}
+                    of <span className="text-white font-semibold">{filteredSchedule.length}</span> entries
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setCurrentPage(1)}
+                      disabled={currentPage === 1}
+                      className="px-2.5 py-1.5 rounded-md text-xs font-semibold uppercase tracking-wider border border-white/10 text-neutral-400 hover:text-white hover:border-gold/30 disabled:opacity-40 disabled:hover:text-neutral-400 disabled:hover:border-white/10 transition-all duration-200"
+                    >
+                      First
+                    </button>
+                    <button
+                      onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                      disabled={currentPage === 1}
+                      className="px-3 py-1.5 rounded-md text-xs font-bold border border-white/10 text-neutral-400 hover:text-white hover:border-gold/30 disabled:opacity-40 disabled:hover:text-neutral-400 disabled:hover:border-white/10 transition-all duration-200"
+                    >
+                      Prev
+                    </button>
+                    
+                    <div className="flex items-center gap-1.5">
+                      {Array.from({ length: Math.ceil(filteredSchedule.length / itemsPerPage) }, (_, idx) => idx + 1)
+                        .filter(page => {
+                          const totalPages = Math.ceil(filteredSchedule.length / itemsPerPage);
+                          return page === 1 || page === totalPages || Math.abs(page - currentPage) <= 1;
+                        })
+                        .map((page, idx, arr) => {
+                          const showEllipsis = idx > 0 && page - arr[idx - 1] > 1;
+                          return (
+                            <React.Fragment key={page}>
+                              {showEllipsis && <span className="text-neutral-600 text-xs px-1">...</span>}
+                              <button
+                                onClick={() => setCurrentPage(page)}
+                                className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all duration-200 ${
+                                  currentPage === page
+                                    ? 'bg-gold text-black border border-gold shadow-[0_0_10px_rgba(255,204,0,0.2)]'
+                                    : 'border border-white/10 text-neutral-400 hover:text-white hover:border-gold/30'
+                                }`}
+                              >
+                                {page}
+                              </button>
+                            </React.Fragment>
+                          );
+                        })}
+                    </div>
+
+                    <button
+                      onClick={() => setCurrentPage(prev => Math.min(prev + 1, Math.ceil(filteredSchedule.length / itemsPerPage)))}
+                      disabled={currentPage === Math.ceil(filteredSchedule.length / itemsPerPage)}
+                      className="px-3 py-1.5 rounded-md text-xs font-bold border border-white/10 text-neutral-400 hover:text-white hover:border-gold/30 disabled:opacity-40 disabled:hover:text-neutral-400 disabled:hover:border-white/10 transition-all duration-200"
+                    >
+                      Next
+                    </button>
+                    <button
+                      onClick={() => setCurrentPage(Math.ceil(filteredSchedule.length / itemsPerPage))}
+                      disabled={currentPage === Math.ceil(filteredSchedule.length / itemsPerPage)}
+                      className="px-2.5 py-1.5 rounded-md text-xs font-semibold uppercase tracking-wider border border-white/10 text-neutral-400 hover:text-white hover:border-gold/30 disabled:opacity-40 disabled:hover:text-neutral-400 disabled:hover:border-white/10 transition-all duration-200"
+                    >
+                      Last
+                    </button>
+                  </div>
+                </div>
+              )}
               <div className="scroll-hint-icon mobile-only"><ChevronRight size={10} /> Scroll</div>
             </div>
           </motion.div>

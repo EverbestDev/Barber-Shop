@@ -157,12 +157,57 @@
 }
 
 .visual-sparkle {
-  animation: float-sparkle 3s ease-in-out infinite;
+  /* Bouncing animation removed as requested */
 }
 
 @keyframes float-sparkle {
   0%, 100% { transform: translateY(0) scale(1); }
   50% { transform: translateY(-5px) scale(1.1); }
+}
+
+.visual-countdown-wrapper {
+  margin-top: 1rem;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  width: 100%;
+}
+
+.visual-status-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.visual-status-badge {
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.visual-status-badge.live {
+  background: rgba(46, 204, 113, 0.2);
+  color: #2ecc71;
+  border: 1px solid rgba(46, 204, 113, 0.3);
+  box-shadow: 0 0 10px rgba(46, 204, 113, 0.2);
+}
+
+.visual-status-badge.closed {
+  background: rgba(235, 87, 87, 0.2);
+  color: #eb5757;
+  border: 1px solid rgba(235, 87, 87, 0.3);
+}
+
+.visual-countdown-time {
+  font-family: monospace;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--gold, #c9962b);
+  margin-top: 0.25rem;
 }
 
 .visual-h3 {

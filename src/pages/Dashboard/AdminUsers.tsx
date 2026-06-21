@@ -19,7 +19,8 @@ import {
   Eye,
   X,
   Wallet,
-  Scissors
+  Scissors,
+  PieChart
 } from 'lucide-react';
 import { fetchAllUsers, updateUserRole, deleteUser, fetchSubscriberStats, fetchAllSubscribers, sendNewsletter, uploadImage } from '../../api/admin';
 import { fetchAllBookings } from '../../api/bookings';
@@ -58,6 +59,22 @@ const AdminUsers: React.FC = () => {
   
   const [selectedUser, setSelectedUser] = useState<UserInfo | null>(null);
   const [actionUser, setActionUser] = useState<UserInfo | null>(null);
+
+  // Pagination states
+  const [currentPageUsers, setCurrentPageUsers] = useState(1);
+  const [currentPageSubs, setCurrentPageSubs] = useState(1);
+  const [currentPageSelectedUserBookings, setCurrentPageSelectedUserBookings] = useState(1);
+  const itemsPerPage = 20;
+
+  // Reset main registry pagination on search or sorting
+  useEffect(() => {
+    setCurrentPageUsers(1);
+  }, [searchQuery, sortBy]);
+
+  // Reset selected user history pagination when selected user changes
+  useEffect(() => {
+    setCurrentPageSelectedUserBookings(1);
+  }, [selectedUser]);
 
   const [newsData, setNewsData] = useState({
     subject: '',
@@ -100,6 +117,28 @@ const AdminUsers: React.FC = () => {
       };
   }, [users]);
 
+  const getCoordinatesForPercent = (percent: number) => {
+    const x = Math.cos(2 * Math.PI * percent);
+    const y = Math.sin(2 * Math.PI * percent);
+    return [x, y];
+  };
+
+  const demographicsChartData = useMemo(() => {
+    const total = users.length;
+    if (total === 0) return [];
+    
+    const items = [
+      { label: 'Patrons', value: users.filter(u => u.role === 'user').length, color: '#D4AF37' },
+      { label: 'Barbers', value: userStats.barbers, color: '#F1D87A' },
+      { label: 'Admins', value: userStats.admins, color: '#8C8C8C' },
+      { label: 'Suspended', value: userStats.suspended, color: '#f44336' },
+    ];
+    
+    return items.map(item => ({
+      ...item,
+      percentage: (item.value / total) * 100
+    }));
+  }, [users, userStats]);
   const sortedAndFilteredUsers = useMemo(() => {
     const result = [...users].filter(u => 
       u.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -115,6 +154,16 @@ const AdminUsers: React.FC = () => {
 
     return result;
   }, [users, searchQuery, sortBy]);
+
+  const paginatedUsers = useMemo(() => {
+    const startIndex = (currentPageUsers - 1) * itemsPerPage;
+    return sortedAndFilteredUsers.slice(startIndex, startIndex + itemsPerPage);
+  }, [sortedAndFilteredUsers, currentPageUsers]);
+
+  const paginatedSubscribers = useMemo(() => {
+    const startIndex = (currentPageSubs - 1) * itemsPerPage;
+    return subscribers.slice(startIndex, startIndex + itemsPerPage);
+  }, [subscribers, currentPageSubs]);
 
   const handleRoleChange = async (userId: string, newRole: string) => {
     const loadToast = toast.loading("Updating member status...");
@@ -171,8 +220,6 @@ const AdminUsers: React.FC = () => {
     }
   };
 
-  if (loading) return <AdminUsersSkeleton />;
-
   // Calculate detailed stats for selectedUser (if active)
   const selectedUserStats = selectedUser ? (() => {
     const uId = getSafeId(selectedUser);
@@ -193,6 +240,14 @@ const AdminUsers: React.FC = () => {
       dateJoined
     };
   })() : null;
+
+  const paginatedSelectedUserBookings = useMemo(() => {
+    if (!selectedUserStats) return [];
+    const startIndex = (currentPageSelectedUserBookings - 1) * itemsPerPage;
+    return selectedUserStats.userBookings.slice(startIndex, startIndex + itemsPerPage);
+  }, [selectedUserStats, currentPageSelectedUserBookings]);
+
+  if (loading) return <AdminUsersSkeleton />;
 
   return (
     <div className="dashboard-content-main">
@@ -285,7 +340,7 @@ const AdminUsers: React.FC = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {selectedUserStats.userBookings.map((b, idx) => (
+                      {paginatedSelectedUserBookings.map((b, idx) => (
                         <tr key={`${getSafeId(b)}-${idx}`}>
                           <td style={{ fontWeight: 800 }}>{b.service}</td>
                           <td>{new Date(b.date).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}</td>
@@ -299,7 +354,7 @@ const AdminUsers: React.FC = () => {
                           <td>{b.created_at ? new Date(b.created_at).toLocaleDateString() : 'N/A'}</td>
                         </tr>
                       ))}
-                      {selectedUserStats.userBookings.length === 0 && (
+                      {paginatedSelectedUserBookings.length === 0 && (
                         <tr>
                           <td colSpan={6} style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-secondary)' }}>
                             No appointments found for this patron.
@@ -309,6 +364,76 @@ const AdminUsers: React.FC = () => {
                     </tbody>
                   </table>
                 </div>
+
+                {/* Selected User Booking History Pagination Controls */}
+                {selectedUserStats.userBookings.length > itemsPerPage && (
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 pt-6 border-t border-white/5 px-2">
+                    <div className="text-xs text-neutral-400 font-medium">
+                      Showing <span className="text-white font-semibold">{(currentPageSelectedUserBookings - 1) * itemsPerPage + 1}</span> to{' '}
+                      <span className="text-white font-semibold">
+                        {Math.min(currentPageSelectedUserBookings * itemsPerPage, selectedUserStats.userBookings.length)}
+                      </span>{' '}
+                      of <span className="text-white font-semibold">{selectedUserStats.userBookings.length}</span> entries
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setCurrentPageSelectedUserBookings(1)}
+                        disabled={currentPageSelectedUserBookings === 1}
+                        className="px-2.5 py-1.5 rounded-md text-xs font-semibold uppercase tracking-wider border border-white/10 text-neutral-400 hover:text-white hover:border-gold/30 disabled:opacity-40 disabled:hover:text-neutral-400 disabled:hover:border-white/10 transition-all duration-200"
+                      >
+                        First
+                      </button>
+                      <button
+                        onClick={() => setCurrentPageSelectedUserBookings(prev => Math.max(prev - 1, 1))}
+                        disabled={currentPageSelectedUserBookings === 1}
+                        className="px-3 py-1.5 rounded-md text-xs font-bold border border-white/10 text-neutral-400 hover:text-white hover:border-gold/30 disabled:opacity-40 disabled:hover:text-neutral-400 disabled:hover:border-white/10 transition-all duration-200"
+                      >
+                        Prev
+                      </button>
+                      
+                      <div className="flex items-center gap-1.5">
+                        {Array.from({ length: Math.ceil(selectedUserStats.userBookings.length / itemsPerPage) }, (_, idx) => idx + 1)
+                          .filter(page => {
+                            const totalPages = Math.ceil(selectedUserStats.userBookings.length / itemsPerPage);
+                            return page === 1 || page === totalPages || Math.abs(page - currentPageSelectedUserBookings) <= 1;
+                          })
+                          .map((page, idx, arr) => {
+                            const showEllipsis = idx > 0 && page - arr[idx - 1] > 1;
+                            return (
+                              <React.Fragment key={page}>
+                                {showEllipsis && <span className="text-neutral-600 text-xs px-1">...</span>}
+                                <button
+                                  onClick={() => setCurrentPageSelectedUserBookings(page)}
+                                  className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all duration-200 ${
+                                    currentPageSelectedUserBookings === page
+                                      ? 'bg-gold text-black border border-gold shadow-[0_0_10px_rgba(255,204,0,0.2)]'
+                                      : 'border border-white/10 text-neutral-400 hover:text-white hover:border-gold/30'
+                                  }`}
+                                >
+                                  {page}
+                                </button>
+                              </React.Fragment>
+                            );
+                          })}
+                      </div>
+
+                      <button
+                        onClick={() => setCurrentPageSelectedUserBookings(prev => Math.min(prev + 1, Math.ceil(selectedUserStats.userBookings.length / itemsPerPage)))}
+                        disabled={currentPageSelectedUserBookings === Math.ceil(selectedUserStats.userBookings.length / itemsPerPage)}
+                        className="px-3 py-1.5 rounded-md text-xs font-bold border border-white/10 text-neutral-400 hover:text-white hover:border-gold/30 disabled:opacity-40 disabled:hover:text-neutral-400 disabled:hover:border-white/10 transition-all duration-200"
+                      >
+                        Next
+                      </button>
+                      <button
+                        onClick={() => setCurrentPageSelectedUserBookings(Math.ceil(selectedUserStats.userBookings.length / itemsPerPage))}
+                        disabled={currentPageSelectedUserBookings === Math.ceil(selectedUserStats.userBookings.length / itemsPerPage)}
+                        className="px-2.5 py-1.5 rounded-md text-xs font-semibold uppercase tracking-wider border border-white/10 text-neutral-400 hover:text-white hover:border-gold/30 disabled:opacity-40 disabled:hover:text-neutral-400 disabled:hover:border-white/10 transition-all duration-200"
+                      >
+                        Last
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -360,8 +485,8 @@ const AdminUsers: React.FC = () => {
               </div>
             </motion.header>
 
-            <section className="dashboard-grid" style={{ gridTemplateColumns: '1fr' }}>
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="dashboard-card premium-card-bg">
+            <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="dashboard-card premium-card-bg lg:col-span-2">
                 <div className="card-header" style={{ flexWrap: 'wrap', gap: '1rem' }}>
                   <h2><Users size={20} /> Membership Registry</h2>
                   <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
@@ -397,7 +522,7 @@ const AdminUsers: React.FC = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {sortedAndFilteredUsers.map((u, idx) => {
+                        {paginatedUsers.map((u, idx) => {
                           const uId = getSafeId(u);
                           const isCurrentUser = !!(currentUser && currentUser.email === u.email);
                           return (
@@ -450,7 +575,7 @@ const AdminUsers: React.FC = () => {
                       </tbody>
                     </table>
 
-                    {sortedAndFilteredUsers.length === 0 && (
+                    {paginatedUsers.length === 0 && (
                       <div className="empty-state-standard" style={{ padding: '4rem 2rem', textAlign: 'center' }}>
                         <div className="empty-icon-chamber">
                           <Users size={48} style={{ opacity: 0.1, marginBottom: '1.5rem' }} />
@@ -460,11 +585,167 @@ const AdminUsers: React.FC = () => {
                       </div>
                     )}
                   </div>
+
+                  {/* Main Registry Pagination Controls */}
+                  {sortedAndFilteredUsers.length > itemsPerPage && (
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 pt-6 border-t border-white/5 px-2">
+                      <div className="text-xs text-neutral-400 font-medium">
+                        Showing <span className="text-white font-semibold">{(currentPageUsers - 1) * itemsPerPage + 1}</span> to{' '}
+                        <span className="text-white font-semibold">
+                          {Math.min(currentPageUsers * itemsPerPage, sortedAndFilteredUsers.length)}
+                        </span>{' '}
+                        of <span className="text-white font-semibold">{sortedAndFilteredUsers.length}</span> entries
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => setCurrentPageUsers(1)}
+                          disabled={currentPageUsers === 1}
+                          className="px-2.5 py-1.5 rounded-md text-xs font-semibold uppercase tracking-wider border border-white/10 text-neutral-400 hover:text-white hover:border-gold/30 disabled:opacity-40 disabled:hover:text-neutral-400 disabled:hover:border-white/10 transition-all duration-200"
+                        >
+                          First
+                        </button>
+                        <button
+                          onClick={() => setCurrentPageUsers(prev => Math.max(prev - 1, 1))}
+                          disabled={currentPageUsers === 1}
+                          className="px-3 py-1.5 rounded-md text-xs font-bold border border-white/10 text-neutral-400 hover:text-white hover:border-gold/30 disabled:opacity-40 disabled:hover:text-neutral-400 disabled:hover:border-white/10 transition-all duration-200"
+                        >
+                          Prev
+                        </button>
+                        
+                        <div className="flex items-center gap-1.5">
+                          {Array.from({ length: Math.ceil(sortedAndFilteredUsers.length / itemsPerPage) }, (_, idx) => idx + 1)
+                            .filter(page => {
+                              const totalPages = Math.ceil(sortedAndFilteredUsers.length / itemsPerPage);
+                              return page === 1 || page === totalPages || Math.abs(page - currentPageUsers) <= 1;
+                            })
+                            .map((page, idx, arr) => {
+                              const showEllipsis = idx > 0 && page - arr[idx - 1] > 1;
+                              return (
+                                <React.Fragment key={page}>
+                                  {showEllipsis && <span className="text-neutral-600 text-xs px-1">...</span>}
+                                  <button
+                                    onClick={() => setCurrentPageUsers(page)}
+                                    className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all duration-200 ${
+                                      currentPageUsers === page
+                                        ? 'bg-gold text-black border border-gold shadow-[0_0_10px_rgba(255,204,0,0.2)]'
+                                        : 'border border-white/10 text-neutral-400 hover:text-white hover:border-gold/30'
+                                    }`}
+                                  >
+                                    {page}
+                                  </button>
+                                </React.Fragment>
+                              );
+                            })}
+                        </div>
+
+                        <button
+                          onClick={() => setCurrentPageUsers(prev => Math.min(prev + 1, Math.ceil(sortedAndFilteredUsers.length / itemsPerPage)))}
+                          disabled={currentPageUsers === Math.ceil(sortedAndFilteredUsers.length / itemsPerPage)}
+                          className="px-3 py-1.5 rounded-md text-xs font-bold border border-white/10 text-neutral-400 hover:text-white hover:border-gold/30 disabled:opacity-40 disabled:hover:text-neutral-400 disabled:hover:border-white/10 transition-all duration-200"
+                        >
+                          Next
+                        </button>
+                        <button
+                          onClick={() => setCurrentPageUsers(Math.ceil(sortedAndFilteredUsers.length / itemsPerPage))}
+                          disabled={currentPageUsers === Math.ceil(sortedAndFilteredUsers.length / itemsPerPage)}
+                          className="px-2.5 py-1.5 rounded-md text-xs font-semibold uppercase tracking-wider border border-white/10 text-neutral-400 hover:text-white hover:border-gold/30 disabled:opacity-40 disabled:hover:text-neutral-400 disabled:hover:border-white/10 transition-all duration-200"
+                        >
+                          Last
+                        </button>
+                      </div>
+                    </div>
+                  )}
                   <div className="scroll-hint-icon mobile-only"><ChevronRight size={10} /> Scroll</div>
                 </div>
               </motion.div>
 
-              <div className="admin-two-column-grid">
+              <div className="flex flex-col gap-6 lg:col-span-1">
+                <div className="dashboard-card premium-card-bg">
+                  <div className="card-header flex items-center justify-between border-b border-white/5 pb-4 mb-4">
+                    <h2 className="flex items-center gap-2 text-white font-bold">
+                      <PieChart size={20} className="text-gold" /> Registry Demographics
+                    </h2>
+                  </div>
+                  
+                  <div className="flex flex-col items-center justify-center gap-6 mt-4">
+                    {demographicsChartData.length > 0 && users.length > 0 ? (
+                      <>
+                        <div className="relative w-36 h-36 shrink-0">
+                          <svg viewBox="-1 -1 2 2" className="w-full h-full transform -rotate-90">
+                            {(() => {
+                              let cumulativePercent = 0;
+                              return demographicsChartData.map((slice, index) => {
+                                const percent = slice.value / users.length;
+                                if (percent === 0) return null;
+                                const [startX, startY] = getCoordinatesForPercent(cumulativePercent);
+                                cumulativePercent += percent;
+                                const [endX, endY] = getCoordinatesForPercent(cumulativePercent);
+                                const largeArcFlag = percent > 0.5 ? 1 : 0;
+                                
+                                if (percent === 1) {
+                                  return (
+                                    <circle 
+                                      key={index} 
+                                      cx="0" 
+                                      cy="0" 
+                                      r="1" 
+                                      fill={slice.color} 
+                                    >
+                                      <title>{`${slice.label}: ${slice.value} (${slice.percentage.toFixed(1)}%)`}</title>
+                                    </circle>
+                                  );
+                                }
+                                
+                                const pathData = [
+                                  `M 0 0`,
+                                  `L ${startX} ${startY}`,
+                                  `A 1 1 0 ${largeArcFlag} 1 ${endX} ${endY}`,
+                                  `Z`
+                                ].join(' ');
+                                
+                                return (
+                                  <path 
+                                    key={index} 
+                                    d={pathData} 
+                                    fill={slice.color} 
+                                    className="transition-all duration-300 hover:opacity-80 cursor-pointer"
+                                  >
+                                    <title>{`${slice.label}: ${slice.value} (${slice.percentage.toFixed(1)}%)`}</title>
+                                  </path>
+                                );
+                              });
+                            })()}
+                          </svg>
+                        </div>
+                        
+                        <div className="w-full flex flex-col gap-2">
+                          {demographicsChartData.map((slice, index) => (
+                            <div key={index} className="flex items-center justify-between text-xs">
+                              <div className="flex items-center gap-2">
+                                <span 
+                                  className="w-2.5 h-2.5 rounded-full shrink-0" 
+                                  style={{ backgroundColor: slice.color }}
+                                />
+                                <span className="text-gray-300">{slice.label}</span>
+                              </div>
+                              <span className="font-semibold text-white">
+                                {slice.value} ({slice.percentage.toFixed(0)}%)
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </>
+                    ) : (
+                      <div className="text-gray-400 text-center py-8 w-full text-sm">
+                        No demographics available.
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <div className="admin-two-column-grid">
                  <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="dashboard-card premium-card-bg">
                     <div className="card-header">
                       <h2><Send size={20} /> Broadcast Newsletter</h2>
@@ -569,23 +850,48 @@ const AdminUsers: React.FC = () => {
                             </tr>
                           </thead>
                           <tbody>
-                            {subscribers.map((s, idx) => (
+                            {paginatedSubscribers.map((s, idx) => (
                               <tr key={idx}>
                                 <td className="truncate">{s.email}</td>
                                 <td><span className={`status-badge ${s.is_active ? 'confirmed' : 'cancelled'}`}>{s.is_active ? 'ACTIVE' : 'INACTIVE'}</span></td>
                               </tr>
                             ))}
-                            {subscribers.length === 0 && (
+                            {paginatedSubscribers.length === 0 && (
                               <tr><td colSpan={2} style={{ textAlign: 'center', padding: '2rem' }}>No subscribers yet.</td></tr>
                             )}
                           </tbody>
                          </table>
                       </div>
+
+                      {/* Newsletter Subscribers Pagination Controls */}
+                      {subscribers.length > itemsPerPage && (
+                        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 pt-6 border-t border-white/5 px-2">
+                          <div className="text-xs text-neutral-400 font-medium">
+                            Page <span className="text-white font-semibold">{currentPageSubs}</span> of{' '}
+                            <span className="text-white font-semibold">{Math.ceil(subscribers.length / itemsPerPage)}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <button
+                              onClick={() => setCurrentPageSubs(prev => Math.max(prev - 1, 1))}
+                              disabled={currentPageSubs === 1}
+                              className="px-2 py-1 rounded border border-white/10 text-neutral-400 hover:text-white hover:border-gold/30 disabled:opacity-40 text-xs font-bold transition-all duration-200"
+                            >
+                              Prev
+                            </button>
+                            <button
+                              onClick={() => setCurrentPageSubs(prev => Math.min(prev + 1, Math.ceil(subscribers.length / itemsPerPage)))}
+                              disabled={currentPageSubs === Math.ceil(subscribers.length / itemsPerPage)}
+                              className="px-2 py-1 rounded border border-white/10 text-neutral-400 hover:text-white hover:border-gold/30 disabled:opacity-40 text-xs font-bold transition-all duration-200"
+                            >
+                              Next
+                            </button>
+                          </div>
+                        </div>
+                      )}
                       <div className="scroll-hint-icon mobile-only"><ChevronRight size={10} /> Scroll</div>
                     </div>
                  </motion.div>
               </div>
-            </section>
           </div>
         )}
       </main>

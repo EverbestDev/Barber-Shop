@@ -286,110 +286,187 @@ const Profile: React.FC = () => {
 
       {/* Logout Confirmation Modal */}
       {showLogoutModal && (
-        <div className="auth-page-wrapper" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: 1000, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(5px)' }}>
-          <div className="auth-content-side center-full" style={{ padding: '2rem' }}>
-            <motion.div className="auth-box otp-box" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
-              <div className="auth-header text-center pb-4">
-                <h2>Confirm Logout</h2>
-                <p>Are you sure you want to log out of your account?</p>
-              </div>
-              <div style={{ display: 'flex', gap: '1rem' }}>
-                <button className="btn-outlined-studio" onClick={() => setShowLogoutModal(false)} style={{ flex: 1 }}>Cancel</button>
-                <button className="btn-filled-gold" onClick={handleLogout} style={{ flex: 1 }}>Log Out</button>
-              </div>
-            </motion.div>
-          </div>
+        <div className="pm-overlay">
+          <motion.div 
+            className="pm-container size-sm border-neutral"
+            initial={{ opacity: 0, scale: 0.95 }} 
+            animate={{ opacity: 1, scale: 1 }}
+          >
+            <div style={{ textAlign: 'center', paddingBottom: '1.5rem' }}>
+              <h2 className="pm-title white-theme">Confirm Sign Out</h2>
+              <p className="pm-text" style={{ marginBottom: 0 }}>Are you sure you want to log out of your session?</p>
+            </div>
+            <div className="pm-btn-group">
+              <button 
+                className="pm-btn pm-btn-cancel" 
+                onClick={() => setShowLogoutModal(false)}
+              >
+                Cancel
+              </button>
+              <button 
+                className="pm-btn pm-btn-gold" 
+                onClick={handleLogout}
+              >
+                Sign Out
+              </button>
+            </div>
+          </motion.div>
         </div>
       )}
 
       {/* Delete Account OTP Modal */}
       {showDeleteModal && (
-        <div className="auth-page-wrapper" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: 1000, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(5px)' }}>
-          <div className="auth-content-side center-full" style={{ padding: '2rem' }}>
-            <motion.div className="auth-box otp-box" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
-              <div className="auth-header text-center">
-                 <button onClick={() => setShowDeleteModal(false)} style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', background: 'none', border: 'none', color: '#fff', cursor: 'pointer' }}><X size={20} /></button>
-                 <h2 style={{ color: '#eb5757' }}>Delete Account</h2>
-                 <p style={{ marginTop: '0.5rem' }}>We've sent a 6-digit code to <strong>{user?.email}</strong>. Enter it below to confirm you want to permanently delete your account.</p>
+        <div className="pm-overlay">
+          <motion.div 
+            className="pm-container size-md border-red"
+            initial={{ opacity: 0, scale: 0.95 }} 
+            animate={{ opacity: 1, scale: 1 }}
+          >
+            <button 
+              onClick={() => setShowDeleteModal(false)} 
+              className="pm-close-btn"
+            >
+              <X size={20} />
+            </button>
+            
+            <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+              <div className="pm-icon-wrapper red-theme">
+                <Trash2 size={24} />
               </div>
-              <form className="auth-form" onSubmit={handleConfirmDelete}>
-                <div className="input-group otp-input-wrapper">
-                  <input 
-                    type="text" 
-                    placeholder="000000" 
-                    maxLength={6} 
-                    required 
-                    className="otp-input"
-                    value={deleteOTP}
-                    onChange={(e) => setDeleteOTP(e.target.value.replace(/\D/g,''))}
-                    style={{ textAlign: 'center', letterSpacing: '4px', fontSize: '1.25rem', fontWeight: 800 }}
-                    autoComplete="one-time-code"
-                  />
-                </div>
-                <button type="submit" className="btn-filled auth-submit-btn" disabled={actionLoading || deleteOTP.length < 6} style={{ backgroundColor: '#eb5757', color: '#fff' }}>
-                  {actionLoading ? <><Loader2 className="spinning-icon-btn" size={18} /> Deleting...</> : <>Delete My Account <Trash2 size={18} style={{ marginLeft: '0.5rem' }} /></>}
-                </button>
-              </form>
-            </motion.div>
-          </div>
+              <h2 className="pm-title red-theme">Confirm Account Deletion</h2>
+              <p className="pm-text" style={{ marginBottom: 0 }}>
+                We've dispatched a security code to <strong>{user?.email}</strong>. Enter the 6-digit code below to confirm permanent deletion.
+              </p>
+            </div>
+
+            <form onSubmit={handleConfirmDelete}>
+              <div className="pm-input-container">
+                <input 
+                  type="text" 
+                  placeholder="000000" 
+                  maxLength={6} 
+                  required 
+                  className="pm-otp-input red-focus"
+                  value={deleteOTP}
+                  onChange={(e) => setDeleteOTP(e.target.value.replace(/\D/g,''))}
+                  autoComplete="one-time-code"
+                />
+              </div>
+
+              <button 
+                type="submit" 
+                className="pm-btn pm-btn-red" 
+                disabled={actionLoading || deleteOTP.length < 6}
+              >
+                {actionLoading ? (
+                  <>
+                    <Loader2 className="animate-spin" size={16} /> Deleting...
+                  </>
+                ) : (
+                  <>
+                    Delete My Account Forever
+                  </>
+                )}
+              </button>
+            </form>
+          </motion.div>
         </div>
       )}
 
       {/* Unsubscribe Persuasion Modal */}
       {showUnsubModal && (
-        <div className="auth-page-wrapper" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: 1000, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(5px)' }}>
-          <div className="auth-content-side center-full" style={{ padding: '2rem' }}>
-            <motion.div className="auth-box otp-box" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
-              <div className="auth-header text-center pb-4">
-                <h2>Wait, Stay Sharp!</h2>
-                <p style={{ marginTop: '1rem', lineHeight: '1.6' }}>
-                  By unsubscribing, you'll lose out on:<br/>
-                  • <b>Priority access</b> to booked slots<br/>
-                  • <b>Exclusive</b> grooming style guides<br/>
-                  • <b>Special discounts</b> and studio events
-                </p>
-                <p style={{ marginTop: '1rem', fontSize: '0.85rem', opacity: 0.8 }}>Are you sure you want to leave the inner circle?</p>
+        <div className="pm-overlay">
+          <motion.div 
+            className="pm-container size-sm border-neutral"
+            initial={{ opacity: 0, scale: 0.95 }} 
+            animate={{ opacity: 1, scale: 1 }}
+          >
+            <div style={{ textAlign: 'center' }}>
+              <h2 className="pm-title white-theme">Wait, Stay Sharp!</h2>
+              <div className="pm-bullet-box">
+                <p>By unsubscribing, you will forfeit:</p>
+                <ul className="pm-bullet-list">
+                  <li><strong className="gold-highlight">Priority access</strong> to booked chairs</li>
+                  <li><strong>Exclusive</strong> style & grooming guides</li>
+                  <li><strong>Special perks</strong> and client events</li>
+                </ul>
               </div>
-              <div style={{ display: 'flex', gap: '1rem', flexDirection: 'column' }}>
-                <button className="btn-filled-gold" onClick={() => setShowUnsubModal(false)}>No, I'll Stay Subscribed</button>
-                <button className="btn-unsub-link" onClick={handleRequestUnsub} disabled={actionLoading} style={{ fontSize: '0.85rem', opacity: 0.6 }}>
-                  {actionLoading ? 'Processing...' : 'Yes, proceed to unsubscribe'}
-                </button>
-              </div>
-            </motion.div>
-          </div>
+              <p className="pm-text" style={{ fontSize: '0.75rem', marginBottom: '1.5rem' }}>
+                Are you sure you want to leave our Inner Circle?
+              </p>
+            </div>
+            
+            <div className="pm-btn-vertical-group">
+              <button 
+                className="pm-btn pm-btn-gold" 
+                onClick={() => setShowUnsubModal(false)}
+              >
+                No, I'll Stay Subscribed
+              </button>
+              <button 
+                onClick={handleRequestUnsub} 
+                disabled={actionLoading}
+                className="pm-btn-unsub-link"
+              >
+                {actionLoading ? 'Processing...' : 'Yes, proceed to unsubscribe'}
+              </button>
+            </div>
+          </motion.div>
         </div>
       )}
 
       {/* Unsubscribe OTP Modal */}
       {showUnsubOTPModal && (
-        <div className="auth-page-wrapper" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: 1000, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(5px)' }}>
-          <div className="auth-content-side center-full" style={{ padding: '2rem' }}>
-            <motion.div className="auth-box otp-box" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
-              <div className="auth-header text-center">
-                 <button onClick={() => setShowUnsubOTPModal(false)} style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', background: 'none', border: 'none', color: '#fff', cursor: 'pointer' }}><X size={20} /></button>
-                 <h2>Verify Unsubscription</h2>
-                 <p style={{ marginTop: '0.5rem' }}>Enter the 6-digit code sent to <strong>{user?.email}</strong> to confirm.</p>
+        <div className="pm-overlay">
+          <motion.div 
+            className="pm-container size-md border-neutral"
+            initial={{ opacity: 0, scale: 0.95 }} 
+            animate={{ opacity: 1, scale: 1 }}
+          >
+            <button 
+              onClick={() => setShowUnsubOTPModal(false)} 
+              className="pm-close-btn"
+            >
+              <X size={20} />
+            </button>
+            
+            <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+              <h2 className="pm-title white-theme">Verify Unsubscription</h2>
+              <p className="pm-text" style={{ marginBottom: 0 }}>
+                Enter the 6-digit code sent to <strong>{user?.email}</strong> to verify this action.
+              </p>
+            </div>
+
+            <form onSubmit={handleConfirmUnsub}>
+              <div className="pm-input-container">
+                <input 
+                  type="text" 
+                  placeholder="000000" 
+                  maxLength={6} 
+                  required 
+                  className="pm-otp-input"
+                  value={unsubOTP}
+                  onChange={(e) => setUnsubOTP(e.target.value.replace(/\D/g,''))}
+                />
               </div>
-              <form className="auth-form" onSubmit={handleConfirmUnsub}>
-                <div className="input-group otp-input-wrapper">
-                  <input 
-                    type="text" 
-                    placeholder="000000" 
-                    maxLength={6} 
-                    required 
-                    className="otp-input"
-                    value={unsubOTP}
-                    onChange={(e) => setUnsubOTP(e.target.value.replace(/\D/g,''))}
-                    style={{ textAlign: 'center', letterSpacing: '4px', fontSize: '1.25rem', fontWeight: 800 }}
-                  />
-                </div>
-                <button type="submit" className="btn-filled auth-submit-btn" disabled={actionLoading || unsubOTP.length < 6}>
-                  {actionLoading ? <><Loader2 className="spinning-icon-btn" size={18} /> Verifying...</> : <>Confirm Unsubscription</>}
-                </button>
-              </form>
-            </motion.div>
-          </div>
+
+              <button 
+                type="submit" 
+                className="pm-btn pm-btn-gold" 
+                disabled={actionLoading || unsubOTP.length < 6}
+              >
+                {actionLoading ? (
+                  <>
+                    <Loader2 className="animate-spin" size={16} /> Verifying...
+                  </>
+                ) : (
+                  <>
+                    Confirm Unsubscription
+                  </>
+                )}
+              </button>
+            </form>
+          </motion.div>
         </div>
       )}
     </div>

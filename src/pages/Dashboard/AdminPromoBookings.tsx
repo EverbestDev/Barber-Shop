@@ -12,7 +12,8 @@ import {
   MoreVertical,
   ChevronRight,
   BellRing,
-  Tag
+  Tag,
+  PieChart
 } from 'lucide-react';
 import { fetchAllBookings, updateBookingStatus, fetchBookingByCode, checkInBooking, nudgeBooking } from '../../api/bookings';
 import { getSafeId } from '../../utils/ids';
@@ -46,6 +47,13 @@ const AdminPromoBookings: React.FC = () => {
   const [sortBy, setSortBy] = useState('recent');
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [openActionId, setOpenActionId] = useState<string | null>(null);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [statusFilter, searchQuery, sortBy]);
 
   // Check-In State variables
   const [isCheckInOpen, setIsCheckInOpen] = useState(false);
@@ -132,6 +140,28 @@ const AdminPromoBookings: React.FC = () => {
       };
   }, [bookings]);
 
+  const getCoordinatesForPercent = (percent: number) => {
+    const x = Math.cos(2 * Math.PI * percent);
+    const y = Math.sin(2 * Math.PI * percent);
+    return [x, y];
+  };
+
+  const chartData = useMemo(() => {
+    const total = bookingStats.total;
+    if (total === 0) return [];
+    
+    const items = [
+      { label: 'Confirmed (Secured)', value: bookingStats.confirmed, color: '#D4AF37' },
+      { label: 'Completed (Checked In)', value: bookingStats.completed, color: '#4caf50' },
+      { label: 'Cancelled', value: bookingStats.cancelled, color: '#f44336' },
+    ];
+    
+    return items.map(item => ({
+      ...item,
+      percentage: (item.value / total) * 100
+    }));
+  }, [bookingStats]);
+
   const sortedAndFilteredBookings = useMemo(() => {
     let result = [...bookings];
 
@@ -155,6 +185,11 @@ const AdminPromoBookings: React.FC = () => {
 
     return result;
   }, [bookings, statusFilter, searchQuery, sortBy]);
+
+  const paginatedBookings = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return sortedAndFilteredBookings.slice(startIndex, startIndex + itemsPerPage);
+  }, [sortedAndFilteredBookings, currentPage]);
 
   const handleStatusChange = async (bookingId: string, status: string) => {
     const loadToast = toast.loading("Updating status...");
@@ -273,8 +308,8 @@ const AdminPromoBookings: React.FC = () => {
           </div>
         </motion.header>
 
-        <section className="dashboard-grid" style={{ gridTemplateColumns: '1fr' }}>
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="dashboard-card premium-card-bg">
+        <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="dashboard-card premium-card-bg lg:col-span-2">
             <div className="card-header" style={{ flexWrap: 'wrap', gap: '1rem' }}>
               <h2><Tag size={20} /> Promo Bookings Ledger</h2>
               <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
@@ -322,7 +357,7 @@ const AdminPromoBookings: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {sortedAndFilteredBookings.map((b, idx) => {
+                    {paginatedBookings.map((b, idx) => {
                       const bId = getSafeId(b);
                       return (
                         <tr key={`${bId}-${idx}`} style={{ cursor: 'pointer' }} onClick={() => setSelectedBooking(b)}>
@@ -368,7 +403,7 @@ const AdminPromoBookings: React.FC = () => {
                   </tbody>
                 </table>
 
-                {sortedAndFilteredBookings.length === 0 && (
+                {paginatedBookings.length === 0 && (
                   <div className="empty-state-standard" style={{ padding: '4rem 2rem', textAlign: 'center' }}>
                     <div className="empty-icon-chamber">
                       <Scissors size={48} style={{ opacity: 0.1, marginBottom: '1.5rem' }} />
@@ -378,9 +413,164 @@ const AdminPromoBookings: React.FC = () => {
                   </div>
                 )}
               </div>
+
+              {/* Pagination Controls */}
+              {sortedAndFilteredBookings.length > itemsPerPage && (
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 pt-6 border-t border-white/5 px-2">
+                  <div className="text-xs text-neutral-400 font-medium">
+                    Showing <span className="text-white font-semibold">{(currentPage - 1) * itemsPerPage + 1}</span> to{' '}
+                    <span className="text-white font-semibold">
+                      {Math.min(currentPage * itemsPerPage, sortedAndFilteredBookings.length)}
+                    </span>{' '}
+                    of <span className="text-white font-semibold">{sortedAndFilteredBookings.length}</span> entries
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setCurrentPage(1)}
+                      disabled={currentPage === 1}
+                      className="px-2.5 py-1.5 rounded-md text-xs font-semibold uppercase tracking-wider border border-white/10 text-neutral-400 hover:text-white hover:border-gold/30 disabled:opacity-40 disabled:hover:text-neutral-400 disabled:hover:border-white/10 transition-all duration-200"
+                    >
+                      First
+                    </button>
+                    <button
+                      onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                      disabled={currentPage === 1}
+                      className="px-3 py-1.5 rounded-md text-xs font-bold border border-white/10 text-neutral-400 hover:text-white hover:border-gold/30 disabled:opacity-40 disabled:hover:text-neutral-400 disabled:hover:border-white/10 transition-all duration-200"
+                    >
+                      Prev
+                    </button>
+                    
+                    <div className="flex items-center gap-1.5">
+                      {Array.from({ length: Math.ceil(sortedAndFilteredBookings.length / itemsPerPage) }, (_, idx) => idx + 1)
+                        .filter(page => {
+                          const totalPages = Math.ceil(sortedAndFilteredBookings.length / itemsPerPage);
+                          return page === 1 || page === totalPages || Math.abs(page - currentPage) <= 1;
+                        })
+                        .map((page, idx, arr) => {
+                          const showEllipsis = idx > 0 && page - arr[idx - 1] > 1;
+                          return (
+                            <React.Fragment key={page}>
+                              {showEllipsis && <span className="text-neutral-600 text-xs px-1">...</span>}
+                              <button
+                                onClick={() => setCurrentPage(page)}
+                                className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all duration-200 ${
+                                  currentPage === page
+                                    ? 'bg-gold text-black border border-gold shadow-[0_0_10px_rgba(255,204,0,0.2)]'
+                                    : 'border border-white/10 text-neutral-400 hover:text-white hover:border-gold/30'
+                                }`}
+                              >
+                                {page}
+                              </button>
+                            </React.Fragment>
+                          );
+                        })}
+                    </div>
+
+                    <button
+                      onClick={() => setCurrentPage(prev => Math.min(prev + 1, Math.ceil(sortedAndFilteredBookings.length / itemsPerPage)))}
+                      disabled={currentPage === Math.ceil(sortedAndFilteredBookings.length / itemsPerPage)}
+                      className="px-3 py-1.5 rounded-md text-xs font-bold border border-white/10 text-neutral-400 hover:text-white hover:border-gold/30 disabled:opacity-40 disabled:hover:text-neutral-400 disabled:hover:border-white/10 transition-all duration-200"
+                    >
+                      Next
+                    </button>
+                    <button
+                      onClick={() => setCurrentPage(Math.ceil(sortedAndFilteredBookings.length / itemsPerPage))}
+                      disabled={currentPage === Math.ceil(sortedAndFilteredBookings.length / itemsPerPage)}
+                      className="px-2.5 py-1.5 rounded-md text-xs font-semibold uppercase tracking-wider border border-white/10 text-neutral-400 hover:text-white hover:border-gold/30 disabled:opacity-40 disabled:hover:text-neutral-400 disabled:hover:border-white/10 transition-all duration-200"
+                    >
+                      Last
+                    </button>
+                  </div>
+                </div>
+              )}
               <div className="scroll-hint-icon mobile-only"><ChevronRight size={10} /> Scroll</div>
             </div>
           </motion.div>
+
+          <div className="flex flex-col gap-6 lg:col-span-1">
+            <div className="dashboard-card premium-card-bg">
+              <div className="card-header flex items-center justify-between border-b border-white/5 pb-4 mb-4">
+                <h2 className="flex items-center gap-2 text-white font-bold">
+                  <PieChart size={20} className="text-gold" /> Outreach Analytics
+                </h2>
+              </div>
+              
+              <div className="flex flex-col items-center justify-center gap-6 mt-4">
+                {chartData.length > 0 && bookingStats.total > 0 ? (
+                  <>
+                    <div className="relative w-36 h-36 shrink-0">
+                      <svg viewBox="-1 -1 2 2" className="w-full h-full transform -rotate-90">
+                        {(() => {
+                          let cumulativePercent = 0;
+                          return chartData.map((slice, index) => {
+                            const percent = slice.value / bookingStats.total;
+                            if (percent === 0) return null;
+                            const [startX, startY] = getCoordinatesForPercent(cumulativePercent);
+                            cumulativePercent += percent;
+                            const [endX, endY] = getCoordinatesForPercent(cumulativePercent);
+                            const largeArcFlag = percent > 0.5 ? 1 : 0;
+                            
+                            if (percent === 1) {
+                              return (
+                                <circle 
+                                  key={index} 
+                                  cx="0" 
+                                  cy="0" 
+                                  r="1" 
+                                  fill={slice.color} 
+                                >
+                                  <title>{`${slice.label}: ${slice.value} (${slice.percentage.toFixed(1)}%)`}</title>
+                                </circle>
+                              );
+                            }
+                            
+                            const pathData = [
+                              `M 0 0`,
+                              `L ${startX} ${startY}`,
+                              `A 1 1 0 ${largeArcFlag} 1 ${endX} ${endY}`,
+                              `Z`
+                            ].join(' ');
+                            
+                            return (
+                              <path 
+                                key={index} 
+                                d={pathData} 
+                                fill={slice.color} 
+                                className="transition-all duration-300 hover:opacity-80 cursor-pointer"
+                              >
+                                <title>{`${slice.label}: ${slice.value} (${slice.percentage.toFixed(1)}%)`}</title>
+                              </path>
+                            );
+                          });
+                        })()}
+                      </svg>
+                    </div>
+                    
+                    <div className="w-full flex flex-col gap-2">
+                      {chartData.map((slice, index) => (
+                        <div key={index} className="flex items-center justify-between text-xs">
+                          <div className="flex items-center gap-2">
+                            <span 
+                              className="w-2.5 h-2.5 rounded-full shrink-0" 
+                              style={{ backgroundColor: slice.color }}
+                            />
+                            <span className="text-gray-300">{slice.label}</span>
+                          </div>
+                          <span className="font-semibold text-white">
+                            {slice.value} ({slice.percentage.toFixed(0)}%)
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                ) : (
+                  <div className="text-gray-400 text-center py-8 w-full text-sm">
+                    No outreach stats available.
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
         </section>
 
         <AnimatePresence>
@@ -416,7 +606,7 @@ const AdminPromoBookings: React.FC = () => {
                      {selectedBooking.status === 'confirmed' && (
                        <button 
                          className="btn-filled-gold" 
-                         onClick={() => { const id = getSafeId(selectedBooking); id && handleNudge(id); }}
+                         onClick={() => { const id = getSafeId(selectedBooking); if (id) handleNudge(id); }}
                          style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
                        >
                          <BellRing size={16} /> Nudge Patron

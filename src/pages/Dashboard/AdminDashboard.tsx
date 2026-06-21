@@ -45,6 +45,7 @@ const AdminDashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [chartFilter, setChartFilter] = useState<'service' | 'status' | 'payment'>('service');
+  const [dateFilter, setDateFilter] = useState<'today' | '7days' | 'month' | 'year' | 'all'>('all');
 
   const CHART_COLORS = ['#D4AF37', '#F1D87A', '#8C8C8C', '#E63946', '#2A9D8F', '#457B9D', '#1D3557', '#F4A261'];
 
@@ -54,9 +55,33 @@ const AdminDashboard: React.FC = () => {
     return [x, y];
   };
 
+  const filteredBookingsForChart = useMemo(() => {
+    const now = new Date();
+    return bookings.filter(b => {
+      const bDate = new Date(b.date);
+      if (dateFilter === 'today') {
+        const todayStr = now.toISOString().split('T')[0];
+        return b.date.startsWith(todayStr);
+      }
+      if (dateFilter === '7days') {
+        const diff = now.getTime() - bDate.getTime();
+        return diff >= 0 && diff <= 7 * 24 * 60 * 60 * 1000;
+      }
+      if (dateFilter === 'month') {
+        const diff = now.getTime() - bDate.getTime();
+        return diff >= 0 && diff <= 30 * 24 * 60 * 60 * 1000;
+      }
+      if (dateFilter === 'year') {
+        const diff = now.getTime() - bDate.getTime();
+        return diff >= 0 && diff <= 365 * 24 * 60 * 60 * 1000;
+      }
+      return true; // all time
+    });
+  }, [bookings, dateFilter]);
+
   const chartData = useMemo(() => {
     const counts: Record<string, number> = {};
-    bookings.forEach(b => {
+    filteredBookingsForChart.forEach(b => {
       let key = '';
       if (chartFilter === 'service') {
         key = b.service;
@@ -77,7 +102,7 @@ const AdminDashboard: React.FC = () => {
       percentage: (value / total) * 100,
       color: CHART_COLORS[index % CHART_COLORS.length]
     }));
-  }, [bookings, chartFilter]);
+  }, [filteredBookingsForChart, chartFilter]);
 
   useEffect(() => {
     const getData = async () => {
@@ -140,6 +165,18 @@ const AdminDashboard: React.FC = () => {
       .filter(b => b.date.startsWith(today))
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   }, [bookings]);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [bookings]);
+
+  const paginatedTodayBookings = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return todayBookings.slice(startIndex, startIndex + itemsPerPage);
+  }, [todayBookings, currentPage]);
 
 
   if (loading) return <AdminOverviewSkeleton />;
@@ -218,7 +255,7 @@ const AdminDashboard: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {todayBookings.map(b => (
+                  {paginatedTodayBookings.map(b => (
                     <tr key={getSafeId(b)} className="clickable-row" onClick={() => setSelectedBooking(b)}>
                       <td>{new Date(b.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
                       <td style={{ fontWeight: 800 }}>{b.service}</td>
@@ -227,12 +264,82 @@ const AdminDashboard: React.FC = () => {
                       <td><span className={`status-badge ${b.status}`}>{b.status}</span></td>
                     </tr>
                   ))}
-                  {todayBookings.length === 0 && (
+                  {paginatedTodayBookings.length === 0 && (
                     <tr><td colSpan={5} style={{ textAlign: 'center', padding: '3rem' }}>No sessions scheduled for today yet.</td></tr>
                   )}
                 </tbody>
               </table>
             </div>
+
+            {/* Pagination Controls */}
+            {todayBookings.length > itemsPerPage && (
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 pt-6 border-t border-white/5 px-2">
+                <div className="text-xs text-neutral-400 font-medium">
+                  Showing <span className="text-white font-semibold">{(currentPage - 1) * itemsPerPage + 1}</span> to{' '}
+                  <span className="text-white font-semibold">
+                    {Math.min(currentPage * itemsPerPage, todayBookings.length)}
+                  </span>{' '}
+                  of <span className="text-white font-semibold">{todayBookings.length}</span> entries
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setCurrentPage(1)}
+                    disabled={currentPage === 1}
+                    className="px-2.5 py-1.5 rounded-md text-xs font-semibold uppercase tracking-wider border border-white/10 text-neutral-400 hover:text-white hover:border-gold/30 disabled:opacity-40 disabled:hover:text-neutral-400 disabled:hover:border-white/10 transition-all duration-200"
+                  >
+                    First
+                  </button>
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                    disabled={currentPage === 1}
+                    className="px-3 py-1.5 rounded-md text-xs font-bold border border-white/10 text-neutral-400 hover:text-white hover:border-gold/30 disabled:opacity-40 disabled:hover:text-neutral-400 disabled:hover:border-white/10 transition-all duration-200"
+                  >
+                    Prev
+                  </button>
+                  
+                  <div className="flex items-center gap-1.5">
+                    {Array.from({ length: Math.ceil(todayBookings.length / itemsPerPage) }, (_, idx) => idx + 1)
+                      .filter(page => {
+                        const totalPages = Math.ceil(todayBookings.length / itemsPerPage);
+                        return page === 1 || page === totalPages || Math.abs(page - currentPage) <= 1;
+                      })
+                      .map((page, idx, arr) => {
+                        const showEllipsis = idx > 0 && page - arr[idx - 1] > 1;
+                        return (
+                          <React.Fragment key={page}>
+                            {showEllipsis && <span className="text-neutral-600 text-xs px-1">...</span>}
+                            <button
+                              onClick={() => setCurrentPage(page)}
+                              className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all duration-200 ${
+                                currentPage === page
+                                  ? 'bg-gold text-black border border-gold shadow-[0_0_10px_rgba(255,204,0,0.2)]'
+                                  : 'border border-white/10 text-neutral-400 hover:text-white hover:border-gold/30'
+                              }`}
+                            >
+                              {page}
+                            </button>
+                          </React.Fragment>
+                        );
+                      })}
+                  </div>
+
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, Math.ceil(todayBookings.length / itemsPerPage)))}
+                    disabled={currentPage === Math.ceil(todayBookings.length / itemsPerPage)}
+                    className="px-3 py-1.5 rounded-md text-xs font-bold border border-white/10 text-neutral-400 hover:text-white hover:border-gold/30 disabled:opacity-40 disabled:hover:text-neutral-400 disabled:hover:border-white/10 transition-all duration-200"
+                  >
+                    Next
+                  </button>
+                  <button
+                    onClick={() => setCurrentPage(Math.ceil(todayBookings.length / itemsPerPage))}
+                    disabled={currentPage === Math.ceil(todayBookings.length / itemsPerPage)}
+                    className="px-2.5 py-1.5 rounded-md text-xs font-semibold uppercase tracking-wider border border-white/10 text-neutral-400 hover:text-white hover:border-gold/30 disabled:opacity-40 disabled:hover:text-neutral-400 disabled:hover:border-white/10 transition-all duration-200"
+                  >
+                    Last
+                  </button>
+                </div>
+              </div>
+            )}
           </motion.div>
 
           <div className="flex flex-col gap-6 lg:col-span-1">
@@ -267,19 +374,32 @@ const AdminDashboard: React.FC = () => {
             </div>
 
             <div className="dashboard-card premium-card-bg">
-              <div className="card-header flex items-center justify-between border-b border-white/5 pb-4 mb-4">
+              <div className="card-header flex flex-wrap items-center justify-between border-b border-white/5 pb-4 mb-4 gap-2">
                 <h2 className="flex items-center gap-2 text-white font-bold">
                   <PieChart size={20} className="text-gold" /> Grooming Distribution
                 </h2>
-                <select 
-                  value={chartFilter}
-                  onChange={(e) => setChartFilter(e.target.value as any)}
-                  className="bg-black border border-white/10 rounded px-2 py-1 text-xs text-white cursor-pointer focus:outline-none focus:border-gold"
-                >
-                  <option value="service">Service Type</option>
-                  <option value="status">Grooming Status</option>
-                  <option value="payment">Payment Settlement</option>
-                </select>
+                <div className="flex gap-2">
+                  <select 
+                    value={dateFilter}
+                    onChange={(e) => setDateFilter(e.target.value as any)}
+                    className="bg-black border border-white/10 rounded px-2 py-1 text-xs text-white cursor-pointer focus:outline-none focus:border-gold"
+                  >
+                    <option value="all">All Time</option>
+                    <option value="today">Today</option>
+                    <option value="7days">Last 7 Days</option>
+                    <option value="month">Last 30 Days</option>
+                    <option value="year">Last Year</option>
+                  </select>
+                  <select 
+                    value={chartFilter}
+                    onChange={(e) => setChartFilter(e.target.value as any)}
+                    className="bg-black border border-white/10 rounded px-2 py-1 text-xs text-white cursor-pointer focus:outline-none focus:border-gold"
+                  >
+                    <option value="service">Service Type</option>
+                    <option value="status">Grooming Status</option>
+                    <option value="payment">Payment Settlement</option>
+                  </select>
+                </div>
               </div>
               
               <div className="flex flex-col sm:flex-row lg:flex-col xl:flex-row items-center justify-center gap-6 mt-4">
@@ -290,7 +410,7 @@ const AdminDashboard: React.FC = () => {
                         {(() => {
                           let cumulativePercent = 0;
                           return chartData.map((slice, index) => {
-                            const percent = slice.value / bookings.length;
+                            const percent = slice.value / filteredBookingsForChart.length;
                             const [startX, startY] = getCoordinatesForPercent(cumulativePercent);
                             cumulativePercent += percent;
                             const [endX, endY] = getCoordinatesForPercent(cumulativePercent);

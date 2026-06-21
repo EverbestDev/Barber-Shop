@@ -64,7 +64,8 @@ const Layout: React.FC = () => {
 
       {hasPromo && (
         <div className="promo-announcement-bar">
-          <span>🎉 PROMO: Free Tuesday Walk-In Grooming!</span>
+          <span className="promo-text-desktop">🎉 PROMO: Free Tuesday Walk-In Grooming!</span>
+          <span className="promo-text-mobile">🎉 Free Tuesday Grooming!</span>
           {isLoggedIn ? (
             <Link to="/dashboard/promo">Book Free</Link>
           ) : (
@@ -81,7 +82,7 @@ const Layout: React.FC = () => {
                 fontWeight: 900, 
                 textDecoration: 'underline', 
                 cursor: 'pointer', 
-                fontSize: '0.75rem', 
+                fontSize: 'inherit', 
                 marginLeft: '10px', 
                 textTransform: 'uppercase', 
                 letterSpacing: '1px' 

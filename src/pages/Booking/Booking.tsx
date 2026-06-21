@@ -136,7 +136,9 @@ const BookingPage: React.FC = () => {
       
       return allTimeSlots.filter(slot => {
         const [time, modifier] = slot.split(' ');
-        let [hour, min] = time.split(':').map(Number);
+        const parts = time.split(':').map(Number);
+        let hour = parts[0];
+        const min = parts[1];
         
         if (modifier === 'PM' && hour < 12) hour += 12;
         if (modifier === 'AM' && hour === 12) hour = 0;
@@ -165,7 +167,9 @@ const BookingPage: React.FC = () => {
     const loadingToast = toast.loading(isFreePromo ? "Securing your promotional slot..." : "Securing your chair...");
     try {
       const [timeStr, modifier] = selectedTime.split(' ');
-      let [hour, min] = timeStr.split(':').map(Number);
+      const timeParts = timeStr.split(':').map(Number);
+      let hour = timeParts[0];
+      const min = timeParts[1];
       if (modifier === 'PM' && hour < 12) hour += 12;
       if (modifier === 'AM' && hour === 12) hour = 0;
       
