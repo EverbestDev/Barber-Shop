@@ -402,7 +402,7 @@ const AdminDashboard: React.FC = () => {
                 </div>
               </div>
               
-              <div className="flex flex-col sm:flex-row lg:flex-col xl:flex-row items-center justify-center gap-6 mt-4">
+              <div className="flex flex-col items-center justify-center gap-6 mt-4">
                 {chartData.length > 0 ? (
                   <>
                     <div className="relative w-36 h-36 shrink-0">
