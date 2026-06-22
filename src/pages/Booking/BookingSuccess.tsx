@@ -250,6 +250,24 @@ const BookingSuccess: React.FC = () => {
                   ? "Your Tuesday Free Grooming session is locked in! Please arrive 10 minutes early with your QR code receipt. The session will be recorded for promotional outreach."
                   : "Your appointment has been successfully added to the studio ledger. A digital confirmation has been dispatched to your ritual email."}
               </p>
+              {booking?.check_in_code && (
+                <div style={{ 
+                  margin: '1.5rem auto 0.5rem', 
+                  padding: '1.25rem', 
+                  backgroundColor: 'rgba(214, 175, 55, 0.03)', 
+                  border: '1px solid rgba(214, 175, 55, 0.15)', 
+                  borderRadius: '12px', 
+                  maxWidth: '380px', 
+                  textAlign: 'center',
+                  boxShadow: '0 8px 32px rgba(0,0,0,0.2)'
+                }}>
+                  <span style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '2px', color: 'var(--text-secondary)', fontWeight: 600 }}>Check-In Code</span>
+                  <div style={{ fontSize: '2.25rem', fontWeight: 900, color: 'var(--gold)', letterSpacing: '4px', margin: '0.4rem 0', fontFamily: 'monospace' }}>
+                    {booking.check_in_code}
+                  </div>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Show this code or scan the QR code below at check-in.</span>
+                </div>
+              )}
             </div>
 
             <div className="details-grid">
@@ -307,9 +325,15 @@ const BookingSuccess: React.FC = () => {
             )}
 
             <div className="success-actions">
-              <Link to="/profile" className="btn-filled">
-                View My Rituals
-              </Link>
+              {booking?.is_free_promo ? (
+                <Link to="/dashboard/promo" className="btn-filled">
+                  View Receipt
+                </Link>
+              ) : (
+                <Link to="/profile" className="btn-filled">
+                  View My Rituals
+                </Link>
+              )}
               <Link to="/" className="btn-text-gold">
                 Return to Studio
               </Link>
