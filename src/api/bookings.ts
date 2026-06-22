@@ -52,3 +52,8 @@ export const nudgeBooking = async (bookingId: string): Promise<{ message: string
   return response.data;
 };
 
+export const fetchPromoBookedSlots = async (): Promise<{ date: string; booked_slots: string[] }> => {
+  const response = await apiClient.get<{ date: string; booked_slots: string[] }>('/bookings/promo/booked-slots');
+  return response.data;
+};
+

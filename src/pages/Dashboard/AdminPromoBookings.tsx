@@ -136,6 +136,7 @@ const AdminPromoBookings: React.FC = () => {
           confirmed: bookings.filter(b => b.status === 'confirmed').length,
           completed: bookings.filter(b => b.status === 'completed').length,
           cancelled: bookings.filter(b => b.status === 'cancelled').length,
+          expired: bookings.filter(b => b.status === 'expired').length,
           total: bookings.length
       };
   }, [bookings]);
@@ -154,6 +155,7 @@ const AdminPromoBookings: React.FC = () => {
       { label: 'Confirmed (Secured)', value: bookingStats.confirmed, color: '#D4AF37' },
       { label: 'Completed (Checked In)', value: bookingStats.completed, color: '#4caf50' },
       { label: 'Cancelled', value: bookingStats.cancelled, color: '#f44336' },
+      { label: 'Expired (No Show)', value: bookingStats.expired, color: '#8c8c8c' },
     ];
     
     return items.map(item => ({
@@ -329,6 +331,7 @@ const AdminPromoBookings: React.FC = () => {
                       <option value="confirmed">CONFIRMED</option>
                       <option value="completed">COMPLETED</option>
                       <option value="cancelled">CANCELLED</option>
+                      <option value="expired">EXPIRED</option>
                     </select>
                 </div>
                 <div className="filter-wrapper">
@@ -379,9 +382,11 @@ const AdminPromoBookings: React.FC = () => {
                               {openActionId === bId && bId && (
                                 <div className="d-profile-dropdown" style={{ right: '0', top: '100%', minWidth: '160px' }} onClick={(e) => e.stopPropagation()}>
                                     <button onClick={() => { setSelectedBooking(b); setOpenActionId(null); }}>View Details</button>
-                                    <button onClick={() => { handleNudge(bId); setOpenActionId(null); }} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--gold)' }}>
-                                      <BellRing size={14} /> Nudge Patron
-                                    </button>
+                                    {b.status === 'confirmed' && (
+                                      <button onClick={() => { handleNudge(bId); setOpenActionId(null); }} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--gold)' }}>
+                                        <BellRing size={14} /> Nudge Patron
+                                      </button>
+                                    )}
                                     <div className="divider" style={{ margin: '4px 0' }}></div>
                                     <select 
                                       value={b.status} 
@@ -392,6 +397,7 @@ const AdminPromoBookings: React.FC = () => {
                                       <option value="confirmed">Confirm</option>
                                       <option value="completed">Complete</option>
                                       <option value="cancelled">Cancel</option>
+                                      <option value="expired">Expire</option>
                                     </select>
                                 </div>
                               )}
@@ -741,7 +747,7 @@ const AdminPromoBookings: React.FC = () => {
                          <span className={`status-badge ${scannedBooking.status}`} style={{ margin: 0 }}>{scannedBooking.status}</span>
                        </div>
 
-                       {scannedBooking.status !== 'completed' && scannedBooking.status !== 'cancelled' ? (
+                       {scannedBooking.status !== 'completed' && scannedBooking.status !== 'cancelled' && scannedBooking.status !== 'expired' ? (
                          <button 
                            onClick={handleCompleteCheckIn}
                            className="btn-filled"
@@ -752,7 +758,11 @@ const AdminPromoBookings: React.FC = () => {
                          </button>
                        ) : (
                          <div style={{ marginTop: '0.75rem', textAlign: 'center', fontSize: '0.85rem', color: scannedBooking.status === 'completed' ? '#4caf50' : '#f44336', fontWeight: 'bold' }}>
-                           {scannedBooking.status === 'completed' ? 'This appointment has already been completed.' : 'This appointment was cancelled.'}
+                           {scannedBooking.status === 'completed' 
+                             ? 'This appointment has already been completed.' 
+                             : scannedBooking.status === 'expired'
+                             ? 'This appointment has expired (no show).'
+                             : 'This appointment was cancelled.'}
                          </div>
                        )}
                      </div>

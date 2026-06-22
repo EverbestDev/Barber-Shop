@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Gift, Check, Loader2, Video, Calendar, Clock, Sparkles } from 'lucide-react';
+import { Gift, Check, Loader2, Video, Calendar, Clock, Sparkles, XCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { createBooking, fetchMyBookings } from '../../api/bookings';
+import { createBooking, fetchMyBookings, fetchPromoBookedSlots } from '../../api/bookings';
 import { updateCurrentUser } from '../../api/auth';
 import { getSafeId } from '../../utils/ids';
 import type { Booking } from '../../api/types';
@@ -28,8 +28,28 @@ const walkInServices: Service[] = [
 
 const allTimeSlots = [
   '10:00 AM', '11:00 AM', '12:00 PM', '01:00 PM', '02:00 PM', 
-  '03:00 PM', '04:00 PM', '05:00 PM', '06:00 PM'
+  '03:00 PM', '04:00 PM', '05:00 PM', '06:00 PM', '07:00 PM'
 ];
+
+const getTargetTuesdayStr = () => {
+  const now = new Date();
+  const weekdayName = new Intl.DateTimeFormat('en-US', { weekday: 'long', timeZone: 'Europe/London' }).format(now);
+  
+  const weekdayMap: Record<string, number> = {
+    'Monday': 0, 'Tuesday': 1, 'Wednesday': 2, 'Thursday': 3, 'Friday': 4, 'Saturday': 5, 'Sunday': 6
+  };
+  const lWeekday = weekdayMap[weekdayName] ?? 0;
+  
+  const daysToTuesday = (1 - lWeekday + 7) % 7;
+  const targetDate = new Date(now.getTime() + daysToTuesday * 24 * 60 * 60 * 1000);
+  
+  return new Intl.DateTimeFormat('en-CA', { 
+    year: 'numeric', 
+    month: '2-digit', 
+    day: '2-digit', 
+    timeZone: 'Europe/London' 
+  }).format(targetDate);
+};
 
 const UserPromo: React.FC = () => {
   const { user, login } = useAuth();
@@ -64,7 +84,7 @@ const UserPromo: React.FC = () => {
   const [countdownText, setCountdownText] = useState<string>('No Active Session');
 
   const [nextActiveText, setNextActiveText] = useState<string>('00d : 00h : 00m : 00s');
-  const [nextActiveIsActive, setNextActiveIsActive] = useState<boolean>(false);
+  const [bookedPromoSlots, setBookedPromoSlots] = useState<string[]>([]);
 
   const todayObj = new Date();
 
@@ -77,9 +97,9 @@ const UserPromo: React.FC = () => {
     const lHour = parseInt(londonHourStr, 10);
     
     const weekdayMap: Record<string, number> = {
-      'Sunday': 0, 'Monday': 1, 'Tuesday': 2, 'Wednesday': 3, 'Thursday': 4, 'Friday': 5, 'Saturday': 6
+      'Monday': 0, 'Tuesday': 1, 'Wednesday': 2, 'Thursday': 3, 'Friday': 4, 'Saturday': 5, 'Sunday': 6
     };
-    const lWeekday = weekdayMap[weekdayName] ?? now.getDay();
+    const lWeekday = weekdayMap[weekdayName] ?? 0;
 
     // Compute London's local year, month, day, min, sec for accurate math
     const formatter = new Intl.DateTimeFormat('en-US', {
@@ -103,30 +123,19 @@ const UserPromo: React.FC = () => {
 
     const lCurrentUTC = Date.UTC(lYear, lMonth, lDay, lHour, lMin, lSec);
 
-    // Days until next Tuesday (Tuesday = 2)
-    let daysUntilTuesday = (2 - lWeekday + 7) % 7;
-
-    let isActive = false;
-    if (lWeekday === 2) {
-      if (lHour < 10) {
-        daysUntilTuesday = 0;
-      } else if (lHour >= 18) {
-        daysUntilTuesday = 7;
-      } else {
-        isActive = true;
-      }
+    // We countdown to the next Wednesday 12:00 AM (00:00:00)
+    let daysToWednesday = 0;
+    if (lWeekday === 0 || lWeekday === 1) {
+      daysToWednesday = 2 - lWeekday;
+    } else {
+      daysToWednesday = 9 - lWeekday;
     }
 
-    if (isActive) {
-      return { isActive: true, text: 'ACTIVE NOW' };
-    }
-
-    // Target date: next Tuesday at 10:00:00 London local time
-    const targetUTC = Date.UTC(lYear, lMonth, lDay + daysUntilTuesday, 10, 0, 0);
+    const targetUTC = Date.UTC(lYear, lMonth, lDay + daysToWednesday, 0, 0, 0);
     const diffMs = targetUTC - lCurrentUTC;
 
     if (diffMs <= 0) {
-      return { isActive: true, text: 'ACTIVE NOW' };
+      return { isActive: true, text: '00d : 00h : 00m : 00s' };
     }
 
     const totalSecs = Math.floor(diffMs / 1000);
@@ -146,7 +155,6 @@ const UserPromo: React.FC = () => {
     const updateNextActive = () => {
       const res = getNextActiveTimeText();
       setNextActiveText(res.text);
-      setNextActiveIsActive(res.isActive);
     };
     updateNextActive();
     const interval = setInterval(updateNextActive, 1000);
@@ -154,16 +162,10 @@ const UserPromo: React.FC = () => {
   }, []);
   
   // Compute date and weekday relative to the UK shop's timezone (Europe/London)
-  // This guarantees synchronization for both UK and Nigerian users booking appointments
   const londonDayName = new Intl.DateTimeFormat('en-US', { weekday: 'long', timeZone: 'Europe/London' }).format(todayObj);
-  const isTuesday = londonDayName === 'Tuesday';
+  const isBookingWindowOpen = londonDayName !== 'Tuesday';
 
-  const todayStr = new Intl.DateTimeFormat('en-CA', { 
-    year: 'numeric', 
-    month: '2-digit', 
-    day: '2-digit', 
-    timeZone: 'Europe/London' 
-  }).format(todayObj);
+  const targetTuesdayStr = getTargetTuesdayStr();
 
   useEffect(() => {
     const checkActivePromo = async () => {
@@ -171,7 +173,7 @@ const UserPromo: React.FC = () => {
         const bookings = await fetchMyBookings();
         const promoToday = bookings.find(b => 
           b.is_free_promo && 
-          b.date.startsWith(todayStr) && 
+          b.date.startsWith(targetTuesdayStr) && 
           b.status !== 'cancelled'
         );
         if (promoToday) {
@@ -179,6 +181,10 @@ const UserPromo: React.FC = () => {
         }
         const completedCount = (bookings || []).filter(b => b.is_free_promo && b.status === 'completed').length;
         setCompletedPromoCount(completedCount);
+
+        // Fetch booked slots
+        const slotsRes = await fetchPromoBookedSlots();
+        setBookedPromoSlots(slotsRes.booked_slots);
       } catch (err) {
         console.error("Error checking active promo bookings:", err);
       } finally {
@@ -190,7 +196,7 @@ const UserPromo: React.FC = () => {
     } else {
       setFetchingActive(false);
     }
-  }, [user, todayStr]);
+  }, [user, targetTuesdayStr]);
 
   useEffect(() => {
     if (!activePromoBooking) {
@@ -199,6 +205,10 @@ const UserPromo: React.FC = () => {
     }
     if (activePromoBooking.status === 'completed') {
       setCountdownText('Ritual Completed');
+      return;
+    }
+    if (activePromoBooking.status === 'expired') {
+      setCountdownText('Awoof Expired');
       return;
     }
     if (activePromoBooking.status === 'cancelled') {
@@ -231,31 +241,15 @@ const UserPromo: React.FC = () => {
     return () => clearInterval(interval);
   }, [activePromoBooking]);
 
-  const getVisibleTimes = () => {
-    const now = new Date();
-    const currentHour = now.getHours();
-    const currentMin = now.getMinutes();
-    
-    return allTimeSlots.filter(slot => {
-      const [time, modifier] = slot.split(' ');
-      const parts = time.split(':').map(Number);
-      let hour = parts[0];
-      const min = parts[1];
-      
-      if (modifier === 'PM' && hour < 12) hour += 12;
-      if (modifier === 'AM' && hour === 12) hour = 0;
-
-      if (hour > currentHour) return true;
-      if (hour === currentHour && min > currentMin + 30) return true;
-      return false;
-    });
-  };
-
-  const visibleTimes = getVisibleTimes();
+  const isPromoFullyBooked = ["12:00 PM", "02:00 PM", "04:00 PM", "06:00 PM"].every(slot => bookedPromoSlots.includes(slot));
 
   const handleBookingSubmit = async () => {
-    if (!isTuesday) {
-      toast.error("Free Tuesday Grooming can only be booked on Tuesdays.");
+    if (!isBookingWindowOpen) {
+      toast.error("Free Tuesday Grooming can only be booked during the active window.");
+      return;
+    }
+    if (isPromoFullyBooked) {
+      toast.error("All slots for the upcoming Tuesday have already been booked.");
       return;
     }
     if (!selectedService) {
@@ -285,7 +279,7 @@ const UserPromo: React.FC = () => {
 
       const bookingData = {
         service: selectedService.name,
-        date: `${todayStr}T${formattedTime}`,
+        date: `${targetTuesdayStr}T${formattedTime}`,
         barber: 'Any',
         amount: 0.0,
         is_free_promo: true,
@@ -365,11 +359,11 @@ const UserPromo: React.FC = () => {
               fontSize: '1.2rem', 
               fontFamily: 'monospace', 
               fontWeight: 800, 
-              color: nextActiveIsActive ? '#2ecc71' : 'var(--gold)', 
+              color: (isBookingWindowOpen && !isPromoFullyBooked) ? '#2ecc71' : 'var(--gold)', 
               letterSpacing: '0.5px',
-              textShadow: nextActiveIsActive ? '0 0 10px rgba(46, 204, 113, 0.3)' : '0 0 10px rgba(212, 175, 55, 0.2)'
+              textShadow: (isBookingWindowOpen && !isPromoFullyBooked) ? '0 0 10px rgba(46, 204, 113, 0.3)' : '0 0 10px rgba(212, 175, 55, 0.2)'
             }}>
-              {nextActiveText}
+              {(isBookingWindowOpen && !isPromoFullyBooked) ? 'ACTIVE NOW' : nextActiveText}
             </div>
           </div>
         </motion.header>
@@ -462,22 +456,26 @@ const UserPromo: React.FC = () => {
 
           {/* Active Promo Claimed Card (MTN Awoof Tuesday style) */}
           {activePromoBooking ? (
-            <div className="dashboard-card premium-card-bg" style={{ border: activePromoBooking.status === 'completed' ? '1px solid rgba(46, 204, 113, 0.3)' : '1px solid rgba(212, 175, 55, 0.3)', boxShadow: activePromoBooking.status === 'completed' ? '0 8px 32px rgba(46, 204, 113, 0.05)' : '0 8px 32px rgba(212, 175, 55, 0.15)' }}>
+            <div className="dashboard-card premium-card-bg" style={{ border: activePromoBooking.status === 'completed' ? '1px solid rgba(46, 204, 113, 0.3)' : activePromoBooking.status === 'expired' ? '1px solid rgba(231, 76, 60, 0.3)' : '1px solid rgba(212, 175, 55, 0.3)', boxShadow: activePromoBooking.status === 'completed' ? '0 8px 32px rgba(46, 204, 113, 0.05)' : activePromoBooking.status === 'expired' ? '0 8px 32px rgba(231, 76, 60, 0.05)' : '0 8px 32px rgba(212, 175, 55, 0.15)' }}>
               <div className="card-header" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '1rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <div style={{ backgroundColor: activePromoBooking.status === 'completed' ? 'rgba(46, 204, 113, 0.1)' : 'rgba(212, 175, 55, 0.1)', padding: '8px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ backgroundColor: activePromoBooking.status === 'completed' ? 'rgba(46, 204, 113, 0.1)' : activePromoBooking.status === 'expired' ? 'rgba(231, 76, 60, 0.1)' : 'rgba(212, 175, 55, 0.1)', padding: '8px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   {activePromoBooking.status === 'completed' ? (
                     <Check style={{ color: '#2ecc71' }} size={24} />
+                  ) : activePromoBooking.status === 'expired' ? (
+                    <XCircle style={{ color: '#e74c3c' }} size={24} />
                   ) : (
                     <Sparkles className="text-gold" size={24} style={{ animation: 'pulse 2s infinite' }} />
                   )}
                 </div>
                 <div>
                   <h2 style={{ margin: 0 }}>
-                    {activePromoBooking.status === 'completed' ? 'Awoof Ritual Complete' : 'Tuesday Awoof Secured'}
+                    {activePromoBooking.status === 'completed' ? 'Awoof Ritual Complete' : activePromoBooking.status === 'expired' ? 'Tuesday Awoof Expired' : 'Tuesday Awoof Secured'}
                   </h2>
                   <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
                     {activePromoBooking.status === 'completed' 
                       ? 'Thank you for participating! We hope you love your signature walk-in groom.' 
+                      : activePromoBooking.status === 'expired'
+                      ? 'This booking has expired because you did not check in on time.'
                       : 'You have successfully claimed your free walk-in session for today!'}
                   </p>
                 </div>
@@ -542,6 +540,18 @@ const UserPromo: React.FC = () => {
                       Your walk-in groom has been successfully verified by our barber. Enjoy your fresh new style!
                     </p>
                   </div>
+                ) : activePromoBooking.status === 'expired' ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(231, 76, 60, 0.02)', border: '1px dashed rgba(231, 76, 60, 0.15)', borderRadius: '12px', padding: '1.5rem', textAlign: 'center' }}>
+                    <div style={{ width: '70px', height: '70px', borderRadius: '50%', backgroundColor: 'rgba(231, 76, 60, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.75rem' }}>
+                      <XCircle style={{ color: '#e74c3c' }} size={32} />
+                    </div>
+                    <strong style={{ color: '#e74c3c', fontSize: '1.1rem', letterSpacing: '0.5px' }}>
+                      Code Deactivated
+                    </strong>
+                    <p style={{ color: '#ccc', fontSize: '0.75rem', marginTop: '6px', maxWidth: '220px', margin: '6px auto 0', lineHeight: '1.4' }}>
+                      This check-in code has expired and can no longer be used.
+                    </p>
+                  </div>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.01)', border: '1px dashed rgba(255,255,255,0.08)', borderRadius: '12px', padding: '1.5rem' }}>
                     <div style={{ padding: '16px', backgroundColor: '#fff', borderRadius: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.5)', display: 'inline-block' }}>
@@ -551,10 +561,10 @@ const UserPromo: React.FC = () => {
                         alt={activePromoBooking.check_in_code} 
                       />
                     </div>
-                    <strong style={{ color: 'var(--gold)', letterSpacing: '1px', marginTop: '1rem', fontSize: '1rem', fontFamily: 'monospace' }}>
+                    <span style={{ fontSize: '10px', color: 'var(--gold)', letterSpacing: '1.5px', fontWeight: 'bold', marginTop: '1rem' }}>SCAN ON ARRIVAL</span>
+                    <strong style={{ fontSize: '1.25rem', color: '#fff', marginTop: '0.25rem', letterSpacing: '1px', fontFamily: 'monospace' }}>
                       {activePromoBooking.check_in_code}
                     </strong>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '4px' }}>SHOW QR AT THE RITUAL CHECK-IN</span>
                   </div>
                 )}
               </div>
@@ -562,10 +572,44 @@ const UserPromo: React.FC = () => {
           ) : (
             <div className="dashboard-card premium-card-bg" style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.2)' }}>
               <div className="card-header" style={{ marginBottom: '1.5rem' }}>
-                <h2><Calendar size={20} /> Reserve Today's Session</h2>
+                <h2><Calendar size={20} /> Reserve Free Tuesday Slot</h2>
               </div>
 
-              {isTuesday ? (
+              {!isBookingWindowOpen ? (
+                <div style={{ textAlign: 'center', padding: '3rem 1.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.25rem' }}>
+                  <div style={{ width: '60px', height: '60px', borderRadius: '50%', backgroundColor: 'rgba(212, 175, 55, 0.05)', border: '1px solid rgba(212, 175, 55, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Clock size={30} className="text-gold" />
+                  </div>
+                  <div>
+                    <h3 style={{ margin: '0 0 0.5rem', fontSize: '1.25rem' }}>Booking Window Closed</h3>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', maxWidth: '440px', margin: 0, lineHeight: '1.6' }}>
+                      Free Tuesday slots can only be reserved in advance between Wednesday 12:00 AM and Monday 11:59 PM. Please return when the next window opens!
+                    </p>
+                  </div>
+                </div>
+              ) : isPromoFullyBooked ? (
+                <div style={{ textAlign: 'center', padding: '3rem 1.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.25rem' }}>
+                  <div style={{ width: '60px', height: '60px', borderRadius: '50%', backgroundColor: 'rgba(212, 175, 55, 0.05)', border: '1px solid rgba(212, 175, 55, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Clock size={30} className="text-gold" />
+                  </div>
+                  <div>
+                    <h3 style={{ margin: '0 0 0.5rem', fontSize: '1.25rem' }}>All Slots Claimed</h3>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', maxWidth: '440px', margin: '0 auto 1.25rem', lineHeight: '1.6' }}>
+                      All promotional free slots for the upcoming Tuesday have already been booked. Please wait until the next booking window opens to book for the following Tuesday.
+                    </p>
+                    <div style={{ 
+                      fontSize: '1.2rem', 
+                      fontFamily: 'monospace', 
+                      fontWeight: 800, 
+                      color: 'var(--gold)',
+                      letterSpacing: '0.5px',
+                      textTransform: 'uppercase'
+                    }}>
+                      Next Booking Opens In: {nextActiveText}
+                    </div>
+                  </div>
+                </div>
+              ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
                   
                   {/* Step 1: Select Service */}
@@ -602,32 +646,67 @@ const UserPromo: React.FC = () => {
 
                   {/* Step 2: Choose Time */}
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--text-secondary)', marginBottom: '0.75rem', fontWeight: 'bold' }}>2. Select Time Slot (Today)</label>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '0.75rem' }}>
-                      {visibleTimes.length > 0 ? visibleTimes.map(t => (
-                        <button 
-                          key={t}
-                          style={{
-                            padding: '0.75rem',
-                            borderRadius: '4px',
-                            border: '1px solid',
-                            borderColor: selectedTime === t ? 'var(--gold)' : 'rgba(255,255,255,0.1)',
-                            backgroundColor: selectedTime === t ? 'var(--gold)' : 'transparent',
-                            color: selectedTime === t ? 'var(--primary)' : 'var(--white)',
-                            fontWeight: '600',
-                            cursor: 'pointer',
-                            fontSize: '0.85rem',
-                            transition: 'all 0.2s ease'
-                          }}
-                          onClick={() => setSelectedTime(t)}
-                        >
-                          {t}
-                        </button>
-                      )) : (
-                        <div style={{ gridColumn: '1 / -1', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-                          No more time slots are available for walk-ins today. Please check back next Tuesday.
-                        </div>
-                      )}
+                    <label style={{ display: 'block', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--text-secondary)', marginBottom: '0.75rem', fontWeight: 'bold' }}>2. Select Time Slot (Next Tuesday)</label>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(110px, 1fr))', gap: '0.75rem' }}>
+                      {allTimeSlots.map(t => {
+                        const isPromoSlot = ["12:00 PM", "02:00 PM", "04:00 PM", "06:00 PM"].includes(t);
+                        const isBooked = bookedPromoSlots.includes(t);
+                        
+                        if (!isPromoSlot || isBooked) {
+                          return (
+                            <button 
+                              key={t}
+                              type="button"
+                              disabled={true}
+                              style={{
+                                padding: '0.65rem 0.5rem',
+                                borderRadius: '6px',
+                                border: '1px solid rgba(255, 255, 255, 0.05)',
+                                backgroundColor: 'rgba(255, 255, 255, 0.02)',
+                                color: 'rgba(255, 255, 255, 0.15)',
+                                fontWeight: '600',
+                                cursor: 'not-allowed',
+                                fontSize: '0.8rem',
+                                textDecoration: 'line-through',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                gap: '2px'
+                              }}
+                            >
+                              <span>{t}</span>
+                              <span style={{ fontSize: '0.6rem', color: 'rgba(235, 87, 87, 0.4)', textDecoration: 'none', fontWeight: 'bold', textTransform: 'uppercase' }}>Booked</span>
+                            </button>
+                          );
+                        }
+
+                        return (
+                          <button 
+                            key={t}
+                            type="button"
+                            style={{
+                              padding: '0.65rem 0.5rem',
+                              borderRadius: '6px',
+                              border: '1px solid',
+                              borderColor: selectedTime === t ? 'var(--gold)' : 'rgba(255, 255, 255, 0.1)',
+                              backgroundColor: selectedTime === t ? 'var(--gold)' : 'transparent',
+                              color: selectedTime === t ? 'var(--primary)' : 'var(--white)',
+                              fontWeight: '600',
+                              cursor: 'pointer',
+                              fontSize: '0.8rem',
+                              transition: 'all 0.2s ease',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              alignItems: 'center',
+                              gap: '2px'
+                            }}
+                            onClick={() => setSelectedTime(t)}
+                          >
+                            <span>{t}</span>
+                            <span style={{ fontSize: '0.6rem', color: selectedTime === t ? 'var(--primary)' : 'var(--gold)', fontWeight: 'bold', textTransform: 'uppercase' }}>Available</span>
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
 
@@ -676,18 +755,6 @@ const UserPromo: React.FC = () => {
                     )}
                   </button>
 
-                </div>
-              ) : (
-                <div style={{ textAlign: 'center', padding: '3rem 1.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.25rem' }}>
-                  <div style={{ width: '60px', height: '60px', borderRadius: '50%', backgroundColor: 'rgba(212, 175, 55, 0.05)', border: '1px solid rgba(212, 175, 55, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Clock size={30} className="text-gold" />
-                  </div>
-                  <div>
-                    <h3 style={{ margin: '0 0 0.5rem', fontSize: '1.25rem' }}>Booking Window Closed</h3>
-                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', maxWidth: '440px', margin: 0, lineHeight: '1.6' }}>
-                      Free Tuesday walk-in slots can only be reserved on <strong>Tuesdays</strong> for same-day sessions. Advanced booking is disabled. Please return on Tuesday morning to book your free seat!
-                    </p>
-                  </div>
                 </div>
               )}
             </div>

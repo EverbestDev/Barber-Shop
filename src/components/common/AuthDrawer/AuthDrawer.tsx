@@ -37,8 +37,11 @@ const AuthDrawer: React.FC<AuthDrawerProps> = ({ onClose }) => {
       login(userData);
       toast.success(`Welcome to the studio, ${userData.name.split(' ')[0]}!`, { id: loadToast });
       onClose();
-      const redirect = sessionStorage.getItem('redirectAfterAuth') || '/dashboard';
+      let redirect = sessionStorage.getItem('redirectAfterAuth') || '/dashboard';
       sessionStorage.removeItem('redirectAfterAuth');
+      if (userData.role === 'admin' && redirect === '/dashboard/promo') {
+        redirect = '/dashboard/promo-bookings';
+      }
       navigate(redirect);
     } catch(err: any) {
       toast.error(err.response?.data?.detail || 'Google Authentication failed.', { id: loadToast });
@@ -104,8 +107,11 @@ const AuthDrawer: React.FC<AuthDrawerProps> = ({ onClose }) => {
         login(userData);
         toast.success(`Welcome back, ${userData.name.split(' ')[0]}!`, { id: loadToast });
         onClose();
-        const redirect = sessionStorage.getItem('redirectAfterAuth') || '/dashboard';
+        let redirect = sessionStorage.getItem('redirectAfterAuth') || '/dashboard';
         sessionStorage.removeItem('redirectAfterAuth');
+        if (userData.role === 'admin' && redirect === '/dashboard/promo') {
+          redirect = '/dashboard/promo-bookings';
+        }
         navigate(redirect);
       } else {
         // Registration: get token but show OTP screen first, don't go to dashboard yet
@@ -134,8 +140,11 @@ const AuthDrawer: React.FC<AuthDrawerProps> = ({ onClose }) => {
       const userData = await fetchCurrentUser();
       login(userData);
       onClose();
-      const redirect = sessionStorage.getItem('redirectAfterAuth') || '/dashboard';
+      let redirect = sessionStorage.getItem('redirectAfterAuth') || '/dashboard';
       sessionStorage.removeItem('redirectAfterAuth');
+      if (userData.role === 'admin' && redirect === '/dashboard/promo') {
+        redirect = '/dashboard/promo-bookings';
+      }
       navigate(redirect);
     } catch (err: any) {
       toast.error(err.response?.data?.detail || "Invalid code. Please try again.", { id: verifToast });
@@ -179,8 +188,11 @@ const AuthDrawer: React.FC<AuthDrawerProps> = ({ onClose }) => {
       setOtpCode('');
       
       onClose();
-      const redirect = sessionStorage.getItem('redirectAfterAuth') || '/dashboard';
+      let redirect = sessionStorage.getItem('redirectAfterAuth') || '/dashboard';
       sessionStorage.removeItem('redirectAfterAuth');
+      if (userData.role === 'admin' && redirect === '/dashboard/promo') {
+        redirect = '/dashboard/promo-bookings';
+      }
       navigate(redirect);
     } catch (err: any) {
       toast.error(err.response?.data?.detail || "Invalid code. Please try again.", { id: rsToast });

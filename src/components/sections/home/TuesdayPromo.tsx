@@ -3,24 +3,31 @@ import { motion } from 'framer-motion';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { Gift, Video, Calendar, Sparkles, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '../../../context/AuthContext';
+import { fetchPromoBookedSlots } from '../../../api/bookings';
 import './TuesdayPromo.css';
 
 const TuesdayPromo: React.FC = () => {
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, user } = useAuth();
   const navigate = useNavigate();
   const { onAuthOpen } = useOutletContext<{ onAuthOpen: () => void }>();
 
   const handleBookClick = (e: React.MouseEvent) => {
     e.preventDefault();
     if (isLoggedIn) {
-      navigate('/dashboard/promo');
+      if (user?.role === 'admin') {
+        navigate('/dashboard/promo-bookings');
+      } else {
+        navigate('/dashboard/promo');
+      }
     } else {
       sessionStorage.setItem('redirectAfterAuth', '/dashboard/promo');
       onAuthOpen();
     }
   };
-  const [nextActiveText, setNextActiveText] = useState<string>('00d : 00h : 00m : 00s');
-  const [nextActiveIsActive, setNextActiveIsActive] = useState<boolean>(false);
+
+  const [promoStatus, setPromoStatus] = useState<string>('CLOSED');
+  const [countdownText, setCountdownText] = useState<string>('00d : 00h : 00m : 00s');
+  const [isFullyBooked, setIsFullyBooked] = useState<boolean>(false);
 
   const getNextActiveTimeText = () => {
     const now = new Date();
@@ -31,9 +38,9 @@ const TuesdayPromo: React.FC = () => {
     const lHour = parseInt(londonHourStr, 10);
     
     const weekdayMap: Record<string, number> = {
-      'Sunday': 0, 'Monday': 1, 'Tuesday': 2, 'Wednesday': 3, 'Thursday': 4, 'Friday': 5, 'Saturday': 6
+      'Monday': 0, 'Tuesday': 1, 'Wednesday': 2, 'Thursday': 3, 'Friday': 4, 'Saturday': 5, 'Sunday': 6
     };
-    const lWeekday = weekdayMap[weekdayName] ?? now.getDay();
+    const lWeekday = weekdayMap[weekdayName] ?? 0;
     
     // Compute London's local year, month, day, min, sec for accurate math
     const formatter = new Intl.DateTimeFormat('en-US', {
@@ -57,30 +64,25 @@ const TuesdayPromo: React.FC = () => {
 
     const lCurrentUTC = Date.UTC(lYear, lMonth, lDay, lHour, lMin, lSec);
 
-    // Days until next Tuesday (Tuesday = 2)
-    let daysUntilTuesday = (2 - lWeekday + 7) % 7;
-
-    let isActive = false;
-    if (lWeekday === 2) {
-      if (lHour < 10) {
-        daysUntilTuesday = 0;
-      } else if (lHour >= 18) {
-        daysUntilTuesday = 7;
-      } else {
-        isActive = true;
-      }
+    // If window is open (not Tuesday) and not fully booked, it's live!
+    if (lWeekday !== 1 && !isFullyBooked) {
+      return { status: 'LIVE', text: 'ACTIVE NOW' };
     }
 
-    if (isActive) {
-      return { isActive: true, text: 'ACTIVE NOW' };
+    // Otherwise, we are closed (either because it is Tuesday or all slots are booked)
+    // We countdown to the next Wednesday 12:00 AM (00:00:00)
+    let daysToWednesday = 0;
+    if (lWeekday === 0 || lWeekday === 1) {
+      daysToWednesday = 2 - lWeekday;
+    } else {
+      daysToWednesday = 9 - lWeekday;
     }
 
-    // Target date: next Tuesday at 10:00:00 London local time
-    const targetUTC = Date.UTC(lYear, lMonth, lDay + daysUntilTuesday, 10, 0, 0);
+    const targetUTC = Date.UTC(lYear, lMonth, lDay + daysToWednesday, 0, 0, 0);
     const diffMs = targetUTC - lCurrentUTC;
 
     if (diffMs <= 0) {
-      return { isActive: true, text: 'ACTIVE NOW' };
+      return { status: 'LIVE', text: 'ACTIVE NOW' };
     }
 
     const totalSecs = Math.floor(diffMs / 1000);
@@ -91,21 +93,35 @@ const TuesdayPromo: React.FC = () => {
 
     const pad = (num: number) => num.toString().padStart(2, '0');
     return {
-      isActive: false,
+      status: isFullyBooked ? 'ALL BOOKED' : 'CLOSED',
       text: `${pad(days)}d : ${pad(hours)}h : ${pad(mins)}m : ${pad(secs)}s`
     };
   };
 
   useEffect(() => {
+    const checkBookingSlots = async () => {
+      try {
+        const res = await fetchPromoBookedSlots();
+        const promoSlots = ["12:00 PM", "02:00 PM", "04:00 PM", "06:00 PM"];
+        const allTaken = promoSlots.every(slot => res.booked_slots.includes(slot));
+        setIsFullyBooked(allTaken);
+      } catch (err) {
+        console.error("Error checking promo slots:", err);
+      }
+    };
+    checkBookingSlots();
+  }, []);
+
+  useEffect(() => {
     const updateNextActive = () => {
       const res = getNextActiveTimeText();
-      setNextActiveText(res.text);
-      setNextActiveIsActive(res.isActive);
+      setCountdownText(res.text);
+      setPromoStatus(res.status);
     };
     updateNextActive();
     const interval = setInterval(updateNextActive, 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [isFullyBooked]);
 
   return (
     <section id="tuesday-promo" className="tuesday-promo-section section-padding">
@@ -142,7 +158,7 @@ const TuesdayPromo: React.FC = () => {
                 </li>
                 <li>
                   <CheckCircle2 size={18} className="text-gold" />
-                  <span><strong>Tuesdays Only:</strong> Same-day booking only. No advanced bookings.</span>
+                  <span><strong>Tuesdays Only:</strong> Free Tuesday sessions run on Tuesdays. Booking is open in advance from Wednesday 12:00 AM to Monday 11:59 PM.</span>
                 </li>
                 <li>
                   <CheckCircle2 size={18} className="text-gold" />
@@ -151,10 +167,26 @@ const TuesdayPromo: React.FC = () => {
               </ul>
               
               <div className="promo-action-group">
-                <button onClick={handleBookClick} className="btn-filled tuesday-promo-btn" style={{ cursor: 'pointer' }}>
-                  <Gift size={18} /> Book Free Session
+                <button 
+                  onClick={handleBookClick} 
+                  disabled={promoStatus !== 'LIVE'} 
+                  className="btn-filled tuesday-promo-btn" 
+                  style={{ 
+                    cursor: promoStatus === 'LIVE' ? 'pointer' : 'not-allowed',
+                    opacity: promoStatus === 'LIVE' ? 1 : 0.5
+                  }}
+                >
+                  <Gift size={18} /> {promoStatus === 'ALL BOOKED' ? 'All Slots Claimed' : promoStatus === 'CLOSED' ? 'Window Closed' : 'Book Free Session'}
                 </button>
-                <button onClick={handleBookClick} className="btn-outlined tuesday-promo-info" style={{ cursor: 'pointer' }}>
+                <button 
+                  onClick={handleBookClick} 
+                  disabled={promoStatus !== 'LIVE'} 
+                  className="btn-outlined tuesday-promo-info" 
+                  style={{ 
+                    cursor: promoStatus === 'LIVE' ? 'pointer' : 'not-allowed',
+                    opacity: promoStatus === 'LIVE' ? 1 : 0.5
+                  }}
+                >
                   Learn More
                 </button>
               </div>
@@ -169,7 +201,7 @@ const TuesdayPromo: React.FC = () => {
                   <div className="visual-divider"></div>
                   <div className="visual-info-row">
                     <Calendar size={18} className="text-gold" />
-                    <span>Every Tuesday: 10AM - 6PM</span>
+                    <span>Every Tuesday: 10AM - 7PM</span>
                   </div>
                   <div className="visual-info-row">
                     <Video size={18} className="text-gold" />
@@ -179,14 +211,16 @@ const TuesdayPromo: React.FC = () => {
                   <div className="visual-countdown-wrapper">
                     <div className="visual-status-row">
                       <span style={{ color: 'var(--text-secondary)' }}>Status:</span>
-                      <span className={`visual-status-badge ${nextActiveIsActive ? 'live' : 'closed'}`}>
-                        {nextActiveIsActive ? 'LIVE' : 'CLOSED'}
+                      <span className={`visual-status-badge ${promoStatus === 'LIVE' ? 'live' : 'closed'}`}>
+                        {promoStatus}
                       </span>
                     </div>
-                    {!nextActiveIsActive && (
+                    {promoStatus !== 'LIVE' && (
                       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '0.5rem' }}>
-                        <span style={{ fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.5px', color: '#8a8678', marginBottom: '2px' }}>Next Active In</span>
-                        <div className="visual-countdown-time">{nextActiveText}</div>
+                        <span style={{ fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.5px', color: '#8a8678', marginBottom: '2px' }}>
+                          {promoStatus === 'ALL BOOKED' ? 'Next Booking Opens In' : 'Next Active In'}
+                        </span>
+                        <div className="visual-countdown-time">{countdownText}</div>
                       </div>
                     )}
                   </div>

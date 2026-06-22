@@ -83,7 +83,7 @@ const Layout: React.FC = () => {
 
       {hasPromo && (
         <div className="promo-announcement-bar">
-          <span className="promo-text-desktop">🎉 PROMO: Free Tuesday Walk-In Grooming!</span>
+          <span className="promo-text-desktop">🎉 PROMO: Free Tuesday Grooming!</span>
           <span className="promo-text-mobile">🎉 Free Tuesday Grooming!</span>
           <Link to="/#tuesday-promo" onClick={handlePromoBannerClick}>Book Free</Link>
         </div>

@@ -202,16 +202,23 @@ const BookingSuccess: React.FC = () => {
                     </div>
                     <div style={{ marginBottom: '12px', display: 'flex', justifyContent: 'space-between' }}>
                       <span style={{ color: '#666' }}>Code:</span>
-                      <span style={{ fontWeight: 800, color: '#d4af37', letterSpacing: '0.5px' }}>{booking.check_in_code}</span>
+                      <span style={{ fontWeight: 800, color: booking.status === 'expired' ? '#e74c3c' : '#d4af37', letterSpacing: '0.5px', textDecoration: booking.status === 'expired' ? 'line-through' : 'none' }}>{booking.check_in_code}</span>
                     </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '10px', borderTop: '1px solid #eee', paddingTop: '10px' }}>
-                      <img 
-                        src={`https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${booking.check_in_code}`} 
-                        style={{ width: '100px', height: '100px', border: '2px solid #000', padding: '4px', backgroundColor: '#fff', display: 'block' }} 
-                        alt={booking.check_in_code} 
-                      />
-                      <span style={{ fontSize: '8px', color: '#666', marginTop: '6px', letterSpacing: '1px', fontWeight: 'bold' }}>SCAN TO CHECK-IN</span>
-                    </div>
+                    {booking.status === 'expired' ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '10px', borderTop: '1px solid #eee', paddingTop: '10px' }}>
+                        <span style={{ fontSize: '12px', color: '#e74c3c', fontWeight: 'bold', letterSpacing: '1.5px' }}>EXPIRED / DEACTIVATED</span>
+                        <span style={{ fontSize: '8px', color: '#888', marginTop: '4px' }}>This free check-in code has expired</span>
+                      </div>
+                    ) : (
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '10px', borderTop: '1px solid #eee', paddingTop: '10px' }}>
+                        <img 
+                          src={`https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${booking.check_in_code}`} 
+                          style={{ width: '100px', height: '100px', border: '2px solid #000', padding: '4px', backgroundColor: '#fff', display: 'block' }} 
+                          alt={booking.check_in_code} 
+                        />
+                        <span style={{ fontSize: '8px', color: '#666', marginTop: '6px', letterSpacing: '1px', fontWeight: 'bold' }}>SCAN TO CHECK-IN</span>
+                      </div>
+                    )}
                   </div>
                 )}
 
