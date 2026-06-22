@@ -455,13 +455,43 @@ const UserPromo: React.FC = () => {
           </div>
 
           {/* Active Promo Claimed Card (MTN Awoof Tuesday style) */}
-          {activePromoBooking ? (
-            <div className="dashboard-card premium-card-bg" style={{ border: activePromoBooking.status === 'completed' ? '1px solid rgba(46, 204, 113, 0.3)' : activePromoBooking.status === 'expired' ? '1px solid rgba(231, 76, 60, 0.3)' : '1px solid rgba(212, 175, 55, 0.3)', boxShadow: activePromoBooking.status === 'completed' ? '0 8px 32px rgba(46, 204, 113, 0.05)' : activePromoBooking.status === 'expired' ? '0 8px 32px rgba(231, 76, 60, 0.05)' : '0 8px 32px rgba(212, 175, 55, 0.15)' }}>
+          {activePromoBooking && activePromoBooking.status === 'completed' ? (
+            <div className="dashboard-card premium-card-bg" style={{ textAlign: 'center', padding: '3.5rem 1.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem', border: '1px solid rgba(46, 204, 113, 0.3)', boxShadow: '0 8px 32px rgba(46, 204, 113, 0.05)', borderRadius: '12px' }}>
+              <div style={{ width: '80px', height: '80px', borderRadius: '50%', backgroundColor: 'rgba(46, 204, 113, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Check style={{ color: '#2ecc71' }} size={40} />
+              </div>
+              <div>
+                <h2 style={{ color: '#2ecc71', margin: '0 0 0.75rem', fontSize: '1.75rem', letterSpacing: '0.5px' }}>
+                  Grooming Complete
+                </h2>
+                <p style={{ color: '#ccc', fontSize: '0.95rem', maxWidth: '480px', margin: '0 auto 1.75rem', lineHeight: '1.6' }}>
+                  Thank you for participating in our community outreach! We hope you love your new signature style. Your session has been successfully completed and checked in. Stay sharp!
+                </p>
+                <div style={{ 
+                  background: 'rgba(255, 255, 255, 0.02)',
+                  border: '1px solid rgba(255, 255, 255, 0.05)',
+                  borderRadius: '12px',
+                  padding: '1.25rem 2rem',
+                  display: 'inline-block'
+                }}>
+                  <span style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '2px', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>Next Booking Cycle Opens In</span>
+                  <div style={{ 
+                    fontSize: '1.5rem', 
+                    fontFamily: 'monospace', 
+                    fontWeight: 900, 
+                    color: 'var(--gold)',
+                    letterSpacing: '1px'
+                  }}>
+                    {nextActiveText}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : activePromoBooking ? (
+            <div className="dashboard-card premium-card-bg" style={{ border: activePromoBooking.status === 'expired' ? '1px solid rgba(231, 76, 60, 0.3)' : '1px solid rgba(212, 175, 55, 0.3)', boxShadow: activePromoBooking.status === 'expired' ? '0 8px 32px rgba(231, 76, 60, 0.05)' : '0 8px 32px rgba(212, 175, 55, 0.15)' }}>
               <div className="card-header" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '1rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <div style={{ backgroundColor: activePromoBooking.status === 'completed' ? 'rgba(46, 204, 113, 0.1)' : activePromoBooking.status === 'expired' ? 'rgba(231, 76, 60, 0.1)' : 'rgba(212, 175, 55, 0.1)', padding: '8px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  {activePromoBooking.status === 'completed' ? (
-                    <Check style={{ color: '#2ecc71' }} size={24} />
-                  ) : activePromoBooking.status === 'expired' ? (
+                <div style={{ backgroundColor: activePromoBooking.status === 'expired' ? 'rgba(231, 76, 60, 0.1)' : 'rgba(212, 175, 55, 0.1)', padding: '8px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {activePromoBooking.status === 'expired' ? (
                     <XCircle style={{ color: '#e74c3c' }} size={24} />
                   ) : (
                     <Sparkles className="text-gold" size={24} style={{ animation: 'pulse 2s infinite' }} />
@@ -469,12 +499,10 @@ const UserPromo: React.FC = () => {
                 </div>
                 <div>
                   <h2 style={{ margin: 0 }}>
-                    {activePromoBooking.status === 'completed' ? 'Awoof Ritual Complete' : activePromoBooking.status === 'expired' ? 'Tuesday Awoof Expired' : 'Tuesday Awoof Secured'}
+                    {activePromoBooking.status === 'expired' ? 'Tuesday Awoof Expired' : 'Tuesday Awoof Secured'}
                   </h2>
                   <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                    {activePromoBooking.status === 'completed' 
-                      ? 'Thank you for participating! We hope you love your signature walk-in groom.' 
-                      : activePromoBooking.status === 'expired'
+                    {activePromoBooking.status === 'expired'
                       ? 'This booking has expired because you did not check in on time.'
                       : 'You have successfully claimed your free walk-in session for today!'}
                   </p>
@@ -528,19 +556,7 @@ const UserPromo: React.FC = () => {
                   </div>
                 </div>
 
-                {activePromoBooking.status === 'completed' ? (
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(46, 204, 113, 0.02)', border: '1px dashed rgba(46, 204, 113, 0.15)', borderRadius: '12px', padding: '1.5rem', textAlign: 'center' }}>
-                    <div style={{ width: '70px', height: '70px', borderRadius: '50%', backgroundColor: 'rgba(46, 204, 113, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.75rem' }}>
-                      <Check style={{ color: '#2ecc71' }} size={32} />
-                    </div>
-                    <strong style={{ color: '#2ecc71', fontSize: '1.1rem', letterSpacing: '0.5px' }}>
-                      Ritual Checked In
-                    </strong>
-                    <p style={{ color: '#ccc', fontSize: '0.75rem', marginTop: '6px', maxWidth: '220px', margin: '6px auto 0', lineHeight: '1.4' }}>
-                      Your walk-in groom has been successfully verified by our barber. Enjoy your fresh new style!
-                    </p>
-                  </div>
-                ) : activePromoBooking.status === 'expired' ? (
+                {activePromoBooking.status === 'expired' ? (
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(231, 76, 60, 0.02)', border: '1px dashed rgba(231, 76, 60, 0.15)', borderRadius: '12px', padding: '1.5rem', textAlign: 'center' }}>
                     <div style={{ width: '70px', height: '70px', borderRadius: '50%', backgroundColor: 'rgba(231, 76, 60, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.75rem' }}>
                       <XCircle style={{ color: '#e74c3c' }} size={32} />
