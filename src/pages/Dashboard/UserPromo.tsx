@@ -70,9 +70,10 @@ const UserPromo: React.FC = () => {
         tuesday_promo_subscribed: updatedInfo.tuesday_promo_subscribed
       });
       toast.success(checked ? "Subscribed to Tuesday Promo reminders!" : "Unsubscribed from Tuesday Promo reminders.");
-    } catch (err: any) {
-      console.error(err);
-      toast.error(err.response?.data?.detail || err.message || "Failed to update subscription preference.");
+    } catch (err) {
+      const error = err as { response?: { data?: { detail?: string } }; message?: string };
+      console.error(error);
+      toast.error(error.response?.data?.detail || error.message || "Failed to update subscription preference.");
     } finally {
       setSubmittingSub(false);
     }
@@ -295,9 +296,10 @@ const UserPromo: React.FC = () => {
       
       toast.success("Free Tuesday session confirmed!", { id: loadingToast });
       window.location.href = `/booking/success?booking_id=${bookingId}`;
-    } catch (err: any) {
-      console.error(err);
-      toast.error(err.response?.data?.detail || err.message || "Booking failed. You may already have a booking for this Tuesday.", { id: loadingToast });
+    } catch (err) {
+      const error = err as { response?: { data?: { detail?: string } }; message?: string };
+      console.error(error);
+      toast.error(error.response?.data?.detail || error.message || "Booking failed. You may already have a booking for this Tuesday.", { id: loadingToast });
     } finally {
       setLoading(false);
     }

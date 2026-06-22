@@ -38,6 +38,8 @@ const AdminOverviewSkeleton = () => (
   </div>
 );
 
+const CHART_COLORS = ['#D4AF37', '#F1D87A', '#8C8C8C', '#E63946', '#2A9D8F', '#457B9D', '#1D3557', '#F4A261'];
+
 const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
   const [users, setUsers] = useState<UserInfo[]>([]);
@@ -46,8 +48,6 @@ const AdminDashboard: React.FC = () => {
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [chartFilter, setChartFilter] = useState<'service' | 'status' | 'payment'>('service');
   const [dateFilter, setDateFilter] = useState<'today' | '7days' | 'month' | 'year' | 'all'>('all');
-
-  const CHART_COLORS = ['#D4AF37', '#F1D87A', '#8C8C8C', '#E63946', '#2A9D8F', '#457B9D', '#1D3557', '#F4A261'];
 
   const getCoordinatesForPercent = (percent: number) => {
     const x = Math.cos(2 * Math.PI * percent);
@@ -381,7 +381,7 @@ const AdminDashboard: React.FC = () => {
                 <div className="flex gap-2">
                   <select 
                     value={dateFilter}
-                    onChange={(e) => setDateFilter(e.target.value as any)}
+                    onChange={(e) => setDateFilter(e.target.value as 'today' | '7days' | 'month' | 'year' | 'all')}
                     className="bg-black border border-white/10 rounded px-2 py-1 text-xs text-white cursor-pointer focus:outline-none focus:border-gold"
                   >
                     <option value="all">All Time</option>
@@ -392,7 +392,7 @@ const AdminDashboard: React.FC = () => {
                   </select>
                   <select 
                     value={chartFilter}
-                    onChange={(e) => setChartFilter(e.target.value as any)}
+                    onChange={(e) => setChartFilter(e.target.value as 'service' | 'status' | 'payment')}
                     className="bg-black border border-white/10 rounded px-2 py-1 text-xs text-white cursor-pointer focus:outline-none focus:border-gold"
                   >
                     <option value="service">Service Type</option>

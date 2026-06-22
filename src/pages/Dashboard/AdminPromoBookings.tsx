@@ -212,8 +212,9 @@ const AdminPromoBookings: React.FC = () => {
     try {
       await nudgeBooking(bookingId);
       toast.success("Nudge email sent successfully!", { id: loadToast });
-    } catch (err: any) {
-      toast.error(err.response?.data?.detail || "Nudge failed.", { id: loadToast });
+    } catch (err) {
+      const error = err as { response?: { data?: { detail?: string } } };
+      toast.error(error.response?.data?.detail || "Nudge failed.", { id: loadToast });
     }
   };
 
@@ -231,8 +232,9 @@ const AdminPromoBookings: React.FC = () => {
         return;
       }
       setScannedBooking(result);
-    } catch (err: any) {
-      setCheckInError(err.response?.data?.detail || "No active promo booking found with this code.");
+    } catch (err) {
+      const error = err as { response?: { data?: { detail?: string } } };
+      setCheckInError(error.response?.data?.detail || "No active promo booking found with this code.");
     } finally {
       setCheckInLoading(false);
     }
