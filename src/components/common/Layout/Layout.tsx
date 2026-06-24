@@ -42,7 +42,7 @@ const Layout: React.FC = () => {
     } else {
       window.scrollTo(0, 0);
     }
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+   
     setIsMobileMenuOpen(false);
   }, [location.pathname, location.hash]);
 
