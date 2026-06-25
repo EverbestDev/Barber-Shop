@@ -15,11 +15,11 @@ const Layout: React.FC = () => {
   const [isAuthDrawerOpen, setIsAuthDrawerOpen] = useState(false);
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
-  
+
   useEffect(() => {
-     if (searchParams.get('session_expired') === 'true') {
-         setIsAuthDrawerOpen(true);
-     }
+    if (searchParams.get('session_expired') === 'true') {
+      setIsAuthDrawerOpen(true);
+    }
   }, [location.search]);
 
   const { scrollYProgress } = useScroll();
@@ -42,7 +42,7 @@ const Layout: React.FC = () => {
     } else {
       window.scrollTo(0, 0);
     }
-   
+
     setIsMobileMenuOpen(false);
   }, [location.pathname, location.hash]);
 
@@ -64,7 +64,6 @@ const Layout: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Lock scroll when drawer is open
   useEffect(() => {
     if (isAuthDrawerOpen) {
       document.body.style.overflow = 'hidden';
@@ -89,13 +88,13 @@ const Layout: React.FC = () => {
         </div>
       )}
 
-      <Navbar 
-        isScrolled={isScrolled} 
-        isMobileMenuOpen={isMobileMenuOpen} 
-        setIsMobileMenuOpen={setIsMobileMenuOpen} 
+      <Navbar
+        isScrolled={isScrolled}
+        isMobileMenuOpen={isMobileMenuOpen}
+        setIsMobileMenuOpen={setIsMobileMenuOpen}
         onAuthOpen={() => setIsAuthDrawerOpen(true)}
       />
-      
+
       <div className="main-content">
         <Outlet context={{ onAuthOpen: () => setIsAuthDrawerOpen(true) }} />
       </div>
@@ -103,7 +102,7 @@ const Layout: React.FC = () => {
       <AnimatePresence>
         {isAuthDrawerOpen && (
           <>
-            <motion.div 
+            <motion.div
               className="drawer-overlay"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
